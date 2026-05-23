@@ -1,0 +1,242 @@
+/* ============================================================================
+   PokerSpot · Reusable Components (Variant 3 — Liquid Sport)
+   ----------------------------------------------------------------------------
+   Every value is a token from tokens.css. Components carry NO literal colors,
+   sizes, or fonts of their own — change the look in tokens.css, not here.
+   Mirrors the Flutter `lib/core/theme/components/` widgets 1:1.
+   Prefix: .ps-  (PokerSpot)
+   ========================================================================== */
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: var(--font-family-body);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-6) 0;
+  background:
+    radial-gradient(100% 55% at 20% 0%, var(--color-bg-bloom-a), transparent 55%),
+    radial-gradient(90% 50% at 95% 12%, var(--color-bg-bloom-b), transparent 50%),
+    linear-gradient(180deg, var(--color-bg-1), var(--color-bg-0));
+}
+
+/* ---- Device frame -------------------------------------------------------- */
+.ps-phone {
+  width: var(--screen-width); height: 844px; border-radius: 52px;
+  position: relative; overflow: hidden; display: flex; flex-direction: column;
+  background:
+    radial-gradient(120% 50% at 50% 0%, var(--color-bg-bloom-a), transparent 50%),
+    linear-gradient(180deg, var(--color-bg-1), var(--color-bg-0));
+  box-shadow: 0 0 0 11px #0c1c1f, 0 0 0 13px #163034, var(--elevation-5);
+}
+
+/* ---- Status bar ---------------------------------------------------------- */
+.ps-statusbar {
+  height: 54px; flex: none; display: flex; align-items: flex-end;
+  justify-content: space-between; padding: 0 30px 8px;
+  font-size: var(--type-body); font-weight: var(--weight-bold);
+  color: var(--color-text); position: relative; z-index: 5;
+}
+.ps-statusbar .ps-status-icons { display: flex; gap: 6px; }
+
+/* ---- Avatar -------------------------------------------------------------- */
+.ps-avatar {
+  width: 34px; height: 34px; border-radius: var(--radius-full);
+  background: linear-gradient(135deg, var(--color-accent-secondary), #0a84ff);
+  display: grid; place-items: center; color: var(--color-on-accent);
+  font-weight: var(--weight-bold); font-size: var(--type-subhead);
+}
+
+/* ---- Glass nav (top bar) ------------------------------------------------- */
+.ps-glass-nav {
+  position: relative; z-index: 5; display: flex; align-items: center;
+  justify-content: space-between; padding: var(--space-2) var(--space-5) var(--space-3);
+}
+.ps-brand {
+  font-family: var(--font-family-display);
+  font-size: var(--type-title); font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-tight); font-style: italic;
+}
+.ps-brand .accent { color: var(--color-accent-primary); }
+
+/* ---- Filter pill --------------------------------------------------------- */
+.ps-filter-pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 9px 13px;
+  border-radius: var(--radius-full);
+  font-size: var(--type-subhead); font-weight: var(--weight-bold);
+  color: var(--color-text); background: var(--glass-bg-thin);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur-thin)); -webkit-backdrop-filter: blur(var(--glass-blur-thin));
+  cursor: pointer; transition: transform var(--duration-fast) var(--ease-standard);
+}
+.ps-filter-pill:active { transform: scale(0.96); }
+.ps-filter-pill.is-active {
+  background: var(--color-accent-primary); color: var(--color-on-accent);
+  border-color: transparent;
+}
+
+/* ---- Toggle -------------------------------------------------------------- */
+.ps-toggle { display: inline-flex; align-items: center; gap: 7px;
+  font-size: var(--type-caption); font-weight: var(--weight-bold);
+  color: var(--color-text-muted); cursor: pointer; }
+.ps-toggle input { display: none; }
+.ps-toggle .track { width: 42px; height: 25px; border-radius: var(--radius-full);
+  background: var(--glass-bg-regular); border: 1px solid var(--glass-border);
+  position: relative; transition: background var(--duration-normal) var(--ease-standard); }
+.ps-toggle .track::after { content: ""; position: absolute; top: 2px; left: 2px;
+  width: 19px; height: 19px; border-radius: var(--radius-full); background: #fff;
+  transition: transform var(--duration-normal) var(--ease-standard); }
+.ps-toggle input:checked + .track { background: var(--color-accent-secondary); }
+.ps-toggle input:checked + .track::after { transform: translateX(17px); }
+
+/* ---- Section label / overline ------------------------------------------- */
+.ps-overline {
+  font-size: var(--type-micro); font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-overline); text-transform: uppercase;
+  color: var(--color-text-faint);
+}
+
+/* ---- Live indicator (pulsing dot) ---------------------------------------- */
+.ps-live-dot {
+  width: 6px; height: 6px; border-radius: var(--radius-full);
+  background: currentColor; display: inline-block;
+  animation: ps-pulse 1.6s infinite;
+}
+
+/* ---- Status badge -------------------------------------------------------- */
+.ps-status-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: var(--type-micro); font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-overline); padding: 4px 9px;
+  border-radius: var(--radius-sm); text-transform: uppercase;
+}
+.ps-status-badge.is-live   { background: var(--color-status-live); color: #fff; }
+.ps-status-badge.is-live .ps-live-dot { background: #fff; color: #fff; }
+.ps-status-badge.is-open   { background: color-mix(in srgb, var(--color-status-open) 18%, transparent);
+  color: var(--color-status-open); }
+.ps-status-badge.is-closed { background: var(--glass-bg-thin); color: var(--color-text-faint); }
+
+/* ---- Stake pill ---------------------------------------------------------- */
+.ps-stake-pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px;
+  border-radius: var(--radius-full); font-size: var(--type-caption);
+  font-weight: var(--weight-bold); color: var(--color-text);
+  background: var(--glass-bg-regular); border: 1px solid var(--glass-border);
+}
+.ps-stake-pill .type { color: var(--color-accent-primary); font-weight: var(--weight-black); }
+
+/* ---- Card ---------------------------------------------------------------- */
+.ps-card {
+  position: relative; border-radius: var(--radius-lg); overflow: hidden;
+  background: var(--glass-bg-thin); border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur-regular)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur-regular)) saturate(var(--glass-saturate));
+  box-shadow: var(--inset-highlight), var(--elevation-4);
+  transition: transform var(--duration-normal) var(--ease-standard);
+}
+.ps-card:active { transform: scale(0.985); }
+.ps-card .accent-rail { position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
+  background: var(--color-accent-primary); }
+.ps-card.is-secondary .accent-rail { background: var(--color-accent-secondary); }
+.ps-card.is-full .accent-rail   { background: var(--color-status-full); }
+.ps-card.is-open .accent-rail   { background: var(--color-status-open); }
+.ps-card.is-closed .accent-rail { background: var(--color-status-closed); }
+
+/* ---- Metric (scoreboard block) ------------------------------------------- */
+.ps-metric {
+  flex: 1; border-radius: var(--radius-md); padding: 12px 12px 11px;
+  background: var(--glass-bg-regular); border: 1px solid var(--glass-border);
+  position: relative;
+}
+.ps-metric::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-highlight), transparent); }
+.ps-metric .value {
+  font-family: var(--font-family-display);
+  font-size: var(--type-display-2); font-weight: var(--weight-black);
+  line-height: 0.9; letter-spacing: var(--tracking-tight); font-variant-numeric: tabular-nums;
+}
+.ps-metric.is-hero .value { font-size: var(--type-display-1); color: var(--color-accent-primary); }
+.ps-metric.is-full .value { color: var(--color-status-full); font-size: var(--type-display-2); }
+.ps-metric .label {
+  font-size: var(--type-micro); font-weight: var(--weight-black);
+  letter-spacing: var(--tracking-wide); color: var(--color-text-faint);
+  text-transform: uppercase; margin-top: 6px;
+}
+
+/* ---- Buttons ------------------------------------------------------------- */
+.ps-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 50px; padding: 0 var(--space-5); border-radius: var(--radius-md);
+  font-family: var(--font-family-body); font-size: var(--type-headline);
+  font-weight: var(--weight-bold); letter-spacing: var(--tracking-snug);
+  border: 1px solid transparent; cursor: pointer;
+  transition: transform var(--duration-fast) var(--ease-standard), filter var(--duration-fast);
+}
+.ps-btn:active { transform: scale(0.98); }
+.ps-btn--primary { background: var(--color-accent-primary); color: var(--color-on-accent); }
+.ps-btn--primary:hover { filter: brightness(1.07); }
+.ps-btn--secondary {
+  background: var(--glass-bg-regular); color: var(--color-text);
+  border-color: var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur-thin)); -webkit-backdrop-filter: blur(var(--glass-blur-thin));
+}
+
+/* ---- Form input ---------------------------------------------------------- */
+.ps-input {
+  width: 100%; min-height: 50px; padding: 0 var(--space-4);
+  background: var(--glass-bg-thin); border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md); color: var(--color-text);
+  font-family: var(--font-family-body); font-size: var(--type-headline);
+}
+.ps-input::placeholder { color: var(--color-text-faint); }
+.ps-input:focus { outline: none; border-color: var(--color-accent-secondary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-accent-secondary) 25%, transparent); }
+
+/* ---- Glass tab bar ------------------------------------------------------- */
+.ps-tabbar {
+  position: absolute; left: var(--space-4); right: var(--space-4); bottom: 12px; z-index: 6;
+  display: flex; justify-content: space-around; padding: 11px 8px 9px;
+  border-radius: var(--radius-xl); background: var(--glass-bg-regular);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur-thick)) saturate(var(--glass-saturate));
+  -webkit-backdrop-filter: blur(var(--glass-blur-thick)) saturate(var(--glass-saturate));
+  box-shadow: var(--inset-highlight), var(--elevation-4);
+}
+.ps-tab { display: flex; flex-direction: column; align-items: center; gap: 3px;
+  font-size: var(--type-micro); font-weight: var(--weight-black);
+  letter-spacing: 0.3px; color: var(--color-text-faint); flex: 1; text-transform: uppercase; }
+.ps-tab.is-active { color: var(--color-accent-primary); }
+
+/* ---- Home indicator ------------------------------------------------------ */
+.ps-home-indicator {
+  position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+  width: 130px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.25); z-index: 7;
+}
+
+/* ---- Scroll area --------------------------------------------------------- */
+.ps-screen { flex: 1; overflow-y: auto; position: relative; z-index: 4;
+  padding: var(--space-2) var(--screen-pad) 116px; scrollbar-width: none; }
+.ps-screen::-webkit-scrollbar { display: none; }
+
+/* ---- Entrance animation helper ------------------------------------------- */
+.ps-rise { opacity: 0; transform: translateY(16px);
+  animation: ps-rise var(--duration-slow) var(--ease-standard) forwards; }
+.ps-rise:nth-child(1){animation-delay:.04s}.ps-rise:nth-child(2){animation-delay:.1s}
+.ps-rise:nth-child(3){animation-delay:.16s}.ps-rise:nth-child(4){animation-delay:.22s}
+.ps-rise:nth-child(5){animation-delay:.28s}
+
+/* ---- Keyframes ----------------------------------------------------------- */
+@keyframes ps-pulse {
+  0%   { box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-status-live) 60%, transparent); }
+  70%  { box-shadow: 0 0 0 7px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+@keyframes ps-rise { to { opacity: 1; transform: translateY(0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+  .ps-rise { opacity: 1; transform: none; }
+}

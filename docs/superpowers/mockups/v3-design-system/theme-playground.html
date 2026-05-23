@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PokerSpot · Changeability Test — Theme Playground</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&display=swap" rel="stylesheet" />
+<style>
+  :root { --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font); color: #f3f4f6; -webkit-font-smoothing: antialiased;
+    min-height: 100vh; padding: 40px 24px 64px;
+    background: radial-gradient(80% 50% at 50% -5%, rgba(52,227,255,0.10), transparent 55%),
+      linear-gradient(180deg, #0e1113, #070809); }
+  header { max-width: 980px; margin: 0 auto 8px; }
+  .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+    color: #c6ff3a; margin-bottom: 12px; }
+  h1 { font-size: clamp(28px,4vw,42px); font-weight: 800; letter-spacing: -1px; }
+  p.sub { font-size: 16px; color: rgba(243,244,246,0.6); margin-top: 14px; max-width: 620px; line-height: 1.5; }
+
+  .controls { max-width: 980px; margin: 28px auto 14px; display: flex; flex-wrap: wrap; gap: 12px;
+    align-items: center; }
+  .controls .lbl { font-size: 13px; font-weight: 700; color: rgba(243,244,246,0.5);
+    letter-spacing: 0.5px; text-transform: uppercase; margin-right: 4px; }
+  .swatch-btn { display: inline-flex; align-items: center; gap: 9px; padding: 11px 16px;
+    border-radius: 999px; font-size: 14px; font-weight: 700; cursor: pointer; color: #f3f4f6;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+    transition: transform .15s, border-color .2s, background .2s; }
+  .swatch-btn:hover { transform: translateY(-2px); }
+  .swatch-btn.on { border-color: #c6ff3a; background: rgba(198,255,58,0.12); }
+  .swatch-btn .dot { width: 15px; height: 15px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+  .dot.sport { background: #c6ff3a; color: #c6ff3a; }
+  .dot.casino { background: #e8c77a; color: #e8c77a; }
+  .dot.gold { background: #ffcf4a; color: #ffcf4a; }
+
+  .hint { max-width: 980px; margin: 0 auto 26px; font-size: 13px; color: rgba(243,244,246,0.42);
+    line-height: 1.5; }
+  .hint code { background: rgba(255,255,255,0.08); padding: 2px 7px; border-radius: 6px;
+    color: #c6ff3a; font-size: 12px; }
+
+  .stage { max-width: 980px; margin: 0 auto; display: flex; gap: 36px; flex-wrap: wrap;
+    justify-content: center; }
+  .device { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .device .cap { font-size: 13px; font-weight: 700; color: rgba(243,244,246,0.55);
+    letter-spacing: 0.5px; }
+  .device iframe { width: 390px; height: 844px; border: 0; border-radius: 52px;
+    box-shadow: 0 40px 90px -36px rgba(0,0,0,0.9); background: #000; }
+  @media (max-width: 880px){ .device iframe { width: 320px; height: 692px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Changeability Test</div>
+  <h1>One token → both screens re-skin.</h1>
+  <p class="sub">Two screens, one <code style="background:rgba(255,255,255,0.08);padding:2px 7px;border-radius:6px;color:#c6ff3a">tokens.css</code>.
+  Click a direction below — both the Clubs List and Club Details change feel together,
+  with zero edits to either screen's code.</p>
+</header>
+
+<div class="controls">
+  <span class="lbl">Theme</span>
+  <button class="swatch-btn on" data-theme="liquid-sport"><span class="dot sport"></span>Liquid Sport</button>
+  <button class="swatch-btn" data-theme="dark-casino"><span class="dot casino"></span>Dark Casino</button>
+  <button class="swatch-btn" data-theme="gold"><span class="dot gold"></span>Gold accent (1-var)</button>
+</div>
+<div class="hint">
+  Behind the scenes each button just sets <code>data-theme</code> on the screens — the alternate
+  values live in the <code>[data-theme="…"]</code> blocks at the bottom of <code>tokens.css</code>.
+  "Gold accent" changes a <em>single</em> variable (<code>--color-accent-primary</code>).
+</div>
+
+<div class="stage">
+  <div class="device">
+    <div class="cap">Player · Clubs List</div>
+    <iframe id="f1" src="player-clubs-list.html" title="Clubs List"></iframe>
+  </div>
+  <div class="device">
+    <div class="cap">Player · Club Details</div>
+    <iframe id="f2" src="player-club-details.html" title="Club Details"></iframe>
+  </div>
+</div>
+
+<script>
+  const frames = [document.getElementById('f1'), document.getElementById('f2')];
+  const buttons = document.querySelectorAll('.swatch-btn');
+  buttons.forEach(btn => btn.addEventListener('click', () => {
+    buttons.forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    const theme = btn.dataset.theme;
+    frames.forEach(f => f.contentWindow.postMessage({ psTheme: theme }, '*'));
+  }));
+</script>
+</body>
+</html>

@@ -1,0 +1,128 @@
+/* ============================================================================
+   PokerSpot · Design Tokens — single source of truth
+   ----------------------------------------------------------------------------
+   CHANGE ANYTHING VISUAL HERE. Both screens (clubs-list, club-details) and every
+   component read these variables. One edit re-skins the entire app.
+
+   This file mirrors the Flutter `lib/core/theme/tokens.dart` 1:1 — same names,
+   same intent. Prototype here, port there.
+
+   THEMES: the default :root is "Liquid Sport". Alternate directions live in the
+   [data-theme="..."] blocks at the bottom — flip one HTML attribute to swap.
+   ========================================================================== */
+
+:root {
+  /* ---- Brand / accent ---------------------------------------------------- */
+  --color-accent-primary:   #c6ff3a;   /* electric lime — live numbers, primary */
+  --color-accent-secondary: #34e3ff;   /* cyan — secondary highlights */
+  --color-on-accent:        #06241a;   /* text/icon sitting on an accent fill */
+
+  /* ---- Status ------------------------------------------------------------ */
+  --color-status-live:    #ff4d57;     /* LIVE badge (ESPN red) */
+  --color-status-open:    #ffb02e;     /* open, no games yet */
+  --color-status-closed:  #56646a;     /* closed / off-hours */
+  --color-status-full:    #ff4d57;     /* table full */
+
+  /* ---- Surfaces / background --------------------------------------------- */
+  --color-bg-0: #04151a;               /* deep base */
+  --color-bg-1: #062a2c;               /* upper base */
+  --color-bg-bloom-a: rgba(52,227,255,0.16);
+  --color-bg-bloom-b: rgba(198,255,58,0.12);
+
+  /* ---- Text -------------------------------------------------------------- */
+  --color-text:        #ecfbff;
+  --color-text-muted:  rgba(236,251,255,0.56);
+  --color-text-faint:  rgba(236,251,255,0.32);
+
+  /* ---- Glass materials (Liquid Glass) ------------------------------------ */
+  --glass-bg-thin:    rgba(255,255,255,0.05);
+  --glass-bg-regular: rgba(255,255,255,0.085);
+  --glass-bg-thick:   rgba(255,255,255,0.14);
+  --glass-blur-thin:    16px;
+  --glass-blur-regular: 22px;
+  --glass-blur-thick:   30px;
+  --glass-saturate:     170%;
+  --glass-border:    rgba(255,255,255,0.11);
+  --glass-highlight: rgba(255,255,255,0.30);   /* top specular sheen */
+
+  /* ---- Typography -------------------------------------------------------- */
+  --font-family-display: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                         "Inter", system-ui, sans-serif;
+  --font-family-body:    -apple-system, BlinkMacSystemFont, "SF Pro Text",
+                         "Inter", system-ui, sans-serif;
+
+  --type-display-1: 42px;   /* hero metric numbers */
+  --type-display-2: 30px;   /* large secondary numbers */
+  --type-title:     22px;   /* screen titles */
+  --type-headline:  18px;   /* club name */
+  --type-body:      15px;
+  --type-subhead:   13px;
+  --type-caption:   12px;
+  --type-micro:     10px;   /* labels / overlines */
+
+  --weight-regular: 400;
+  --weight-medium:  600;
+  --weight-bold:    800;
+  --weight-black:   900;
+
+  --tracking-tight:  -1px;
+  --tracking-snug:   -0.4px;
+  --tracking-normal: 0;
+  --tracking-wide:   0.8px;
+  --tracking-overline: 1.2px;
+
+  /* ---- Spacing (8pt grid) ------------------------------------------------ */
+  --space-1: 4px;   --space-2: 8px;   --space-3: 12px;  --space-4: 16px;
+  --space-5: 20px;  --space-6: 24px;  --space-8: 32px;  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ---- Radii (concentric) ------------------------------------------------ */
+  --radius-sm: 10px;  --radius-md: 14px;  --radius-lg: 20px;  --radius-xl: 26px;
+  --radius-full: 999px;
+
+  /* ---- Elevation / shadow ------------------------------------------------ */
+  --elevation-1: 0 2px 6px -3px rgba(0,0,0,0.5);
+  --elevation-2: 0 8px 18px -10px rgba(0,0,0,0.6);
+  --elevation-3: 0 16px 30px -18px rgba(0,0,0,0.7);
+  --elevation-4: 0 22px 40px -22px rgba(0,0,0,0.85);
+  --elevation-5: 0 30px 60px -26px rgba(0,0,0,0.92);
+  --inset-highlight: 0 1px 0 var(--glass-highlight) inset;
+
+  /* ---- Motion ------------------------------------------------------------ */
+  --duration-fast:   160ms;
+  --duration-normal: 280ms;
+  --duration-slow:   520ms;
+  --ease-standard:   cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-decelerate: cubic-bezier(0, 0, 0.2, 1);
+  --ease-accelerate: cubic-bezier(0.4, 0, 1, 1);
+
+  /* ---- Layout ------------------------------------------------------------ */
+  --screen-width: 390px;
+  --screen-pad:   var(--space-4);
+}
+
+/* ============================================================================
+   ALTERNATE THEMES — proof of changeability.
+   Add  data-theme="dark-casino"  (or "gold") to <html> to re-skin everything.
+   Only the variables that differ are listed; everything else inherits :root.
+   ========================================================================== */
+
+/* Direction swap: Liquid Sport -> Dark Casino Glass (Variant 1 feel) */
+:root[data-theme="dark-casino"] {
+  --color-accent-primary:   #e8c77a;   /* gold */
+  --color-accent-secondary: #1fa971;   /* felt green */
+  --color-on-accent:        #0a0c0b;
+  --color-status-live:      #2fe08a;   /* casino reads green as "live" */
+  --color-bg-0: #07090a;
+  --color-bg-1: #0c1011;
+  --color-bg-bloom-a: rgba(31,169,113,0.18);
+  --color-bg-bloom-b: rgba(232,199,122,0.12);
+  --color-text:       #f6f2e9;
+  --color-text-muted: rgba(246,242,233,0.56);
+  --color-text-faint: rgba(246,242,233,0.34);
+}
+
+/* Single-variable demo: just move the accent lime -> gold, keep Sport otherwise */
+:root[data-theme="gold"] {
+  --color-accent-primary: #ffcf4a;
+}

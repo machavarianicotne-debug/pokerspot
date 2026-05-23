@@ -48,6 +48,14 @@
     border-radius: 9px; background: var(--color-status-open); color: var(--color-on-accent); font-size: 10px;
     font-weight: var(--weight-black); display: grid; place-items: center; padding: 0 4px; }
   .ps-tab { position: relative; }
+
+  .toast { position: absolute; left: 50%; bottom: 92px; transform: translateX(-50%) translateY(20px); z-index: 20;
+    background: var(--color-accent-primary); color: var(--color-on-accent); font-weight: var(--weight-bold);
+    font-size: var(--type-subhead); padding: 12px 18px; border-radius: var(--radius-full); box-shadow: var(--elevation-4);
+    opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; max-width: 86%; text-align: center; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.pending { background: var(--color-status-open); }
+  .ps-btn:disabled { opacity: .7; cursor: progress; }
 </style>
 </head>
 <body>
@@ -65,7 +73,8 @@
 
   <div class="ps-screen">
     <!-- A: active -->
-    <div class="ps-overline section">Active assignments · 3</div>
+    <div class="ps-overline section">Active assignments · <span id="activeCount">3</span></div>
+    <div id="activeList">
     <div class="ps-card pb-item">
       <div class="pb-av">G</div>
       <div class="pb-main"><div class="pb-name">Giorgi M.</div><div class="pb-sub">Royal Poker Tbilisi · +995 599 12 34 56</div></div>
@@ -80,6 +89,7 @@
       <div class="pb-av">D</div>
       <div class="pb-main"><div class="pb-name">Dato L.</div><div class="pb-sub">Shangri La Tbilisi · +995 599 22 33 44</div></div>
       <button class="pb-rm" data-club="Shangri La">Remove</button>
+    </div>
     </div>
 
     <!-- B: pending -->
@@ -105,6 +115,8 @@
     <div style="height:16px"></div>
   </div>
 
+  <div class="toast" id="toast"></div>
+
   <div class="ps-tabbar">
     <a class="ps-tab" href="super-admin-dashboard.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="5" height="9" rx="1"/><rect x="10" y="7" width="5" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>Dashboard</a>
     <a class="ps-tab" href="super-admin-clubs-crud.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V7l6-4 6 4v14M9 21v-6h6v6M15 10h6v11"/></svg>Clubs</a>
@@ -114,29 +126,68 @@
   <div class="ps-home-indicator"></div>
 </div>
 
+<script src="store.js"></script>
 <script>
-  /* remove active assignment */
-  document.querySelectorAll('.pb-rm').forEach(b => b.onclick = () => {
-    if (confirm('Remove this Pit Boss from ' + b.dataset.club + '? The club will have no Pit Boss until reassigned.')) {
-      const it = b.closest('.pb-item'); it.classList.add('removed'); setTimeout(() => it.remove(), 300);
-    }
-  });
+  const activeList = document.getElementById('activeList');
+  const pend = document.getElementById('pendingList');
+  const activeCount = document.getElementById('activeCount');
+  const pendCount = document.getElementById('pendCount');
+  const toast = document.getElementById('toast');
+  const names = ['Giorgi M.', 'Nika R.', 'Dato L.', 'Luka P.', 'Saba T.', 'Irakli G.', 'Beka M.'];
 
-  /* send invite → add pending */
-  const pend = document.getElementById('pendingList'), pendCount = document.getElementById('pendCount');
-  document.getElementById('invite').onclick = () => {
-    const phone = document.getElementById('phone').value.trim();
-    const club = document.getElementById('club').value;
-    if (!phone) { alert('Enter a phone number'); return; }
+  function showToast(msg, pending) {
+    toast.textContent = msg; toast.className = 'toast show' + (pending ? ' pending' : '');
+    setTimeout(() => toast.classList.remove('show'), 2400);
+  }
+  function recount() {
+    activeCount.textContent = activeList.querySelectorAll('.pb-item').length;
+    pendCount.textContent = pend.querySelectorAll('.pb-item').length;
+  }
+  function bindRemove(b) {
+    b.onclick = () => {
+      if (confirm('Remove this Pit Boss from ' + b.dataset.club + '? The club will have no Pit Boss until reassigned.')) {
+        const it = b.closest('.pb-item'); it.classList.add('removed'); setTimeout(() => { it.remove(); recount(); }, 300);
+      }
+    };
+  }
+  function addActive(name, club, phone) {
+    const d = document.createElement('div'); d.className = 'ps-card pb-item';
+    d.innerHTML = '<div class="pb-av"></div><div class="pb-main"><div class="pb-name"></div><div class="pb-sub"></div></div><button class="pb-rm">Remove</button>';
+    d.querySelector('.pb-av').textContent = name[0];
+    d.querySelector('.pb-name').textContent = name;
+    d.querySelector('.pb-sub').textContent = club + ' · ' + phone;
+    const rm = d.querySelector('.pb-rm'); rm.dataset.club = club; bindRemove(rm);
+    activeList.appendChild(d); recount();
+  }
+  function addPending(phone, club) {
     const d = document.createElement('div'); d.className = 'ps-card pb-item pending';
-    d.innerHTML = '<div class="pb-av">?</div><div class="pb-main"><div class="pb-name"></div>' +
-      '<div class="pb-sub"></div></div><span class="pending-badge">Pending</span>';
+    d.innerHTML = '<div class="pb-av">?</div><div class="pb-main"><div class="pb-name"></div><div class="pb-sub"></div></div><span class="pending-badge">Pending</span>';
     d.querySelector('.pb-name').textContent = phone;
     d.querySelector('.pb-sub').textContent = club + ' · awaiting first sign-in';
-    pend.appendChild(d);
-    pendCount.textContent = pend.querySelectorAll('.pb-item').length;
-    document.getElementById('phone').value = '';
-    alert('Invite sent — ' + phone + ' becomes Pit Boss of ' + club + ' on first sign-in.');
+    pend.appendChild(d); recount();
+  }
+
+  document.querySelectorAll('.pb-rm').forEach(bindRemove);                 // default actives
+  PSStore.get('pbActive', []).forEach(a => addActive(a.name, a.club, a.phone));  // persisted
+  PSStore.get('pbPending', []).forEach(p => addPending(p.phone, p.club));
+
+  const inviteBtn = document.getElementById('invite');
+  inviteBtn.onclick = () => {
+    const phone = document.getElementById('phone').value.trim();
+    const club = document.getElementById('club').value;
+    if (!/^\+\d{8,15}$/.test(phone.replace(/\s/g, ''))) { showToast('Enter a valid +995… number'); return; }
+    inviteBtn.disabled = true; const orig = inviteBtn.textContent; inviteBtn.textContent = 'Sending…';
+    setTimeout(() => {
+      inviteBtn.disabled = false; inviteBtn.textContent = orig; document.getElementById('phone').value = '';
+      if (Math.random() < 0.7) {                                            // 70% already-registered → immediate
+        const name = names[Math.floor(Math.random() * names.length)];
+        addActive(name, club, phone); PSStore.push('pbActive', { name, club, phone });
+        showToast('✓ ' + name + ' assigned to ' + club);
+      } else {                                                              // 30% not registered → pending invite
+        addPending(phone, club); PSStore.push('pbPending', { phone, club });
+        showToast('📨 Invite sent to ' + phone, true);
+      }
+    }, 500);
   };
 
   window.addEventListener('message', e => {

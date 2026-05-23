@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="liquid-sport">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot · Observe Table (read-only)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* SCREEN-SPECIFIC — read-only table observe */
+  .nav-back { width: 38px; height: 38px; border-radius: var(--radius-full); display: grid; place-items: center;
+    color: var(--color-text); background: var(--glass-bg-regular); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur-thin)); text-decoration: none; flex: none; }
+  .nav-mid { flex: 1; text-align: center; }
+  .nav-mid .t { font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black); }
+  .nav-mid .s { font-size: var(--type-micro); font-weight: var(--weight-bold); letter-spacing: var(--tracking-wide);
+    text-transform: uppercase; color: var(--color-status-open); }
+  .ro-badge { display: inline-flex; align-items: center; gap: 5px; font-size: var(--type-micro); font-weight: var(--weight-black);
+    text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--color-status-open);
+    background: color-mix(in srgb, var(--color-status-open) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-status-open) 45%, transparent); padding: 5px 9px; border-radius: var(--radius-sm); flex: none; }
+
+  .table-card { padding: 16px; margin-bottom: var(--space-4); }
+  .tc-head { display: flex; align-items: center; gap: var(--space-3); margin-bottom: 6px; }
+  .tc-num { width: 50px; height: 50px; border-radius: var(--radius-md); flex: none; display: grid; place-items: center;
+    font-family: var(--font-family-display); font-size: 30px; font-weight: var(--weight-black); letter-spacing: -1.5px;
+    color: var(--color-on-accent); background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary)); }
+  .tc-title .tn { font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black); }
+  .tc-title .tst { font-size: var(--type-caption); color: var(--color-text-muted); margin-top: 2px; }
+
+  .felt { position: relative; height: 150px; margin: 8px 0 14px; border-radius: 80px;
+    background: radial-gradient(120% 100% at 50% 35%, color-mix(in srgb, var(--color-accent-secondary) 10%, transparent), transparent 70%), var(--glass-bg-thin);
+    border: 1px solid var(--glass-border); }
+  .felt .felt-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+  .felt .felt-label .c { font-family: var(--font-family-display); font-size: var(--type-display-2); font-weight: var(--weight-black); line-height: 1; }
+  .felt .felt-label .c .open { color: var(--color-accent-primary); }
+  .felt .felt-label .k { font-size: var(--type-micro); font-weight: var(--weight-black); letter-spacing: var(--tracking-wide);
+    text-transform: uppercase; color: var(--color-text-faint); margin-top: 3px; }
+  .seat { position: absolute; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--glass-border);
+    background: var(--color-bg-1); transform: translate(-50%,-50%); cursor: not-allowed; }
+  .seat.filled { background: var(--color-accent-primary); border-color: var(--color-accent-primary); box-shadow: 0 0 8px -1px var(--color-accent-primary); }
+
+  .meta-row { display: flex; align-items: center; gap: var(--space-3); padding: 11px 0; border-top: 1px solid var(--glass-border); }
+  .mr-k { font-size: var(--type-subhead); color: var(--color-text-muted); font-weight: var(--weight-medium); min-width: 92px; }
+  .mr-v { font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black); }
+  .mr-lock { margin-left: auto; color: var(--color-text-faint); }
+
+  .blk { border-top: 1px solid var(--glass-border); padding-top: 12px; margin-top: 4px; }
+  .blk .ps-overline { font-size: var(--type-caption); margin-bottom: 10px; display: block; }
+  .li { display: flex; align-items: center; gap: 10px; padding: 9px 0; }
+  .li + .li { border-top: 1px solid color-mix(in srgb, var(--glass-border) 60%, transparent); }
+  .li .pos { font-family: var(--font-family-display); font-size: var(--type-body); font-weight: var(--weight-black);
+    color: var(--color-accent-primary); min-width: 18px; }
+  .li .nm { flex: 1; font-size: var(--type-body); font-weight: var(--weight-bold); }
+  .li .meta { font-size: var(--type-caption); color: var(--color-text-muted); }
+  .li .acts { display: flex; gap: 5px; }
+  .li .acts button { font-size: var(--type-micro); font-weight: var(--weight-black); padding: 6px 9px; border-radius: var(--radius-sm);
+    border: 1px solid var(--glass-border); background: var(--glass-bg-regular); color: var(--color-text-faint);
+    opacity: .4; cursor: not-allowed; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div class="ps-phone">
+  <div class="ps-statusbar">
+    <span>9:41</span>
+    <span class="ps-status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="ps-glass-nav" style="gap:10px">
+    <a class="nav-back" href="super-admin-observe-club.html?club=royal" aria-label="Back">
+      <svg width="11" height="18" viewBox="0 0 11 18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9.5 1.5L2 9l7.5 7.5"/></svg>
+    </a>
+    <div class="nav-mid"><div class="t">1/3 NLH</div><div class="s">Observing</div></div>
+    <span class="ro-badge">Read-only</span>
+  </div>
+
+  <div class="ps-screen">
+    <div class="ps-card table-card">
+      <div class="tc-head"><span class="tc-num">1</span><div class="tc-title"><div class="tn">Table 1</div><div class="tst">1/3 NLH</div></div></div>
+      <div class="felt" data-filled="7" data-max="9"><div class="felt-label"><div class="c"><span class="open">2</span>/9</div><div class="k">Open</div></div></div>
+
+      <div class="meta-row"><span class="mr-k">Blinds</span><span class="mr-v">1/3</span>
+        <svg class="mr-lock" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+      <div class="meta-row"><span class="mr-k">Avg stack</span><span class="mr-v">₾2,400</span>
+        <svg class="mr-lock" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+      <div class="meta-row"><span class="mr-k">Min buy-in</span><span class="mr-v" style="color:var(--color-text)">₾200</span></div>
+
+      <div class="blk">
+        <span class="ps-overline">Waitlist for this stake · 4</span>
+        <div class="li"><span class="pos">1</span><span class="nm">Giorgi</span><div class="acts"><button>Call</button><button>Seat</button><button>✕</button></div></div>
+        <div class="li"><span class="pos">2</span><span class="nm">Nino</span><div class="acts"><button>Call</button><button>Seat</button><button>✕</button></div></div>
+        <div class="li"><span class="pos">3</span><span class="nm">Davit</span><div class="acts"><button>Call</button><button>Seat</button><button>✕</button></div></div>
+        <div class="li"><span class="pos">4</span><span class="nm">Anna</span><div class="acts"><button>Call</button><button>Seat</button><button>✕</button></div></div>
+      </div>
+
+      <div class="blk">
+        <span class="ps-overline">Reservations · 1 pending</span>
+        <div class="li"><span class="nm">Levan · 3 players</span><span class="meta">@ 21:00</span><div class="acts"><button>Accept</button><button>✕</button></div></div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+  <div class="ps-home-indicator"></div>
+</div>
+
+<script>
+  /* seats are visual only (no interaction in observe mode) */
+  document.querySelectorAll('.felt').forEach(felt => {
+    const max = +felt.dataset.max, filled = +felt.dataset.filled;
+    for (let i = 0; i < max; i++) {
+      const ang = (i / max) * Math.PI * 2 - Math.PI / 2;
+      const s = document.createElement('button');
+      s.className = 'seat' + (i < filled ? ' filled' : ''); s.disabled = true;
+      s.style.left = (50 + 40 * Math.cos(ang)) + '%'; s.style.top = (50 + 38 * Math.sin(ang)) + '%';
+      felt.appendChild(s);
+    }
+  });
+  window.addEventListener('message', e => {
+    if (e.data && e.data.psTheme !== undefined) {
+      if (e.data.psTheme) document.documentElement.setAttribute('data-theme', e.data.psTheme);
+      else document.documentElement.removeAttribute('data-theme');
+    }
+  });
+</script>
+</body>
+</html>

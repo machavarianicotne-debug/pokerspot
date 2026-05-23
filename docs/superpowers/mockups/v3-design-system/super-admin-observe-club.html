@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="liquid-sport">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot · Observe Club (read-only)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* SCREEN-SPECIFIC — read-only observer */
+  .nav-back { width: 38px; height: 38px; border-radius: var(--radius-full); display: grid; place-items: center;
+    color: var(--color-text); background: var(--glass-bg-regular); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur-thin)); text-decoration: none; flex: none; }
+  .obs-title { flex: 1; min-width: 0; }
+  .obs-title .t { font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .obs-title .s { font-size: var(--type-micro); font-weight: var(--weight-bold); letter-spacing: var(--tracking-wide);
+    text-transform: uppercase; color: var(--color-text-faint); }
+  .ro-badge { display: inline-flex; align-items: center; gap: 5px; font-size: var(--type-micro); font-weight: var(--weight-black);
+    text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--color-status-open);
+    background: color-mix(in srgb, var(--color-status-open) 16%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-status-open) 45%, transparent); padding: 5px 10px; border-radius: var(--radius-sm); }
+  .ro-banner { display: flex; align-items: center; gap: 8px; margin: 0 4px var(--space-4); font-size: var(--type-caption);
+    color: var(--color-status-open); font-weight: var(--weight-bold); }
+
+  .tbl-card { display: block; text-decoration: none; color: inherit; margin-bottom: var(--space-3); padding: 14px 16px; }
+  .tbl-head { display: flex; align-items: center; gap: var(--space-3); }
+  .tbl-num { width: 44px; height: 44px; border-radius: var(--radius-md); flex: none; display: grid; place-items: center;
+    font-family: var(--font-family-display); font-size: 26px; font-weight: var(--weight-black); color: var(--color-on-accent);
+    background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary)); letter-spacing: -1px; }
+  .tbl-info { flex: 1; min-width: 0; }
+  .tbl-stake { font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black); }
+  .tbl-sub { font-size: var(--type-caption); color: var(--color-text-muted); margin-top: 2px; }
+  .tbl-foot { display: flex; align-items: center; gap: var(--space-3); margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--glass-border); }
+  .mini-seats { display: inline-flex; gap: 3px; }
+  .mini-seats i { width: 9px; height: 9px; border-radius: 50%; border: 1.5px solid var(--glass-border); display: inline-block; }
+  .mini-seats i.f { background: var(--color-accent-primary); border-color: var(--color-accent-primary); }
+  .tbl-foot .cnt { font-size: var(--type-caption); font-weight: var(--weight-bold); }
+  .tbl-foot .cnt.full { color: var(--color-status-full); }
+  .tbl-foot .wl { margin-left: auto; font-size: var(--type-caption); font-weight: var(--weight-bold); color: var(--color-text-muted); }
+
+  .disabled { display: flex; gap: var(--space-2); margin-top: var(--space-2); }
+  .disabled a { flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 15px;
+    border-radius: var(--radius-md); border: 1.5px dashed var(--glass-border); background: var(--glass-bg-thin);
+    color: var(--color-text-faint); font-size: var(--type-subhead); font-weight: var(--weight-bold);
+    opacity: .45; cursor: not-allowed; pointer-events: none; }
+</style>
+</head>
+<body>
+<div class="ps-phone">
+  <div class="ps-statusbar">
+    <span>9:41</span>
+    <span class="ps-status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="ps-glass-nav" style="gap:10px">
+    <a class="nav-back" href="super-admin-dashboard.html" aria-label="Back to dashboard">
+      <svg width="11" height="18" viewBox="0 0 11 18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9.5 1.5L2 9l7.5 7.5"/></svg>
+    </a>
+    <div class="obs-title"><div class="t" id="clubName">Royal Poker Tbilisi</div><div class="s">Observing · 23:14</div></div>
+    <span class="ro-badge"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>Read-only</span>
+  </div>
+
+  <div class="ps-screen">
+    <div class="ro-banner">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+      Observing live floor — actions are disabled for Super Admin.
+    </div>
+
+    <a class="ps-card tbl-card" href="super-admin-observe-table.html?game=1-3-nlh">
+      <div class="tbl-head"><span class="tbl-num">1</span>
+        <div class="tbl-info"><div class="tbl-stake">1/3 NLH</div><div class="tbl-sub">blinds 1/3 · avg ₾2,400 · min ₾200</div></div></div>
+      <div class="tbl-foot"><span class="mini-seats"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i></i></span><span class="cnt">7/9</span><span class="wl">4 waiting</span></div>
+    </a>
+    <a class="ps-card tbl-card" href="super-admin-observe-table.html?game=1-3-nlh">
+      <div class="tbl-head"><span class="tbl-num">2</span>
+        <div class="tbl-info"><div class="tbl-stake">1/3 NLH</div><div class="tbl-sub">blinds 1/3 · avg ₾2,400 · shares waitlist w/ Table 1</div></div></div>
+      <div class="tbl-foot"><span class="mini-seats"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i></span><span class="cnt full">9/9</span><span class="wl">shared</span></div>
+    </a>
+    <a class="ps-card tbl-card" href="super-admin-observe-table.html?game=5-5-plo">
+      <div class="tbl-head"><span class="tbl-num">3</span>
+        <div class="tbl-info"><div class="tbl-stake">5/5 PLO</div><div class="tbl-sub">blinds 5/5 · avg ₾4,800 · min ₾500</div></div></div>
+      <div class="tbl-foot"><span class="mini-seats"><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i><i class="f"></i></span><span class="cnt full">9/9</span><span class="wl">6 waiting</span></div>
+    </a>
+
+    <div class="disabled">
+      <a><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>New game</a>
+      <a><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M12 9v6M9 12h6"/></svg>New table</a>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+
+  <div class="ps-tabbar">
+    <a class="ps-tab is-active" href="super-admin-dashboard.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="12" width="5" height="9" rx="1"/><rect x="10" y="7" width="5" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>Dashboard</a>
+    <a class="ps-tab" href="super-admin-clubs-crud.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V7l6-4 6 4v14M9 21v-6h6v6M15 10h6v11"/></svg>Clubs</a>
+    <a class="ps-tab" href="super-admin-assign-pitboss.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M15.5 20c0-2 1-3.5 3-3.5"/></svg>Pit Bosses</a>
+    <a class="ps-tab" href="super-admin-settings.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Settings</a>
+  </div>
+  <div class="ps-home-indicator"></div>
+</div>
+
+<script>
+  const names = { royal: 'Royal Poker Tbilisi', bellagio: 'Bellagio Batumi', 'shangri-la': 'Shangri La Tbilisi', iveria: 'Iveria Casino' };
+  const k = new URLSearchParams(location.search).get('club') || 'royal';
+  document.getElementById('clubName').textContent = names[k] || names.royal;
+
+  window.addEventListener('message', e => {
+    if (e.data && e.data.psTheme !== undefined) {
+      if (e.data.psTheme) document.documentElement.setAttribute('data-theme', e.data.psTheme);
+      else document.documentElement.removeAttribute('data-theme');
+    }
+  });
+</script>
+</body>
+</html>

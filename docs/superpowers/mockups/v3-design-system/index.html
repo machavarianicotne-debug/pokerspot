@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="liquid-sport">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PokerSpot · Mockup Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: var(--font-family-body); color: var(--color-text); -webkit-font-smoothing: antialiased;
+    min-height: 100vh; padding: 40px 24px 80px;
+    background: radial-gradient(90% 50% at 50% -5%, var(--color-bg-bloom-a), transparent 55%),
+      radial-gradient(70% 40% at 95% 0, var(--color-bg-bloom-b), transparent 50%),
+      linear-gradient(180deg, var(--color-bg-1), var(--color-bg-0)); }
+  header { max-width: 1180px; margin: 0 auto 24px; }
+  .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--color-accent-primary); margin-bottom: 12px; }
+  h1 { font-family: var(--font-family-display); font-size: clamp(30px, 5vw, 50px); font-weight: 900;
+    letter-spacing: -1.5px; font-style: italic; }
+  h1 .ac { color: var(--color-accent-primary); }
+  .sub { font-size: 16px; color: var(--color-text-muted); margin-top: 14px; max-width: 640px; line-height: 1.5; }
+
+  .themebar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-top: 22px; }
+  .themebar .lbl { font-size: 12px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--color-text-faint); margin-right: 4px; }
+  .tbtn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 15px; border-radius: 999px;
+    font-size: 13px; font-weight: 800; cursor: pointer; color: var(--color-text);
+    background: var(--glass-bg-thin); border: 1px solid var(--glass-border); }
+  .tbtn .d { width: 14px; height: 14px; border-radius: 50%; }
+  .tbtn.on { border-color: var(--color-accent-primary); background: color-mix(in srgb, var(--color-accent-primary) 12%, transparent); }
+  .d.sport { background: #c6ff3a; } .d.casino { background: #e8c77a; } .d.gold { background: #ffcf4a; }
+
+  section { max-width: 1180px; margin: 0 auto; }
+  .sec-h { font-family: var(--font-family-display); font-size: 22px; font-weight: 900; letter-spacing: -0.5px;
+    margin: 44px 0 4px; display: flex; align-items: center; gap: 10px; }
+  .sec-h .count { font-size: 13px; font-weight: 700; color: var(--color-text-faint); }
+  .sec-sub { font-size: 13.5px; color: var(--color-text-muted); margin-bottom: 20px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(196px, 1fr)); gap: 26px; }
+  .card { text-decoration: none; color: inherit; }
+  .frame { width: 100%; aspect-ratio: 196 / 424; border-radius: 30px; overflow: hidden; position: relative;
+    background: #000; box-shadow: var(--elevation-4), 0 0 0 1px rgba(255,255,255,0.06);
+    transition: transform .3s var(--ease-standard), box-shadow .3s var(--ease-standard); }
+  .card:hover .frame { transform: translateY(-5px);
+    box-shadow: var(--elevation-5), 0 0 0 1px color-mix(in srgb, var(--color-accent-primary) 30%, transparent); }
+  .frame iframe { width: 390px; height: 844px; border: 0; transform: scale(0.5026); transform-origin: top left;
+    pointer-events: none; }
+  .frame .open { position: absolute; inset: 0; }
+  .ct { font-size: 14px; font-weight: 700; margin-top: 12px; }
+  .cd { font-size: 12px; color: var(--color-text-muted); margin-top: 3px; line-height: 1.35; }
+  footer { max-width: 1180px; margin: 56px auto 0; font-size: 13px; color: var(--color-text-faint);
+    border-top: 1px solid var(--glass-border); padding-top: 22px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">Variant 3 · Liquid Sport · Design System</div>
+  <h1>Poker<span class="ac">Spot</span> · Mockup Gallery</h1>
+  <p class="sub">Every screen, built on one shared <code>tokens.css</code> + <code>components.css</code>.
+  Switch the theme below — all live previews re-skin together. Click any phone to open it full screen.</p>
+  <div class="themebar">
+    <span class="lbl">Theme</span>
+    <button class="tbtn on" data-theme="liquid-sport"><span class="d sport"></span>Liquid Sport</button>
+    <button class="tbtn" data-theme="dark-casino"><span class="d casino"></span>Dark Casino</button>
+    <button class="tbtn" data-theme="gold"><span class="d gold"></span>Gold accent</button>
+  </div>
+</header>
+
+<section id="sections"></section>
+
+<footer>
+  Previews are scaled, non-interactive iframes — open full screen for taps, motion, and glass effects.
+  Best in Chrome / Edge / Safari (backdrop-filter). Mock data is inline; real data arrives with the
+  Flutter implementation. Demo state (added tables, invites) persists via localStorage — clear it from any
+  Settings screen → "Reset demo data".
+</footer>
+
+<script>
+  const SECTIONS = [
+    { h: '👤 Player', sub: 'What a poker player sees and does.', items: [
+      ['onboarding-welcome.html', 'Onboarding', 'First sign-in: name + language'],
+      ['player-clubs-list.html', 'Clubs List', 'Live status, sorted; the home screen'],
+      ['player-club-details.html', 'Club Details', 'Info, chat entry, per-stake cards, join'],
+      ['player-club-chat.html', 'Club Chat', '1-on-1 with the Pit Boss'],
+      ['reservation-flow.html', 'Reservation', 'Stake + time + party + note'],
+      ['my-status.html', 'My Status', 'Active waitlists & reservations'],
+      ['profile.html', 'Profile', 'Name, language, notifications, delete'],
+    ]},
+    { h: '🎰 Pit Boss', sub: 'Floor management — table-centric.', items: [
+      ['pit-boss-live-floor.html', 'Live Floor', 'Numbered tables overview + Inbox'],
+      ['pit-boss-table-detail.html', 'Table Detail', 'Oval seats, editable blinds/avg, waitlist'],
+      ['pit-boss-new-game.html', 'New Game', 'Type, blinds, buy-in, tables'],
+      ['pit-boss-inbox.html', 'Inbox', 'Chat threads + unread badges'],
+      ['pit-boss-chat-thread.html', 'Chat Thread', '1-on-1 with a player'],
+      ['pit-boss-settings.html', 'Settings', 'Availability, notifications, reset'],
+    ]},
+    { h: '🛡️ Super Admin', sub: 'Owner — manage the network.', items: [
+      ['super-admin-dashboard.html', 'Dashboard', 'Live aggregates + 7-day trend'],
+      ['super-admin-clubs-crud.html', 'Clubs CRUD', 'Create/edit clubs + FAQ'],
+      ['super-admin-assign-pitboss.html', 'Pit Bosses', 'Assign by phone + pending'],
+      ['super-admin-observe-club.html', 'Observe Club', 'Read-only floor view'],
+      ['super-admin-observe-table.html', 'Observe Table', 'Read-only table view'],
+      ['super-admin-settings.html', 'Settings', 'App-wide rules, flags, health'],
+    ]},
+  ];
+
+  const root = document.getElementById('sections');
+  SECTIONS.forEach(s => {
+    const h = document.createElement('div');
+    h.innerHTML = '<div class="sec-h">' + s.h + ' <span class="count">' + s.items.length + ' screens</span></div>' +
+      '<div class="sec-sub">' + s.sub + '</div>';
+    const grid = document.createElement('div'); grid.className = 'grid';
+    s.items.forEach(([file, title, desc]) => {
+      const card = document.createElement('div'); card.className = 'card';
+      card.innerHTML =
+        '<div class="frame"><iframe src="' + file + '" scrolling="no" loading="lazy" title="' + title + '"></iframe>' +
+        '<a class="open" href="' + file + '" target="_blank" rel="noopener"></a></div>' +
+        '<div class="ct">' + title + '</div><div class="cd">' + desc + '</div>';
+      grid.appendChild(card);
+    });
+    root.appendChild(h); root.appendChild(grid);
+  });
+
+  /* theme switcher → postMessage every preview iframe (they all listen) */
+  const btns = document.querySelectorAll('.tbtn');
+  btns.forEach(b => b.onclick = () => {
+    btns.forEach(x => x.classList.remove('on')); b.classList.add('on');
+    const theme = b.dataset.theme;
+    const applied = theme === 'liquid-sport' ? '' : theme;   // '' = default :root
+    if (applied) document.documentElement.setAttribute('data-theme', applied);
+    else document.documentElement.removeAttribute('data-theme');
+    document.querySelectorAll('iframe').forEach(f => {
+      try { f.contentWindow.postMessage({ psTheme: applied }, '*'); } catch (e) {}
+    });
+  });
+</script>
+</body>
+</html>

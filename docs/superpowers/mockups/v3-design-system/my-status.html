@@ -32,6 +32,29 @@
     border-color: color-mix(in srgb, var(--color-status-live) 45%, transparent); }
   .item.is-ready .accent-rail { background: var(--color-status-live); animation: rail-pulse 1.6s var(--ease-standard) infinite; }
   @keyframes rail-pulse { 0%,100%{box-shadow:0 0 0 0 transparent} 50%{box-shadow:0 0 16px 2px var(--color-status-live)} }
+
+  /* currently-playing card */
+  .now-playing { display: flex; align-items: center; gap: var(--space-3); padding: 15px; margin-bottom: var(--space-5);
+    text-decoration: none; color: inherit; cursor: pointer;
+    background: color-mix(in srgb, var(--color-status-live) 10%, var(--glass-bg-thin));
+    border-color: color-mix(in srgb, var(--color-status-live) 45%, transparent); }
+  .now-playing .accent-rail { background: var(--color-status-live); animation: rail-pulse 1.6s var(--ease-standard) infinite; }
+  .now-playing .np-title { font-size: var(--type-headline); font-weight: var(--weight-black); }
+  .now-playing .np-meta { font-size: var(--type-caption); color: var(--color-text-muted); margin-top: 2px; }
+  .now-playing .np-timer { font-family: var(--font-family-display); font-weight: var(--weight-black);
+    color: var(--color-status-live); font-variant-numeric: tabular-nums; font-size: var(--type-title); margin-top: 6px; }
+  .now-playing .ps-btn { min-height: 40px; padding: 0 14px; font-size: var(--type-subhead); flex: none; }
+
+  /* by-club breakdown */
+  .byclub-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: var(--type-subhead);
+    border-top: 1px solid color-mix(in srgb, var(--glass-border) 60%, transparent); }
+  .byclub-row:first-child { border-top: none; }
+  .byclub-row .bn { flex: 1; font-weight: var(--weight-bold); }
+  .byclub-row .bbar { width: 70px; height: 6px; border-radius: 3px; background: var(--glass-bg-regular); overflow: hidden; }
+  .byclub-row .bbar i { display: block; height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--color-accent-secondary), var(--color-accent-primary)); }
+  .byclub-row .bh { font-family: var(--font-family-display); font-weight: var(--weight-black);
+    color: var(--color-accent-primary); font-variant-numeric: tabular-nums; min-width: 58px; text-align: right; }
   .item.is-ready .item-status { color: var(--color-status-live); font-weight: var(--weight-bold); }
 
   .item.removing { opacity: 0; transform: translateX(40px);
@@ -57,6 +80,7 @@
   </div>
 
   <div class="ps-screen">
+    <div id="nowPlaying"></div>
     <div class="ps-overline section">On the waitlist · 2</div>
 
     <div class="ps-card item is-ready ps-rise">
@@ -104,9 +128,11 @@
     <div class="ps-overline section">My playtime</div>
     <div class="ps-card" style="padding:16px">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
-        <div><div style="font-family:var(--font-family-display);font-size:var(--type-display-2);font-weight:var(--weight-black);color:var(--color-accent-primary);line-height:1">2h 30m</div><div class="ps-overline" style="margin-top:6px">Today</div></div>
+        <div><div id="todayTotal" style="font-family:var(--font-family-display);font-size:var(--type-display-2);font-weight:var(--weight-black);color:var(--color-accent-primary);line-height:1">2h 30m</div><div class="ps-overline" style="margin-top:6px">Today</div></div>
         <div><div style="font-family:var(--font-family-display);font-size:var(--type-display-2);font-weight:var(--weight-black);line-height:1">47h 23m</div><div class="ps-overline" style="margin-top:6px">Lifetime · 12 sessions</div></div>
       </div>
+      <div class="ps-overline" style="margin-bottom:8px">By club · this month</div>
+      <div id="byClub" style="margin-bottom:16px"></div>
       <div class="ps-overline" style="margin-bottom:8px">Last 7 days</div>
       <div id="playBars" style="display:flex;align-items:flex-end;gap:7px;height:84px"></div>
       <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--glass-border);font-size:var(--type-subhead);color:var(--color-text-muted)">Last: <b style="color:var(--color-text)">Royal Poker · 2h 17m</b> · 2 days ago · avg 3h 56m</div>
@@ -121,6 +147,7 @@
   <div class="ps-home-indicator"></div>
 </div>
 
+<script src="store.js"></script>
 <script>
   document.querySelectorAll('.leave').forEach(btn => btn.addEventListener('click', () => {
     const item = btn.closest('.item');
@@ -138,7 +165,50 @@
     '<div style="width:100%;height:' + h + '%;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,var(--color-accent-primary),color-mix(in srgb,var(--color-accent-secondary) 55%,transparent))"></div>' +
     '<div style="font-size:10px;font-weight:700;color:var(--color-text-faint);margin-top:6px">' + days[i] + '</div></div>').join('');
 
-  /* live countdowns for held seats / called turn */
+  /* ---------- current session (live + persisted, refresh-safe) ---------- */
+  let session = PSStore.get('currentSession', undefined);
+  if (session === undefined) {                 // seed an active demo session
+    session = { club: 'Royal Poker Tbilisi', clubKey: 'royal', table: 1, seat: 5, startedAt: Date.now() - 107 * 60000 };
+    PSStore.set('currentSession', session);
+  }
+  let todayBaseMin = PSStore.get('todayBaseMin', 43);
+  const npEl = document.getElementById('nowPlaying');
+  function fmtHM(min) { return Math.floor(min / 60) + 'h ' + (min % 60) + 'm'; }
+  function fmtT(ms) { const s = Math.max(0, Math.floor(ms / 1000)); return Math.floor(s / 3600) + ':' + String(Math.floor((s % 3600) / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0'); }
+  function renderNow() {
+    if (!session) { npEl.innerHTML = ''; return; }
+    npEl.innerHTML =
+      '<a class="ps-card item now-playing" href="player-club-details.html?club=' + session.clubKey + '">' +
+      '<span class="accent-rail"></span>' +
+      '<div class="item-main"><div class="np-title">🟢 Currently playing</div>' +
+      '<div class="np-meta">' + session.club + ' · Table ' + session.table + ' · Seat ' + session.seat + '</div>' +
+      '<div class="np-timer" id="npTimer">0:00:00</div></div>' +
+      '<button class="ps-btn ps-btn--secondary" id="standUp">Stand up</button></a>';
+    document.getElementById('standUp').onclick = e => {
+      e.preventDefault(); e.stopPropagation();
+      if (confirm('Stand up — end this session?')) {
+        todayBaseMin += Math.floor((Date.now() - session.startedAt) / 60000);
+        PSStore.set('todayBaseMin', todayBaseMin);
+        session = false; PSStore.set('currentSession', false);
+        renderNow(); updateToday();
+      }
+    };
+  }
+  function updateToday() {
+    const live = session ? Math.floor((Date.now() - session.startedAt) / 60000) : 0;
+    document.getElementById('todayTotal').textContent = fmtHM(todayBaseMin + live);
+  }
+  renderNow();
+
+  /* by-club this month */
+  const byClub = [['Royal Poker Tbilisi', 1725], ['Bellagio Batumi', 738], ['Shangri La Tbilisi', 380]];
+  const maxC = Math.max.apply(null, byClub.map(c => c[1]));
+  document.getElementById('byClub').innerHTML = byClub.map(c =>
+    '<div class="byclub-row"><span class="bn">' + c[0] + '</span>' +
+    '<span class="bbar"><i style="width:' + Math.round(c[1] / maxC * 100) + '%"></i></span>' +
+    '<span class="bh">' + fmtHM(c[1]) + '</span></div>').join('');
+
+  /* live countdowns + session timer + today */
   document.querySelectorAll('.countdown[data-min]').forEach(c => c.dataset.deadline = Date.now() + (+c.dataset.min) * 60000);
   function tick() {
     const now = Date.now();
@@ -148,6 +218,8 @@
       const s = Math.floor(left / 1000);
       c.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
     });
+    if (session) { const t = document.getElementById('npTimer'); if (t) t.textContent = fmtT(now - session.startedAt); }
+    updateToday();
   }
   tick(); setInterval(tick, 1000);
 

@@ -135,8 +135,12 @@ clubs/{clubId}
   # openingHours: { mon:{open,close}, ... sun:{open,close}, is24_7:bool }
 
 clubs/{clubId}/games/{gameId}
-  type(NLH|PLO)  blinds(string e.g. "1/3")  buyInMin  buyInMax
-  status(running|closed)  createdAt
+  type(NLH|PLO)  blinds(string e.g. "1/3")  buyInMin  averageStack(nullable)
+  status(running|closed)  createdAt  updatedAt
+  # buyInMin > 0 required; NO buyInMax — Tbilisi format is uncapped
+  # averageStack: Pit Boss manual estimate; players see the last value set;
+  #   null ("—") until first set. updatedAt is server-side only, never shown in
+  #   UI (no freshness / "x min ago" indicator)
 
 clubs/{clubId}/games/{gameId}/tables/{tableId}
   name  maxSeats(default 9)  seatedCount  status(open|closed|breaking)  openedAt
@@ -186,8 +190,11 @@ a specific player does not change others' positions.
    Computed client-side from `status` + `openingHours` + current time + games.
    **Sort: Live → Open but empty → Closed**, then by city/name.
 3. **Club detail** — header **info block** (logo, name, city, address,
-   **tap-to-call phone**, opening hours), then per-stake live cards below.
-   Tap-to-call opens the device dialer via Flutter `url_launcher` (small, MVP).
+   **tap-to-call phone**, opening hours), then per-stake live cards below. Each
+   stake card shows type, **min buy-in (₾)**, **average stack (₾, or "—" if
+   unset)**, tables, open seats, and waitlist count, with a **Join waitlist**
+   action (and a **Reserve** action for the club). Tap-to-call opens the device
+   dialer via Flutter `url_launcher` (small, MVP).
 4. **Join waitlist** for a stake (multiple allowed); see own position; leave.
 5. **Reserve** — same-day, choose stake + time + party size + note.
 6. **My status** — own active waitlists & reservations.
@@ -198,7 +205,10 @@ a specific player does not change others' positions.
 ### Pit Boss — "Live Floor" (own club)
 
 - **Games overview** cards: stake, open tables, open seats, waitlist count;
-  `+ New Game` (choose NLH/PLO + blinds + buy-in → opens an empty table).
+  `+ New Game` (choose NLH/PLO + blinds + **min buy-in** → opens an empty table).
+- **Average stack edit:** tap a game's avg-stack value → enter a new estimate →
+  save; players see the new number immediately. Manual estimate, no timestamp /
+  freshness UI; `null` ("—") until first set.
 - **Game detail:**
   - **Tables:** visual seat grid per table; `(- / +)` or tap-to-toggle seats;
     `+ Add Table` (another table at the same stake); open / close / break a table.
@@ -350,7 +360,8 @@ Each feature is built in isolation (own domain/data/presentation). A new feature
 `lib/core/constants/business_rules.dart`: `reservationExpiry` (30 min),
 `waitlistCallTimeout` (null = manual in MVP; 20 min in v2, gated by
 `autoNoShowTimer`), `maxPlayersPerTable` (9), `maxWaitlistsPerPlayer` (null = no
-cap MVP), `defaultCurrency` (GEL), `minBuyIn`, `maxBuyIn`, …
+cap MVP), `defaultCurrency` (GEL), `minBuyIn` (>0; no `maxBuyIn` — Tbilisi format is
+uncapped), …
 `lib/core/constants/validation_rules.dart`: phone format (E.164), name length, …
 **Zero magic numbers/strings** elsewhere — all named constants.
 

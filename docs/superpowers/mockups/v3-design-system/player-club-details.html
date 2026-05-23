@@ -137,9 +137,9 @@
   </div>
 
   <div class="ps-tabbar">
-    <div class="ps-tab is-active"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-2.5 4-6 6.2-6 9.7A6 6 0 0 0 12 18a6 6 0 0 0 6-6.3C18 8.2 14.5 6 12 2z"/></svg>Clubs</div>
-    <div class="ps-tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Activity</div>
-    <div class="ps-tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile</div>
+    <a class="ps-tab is-active" href="player-clubs-list.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-2.5 4-6 6.2-6 9.7A6 6 0 0 0 12 18a6 6 0 0 0 6-6.3C18 8.2 14.5 6 12 2z"/></svg>Clubs</a>
+    <a class="ps-tab" href="my-status.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Activity</a>
+    <a class="ps-tab" href="profile.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile</a>
   </div>
   <div class="ps-home-indicator"></div>
 </div>
@@ -153,7 +153,7 @@ const clubsData = {
     games: [
       { stake: '1/3 NLH',  minBuyIn: '₾200',   avgStack: '₾2,400', tables: 2, openSeats: 1, waitlist: 4 },
       { stake: '5/5 PLO',  minBuyIn: '₾500',   avgStack: '₾4,800', tables: 1, openSeats: 0, waitlist: 6 },
-      { stake: '5/10 NLH', minBuyIn: '₾1,000', avgStack: '₾8,500', tables: 1, openSeats: 2, waitlist: 0 }
+      { stake: '5/10 NLH', minBuyIn: '₾1,000', avgStack: null, tables: 1, openSeats: 2, waitlist: 0 }
     ]
   },
   'bellagio': {
@@ -161,7 +161,7 @@ const clubsData = {
     phone: '+995 577 88 99 00', hours: '21:00 — 05:00', logo: 'B',
     games: [
       { stake: '1/2 NLH', minBuyIn: '₾100', avgStack: '₾1,800', tables: 2, openSeats: 4, waitlist: 0 },
-      { stake: '2/5 NLH', minBuyIn: '₾300', avgStack: '₾3,200', tables: 1, openSeats: 0, waitlist: 2 }
+      { stake: '2/5 NLH', minBuyIn: '₾300', avgStack: null, tables: 1, openSeats: 0, waitlist: 2 }
     ]
   },
   'shangri-la': {
@@ -185,6 +185,7 @@ function gameCard(g, i) {
   const type = isPLO ? 'PLO' : 'NLH';
   const typeFull = isPLO ? "Pot-Limit Omaha" : "No-Limit Hold'em";
   const full = g.openSeats === 0;
+  const avg = g.avgStack ? g.avgStack : '—';   // null → placeholder
   const tablesWord = g.tables > 1 ? 'Tables' : 'Table';
   const seatsMetric = full
     ? '<div class="ps-metric is-full"><div class="value">FULL</div><div class="label">No seats</div></div>'
@@ -200,7 +201,7 @@ function gameCard(g, i) {
     +     '<div>'
     +       '<div class="stake-name">' + g.stake + '</div>'
     +       '<div class="stake-buyin">' + typeFull + ' · Min ' + g.minBuyIn
-    +         ' · Avg stack ' + g.avgStack + ' · ' + g.tables + ' table' + (g.tables > 1 ? 's' : '') + '</div>'
+    +         ' · Avg stack ' + avg + ' · ' + g.tables + ' table' + (g.tables > 1 ? 's' : '') + '</div>'
     +     '</div>'
     +     '<div class="stake-head-right">'
     +       '<span class="ps-stake-pill"><span class="type">' + type + '</span></span>'

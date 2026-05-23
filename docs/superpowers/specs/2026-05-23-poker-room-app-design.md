@@ -262,10 +262,12 @@ section. Tabs: **Floor · Inbox · Stats · Settings**.
     normalized — ცოტნე = Cotne); pick a registered player (locality-biased
     results, phone hidden, shows "member since") or **+ Add as walk-in**; or
     **Call #1** from the waitlist. Tap an **occupied** seat (shows
-    "Cotne M. · 2h 17m") → **player left** (sets `endedAt`, frees the seat,
-    removes the player's live card) / **no-show** / **move to another table**.
-    Players never end their own sessions. Sessions over 8h show a ⚠️ warning
-    (no auto-end).
+    "Cotne M. · 2h 17m") → **player left** is the only action (sets `endedAt`,
+    frees the seat, removes the player's live card; confirms with "End [Name]'s
+    session?"). A move between tables is an explicit two-step (player left on
+    Table A, then seat on Table B). No-show belongs to waitlist/reservation
+    calls, not seated players. Players never end their own sessions. Sessions
+    over 8h show a ⚠️ warning (no auto-end).
   - **Blinds** (inline editable, **per game** — mirrors across same-stake tables,
     reflected to players in real time, 0.5s pulse), **average stack** (inline
     editable, per game), and **min buy-in** (inline editable, per game — mirrors

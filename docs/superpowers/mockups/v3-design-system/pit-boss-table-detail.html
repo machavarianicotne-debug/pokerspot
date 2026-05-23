@@ -382,9 +382,8 @@
     if (seat.classList.contains('filled')) {
       const nm = seat.dataset.name || 'Player';
       openActions('Seat ' + seat.dataset.seat + ' · ' + nm, [
-        { label: 'Player left — end session', cls: 'danger', fn: () => vacate(seat, felt) },
-        { label: 'No-show', cls: 'danger', fn: () => vacate(seat, felt) },
-        { label: 'Move to another table', fn: () => alert('Move ' + nm + ' → pick a table') }
+        { label: 'Player left — end session', cls: 'danger',
+          fn: () => { if (confirm('End ' + nm + "'s session?")) vacate(seat, felt); } }
       ]);
     } else { openSearch(seat, felt); }
   }

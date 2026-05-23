@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="liquid-sport">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot · Pit Boss — Live Floor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* SCREEN-SPECIFIC LAYOUT ONLY */
+  .floor-title { font-family: var(--font-family-display); font-size: var(--type-title);
+    font-weight: var(--weight-black); letter-spacing: var(--tracking-snug); margin-top: 1px; }
+  .floor-right { display: flex; align-items: center; gap: var(--space-3); }
+  .clock { display: inline-flex; align-items: center; gap: 6px; font-size: var(--type-subhead);
+    font-weight: var(--weight-bold); color: var(--color-text); font-variant-numeric: tabular-nums; }
+  .clock .ps-live-dot { color: var(--color-status-live); }
+
+  .summary { display: flex; align-items: center; justify-content: space-between; margin: 2px 4px var(--space-4); }
+  .summary .s { font-size: var(--type-subhead); color: var(--color-text-muted); font-weight: var(--weight-medium); }
+  .summary .s b { color: var(--color-text); font-weight: var(--weight-black); }
+
+  .game-card { margin-bottom: var(--space-4); }
+  .g-head { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--space-3);
+    padding: 14px 16px 8px; }
+  .g-stake { font-family: var(--font-family-display); font-size: var(--type-headline);
+    font-weight: var(--weight-black); letter-spacing: var(--tracking-snug); }
+  .g-sub { font-size: var(--type-caption); color: var(--color-text-muted); margin-top: 2px; }
+  .g-metrics { display: flex; gap: var(--space-3); padding: 0 16px 12px; }
+  .gm { flex: 1; border-radius: var(--radius-md); padding: 10px 12px; background: var(--glass-bg-regular);
+    border: 1px solid var(--glass-border); }
+  .gm-v { font-family: var(--font-family-display); font-size: var(--type-display-2); line-height: 0.9;
+    font-weight: var(--weight-black); letter-spacing: var(--tracking-tight); font-variant-numeric: tabular-nums; }
+  .gm.seats .gm-v { color: var(--color-accent-primary); }
+  .gm.full .gm-v { color: var(--color-status-full); font-size: var(--type-headline); }
+  .gm-k { font-size: var(--type-micro); font-weight: var(--weight-black); letter-spacing: var(--tracking-wide);
+    color: var(--color-text-faint); text-transform: uppercase; margin-top: 6px; }
+  .gm.avg-cell { cursor: pointer; transition: border-color var(--duration-fast); }
+  .gm.avg-cell:hover { border-color: var(--color-accent-secondary); }
+  .gm-k.saved { color: var(--color-accent-primary); }
+  .avg-edit { display: flex; align-items: center; gap: 4px; }
+  .avg-edit .cur { font-family: var(--font-family-display); font-size: var(--type-headline);
+    font-weight: var(--weight-black); }
+  .avg-input { width: 64px; background: transparent; border: none; border-bottom: 2px solid var(--color-accent-secondary);
+    color: var(--color-text); font-family: var(--font-family-display); font-size: var(--type-headline);
+    font-weight: var(--weight-black); outline: none; }
+  .avg-save { margin-left: auto; width: 30px; height: 30px; border-radius: var(--radius-full);
+    background: var(--color-accent-primary); color: var(--color-on-accent); border: none; cursor: pointer;
+    display: grid; place-items: center; }
+  .spinner-sm { width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid color-mix(in srgb, var(--color-accent-primary) 30%, transparent);
+    border-top-color: var(--color-accent-primary); display: inline-block; animation: ps-spin 0.7s linear infinite; }
+  @keyframes ps-spin { to { transform: rotate(360deg); } }
+
+  .g-manage { display: flex; align-items: center; justify-content: space-between; padding: 13px 16px;
+    border-top: 1px solid var(--glass-border); text-decoration: none; color: var(--color-accent-primary);
+    font-size: var(--type-subhead); font-weight: var(--weight-bold); }
+
+  .new-game { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+    padding: 18px; border-radius: var(--radius-lg); border: 1.5px dashed var(--glass-border);
+    background: var(--glass-bg-thin); color: var(--color-accent-primary); font-size: var(--type-headline);
+    font-weight: var(--weight-bold); text-decoration: none; margin-top: var(--space-2);
+    transition: border-color var(--duration-fast); }
+  .new-game:hover { border-color: var(--color-accent-primary); }
+</style>
+</head>
+<body>
+<div class="ps-phone">
+  <div class="ps-statusbar">
+    <span>9:41</span>
+    <span class="ps-status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="ps-glass-nav">
+    <div>
+      <div class="ps-overline">Royal Poker Tbilisi</div>
+      <div class="floor-title">Live Floor</div>
+    </div>
+    <div class="floor-right">
+      <span class="clock"><span class="ps-live-dot"></span>23:14</span>
+      <span class="ps-avatar">PB</span>
+    </div>
+  </div>
+
+  <div class="ps-screen">
+    <div class="summary">
+      <span class="s"><b>3</b> games · <b>3</b> open seats · <b>10</b> waiting</span>
+    </div>
+
+    <!-- 1/3 NLH -->
+    <div class="ps-card game-card ps-rise">
+      <span class="accent-rail"></span>
+      <div class="g-head">
+        <div><div class="g-stake">1/3 NLH</div><div class="g-sub">Min ₾200 · 2 tables</div></div>
+        <span class="ps-stake-pill"><span class="type">NLH</span></span>
+      </div>
+      <div class="g-metrics">
+        <div class="gm seats"><div class="gm-v">1</div><div class="gm-k">Open seats</div></div>
+        <div class="gm"><div class="gm-v">4</div><div class="gm-k">Waitlist</div></div>
+        <div class="gm avg-cell" data-avg="2400"><div class="gm-v">₾2,400</div><div class="gm-k">Avg · tap edit</div></div>
+      </div>
+      <a class="g-manage" href="pit-boss-game-detail.html?game=1-3-nlh">Manage tables &amp; waitlist
+        <svg width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1.5 1.5L7 7.5 1.5 13.5"/></svg></a>
+    </div>
+
+    <!-- 5/5 PLO (full) -->
+    <div class="ps-card game-card ps-rise is-full">
+      <span class="accent-rail"></span>
+      <div class="g-head">
+        <div><div class="g-stake">5/5 PLO</div><div class="g-sub">Min ₾500 · 1 table</div></div>
+        <span class="ps-stake-pill"><span class="type">PLO</span></span>
+      </div>
+      <div class="g-metrics">
+        <div class="gm full"><div class="gm-v">FULL</div><div class="gm-k">No seats</div></div>
+        <div class="gm"><div class="gm-v">6</div><div class="gm-k">Waitlist</div></div>
+        <div class="gm avg-cell" data-avg="4800"><div class="gm-v">₾4,800</div><div class="gm-k">Avg · tap edit</div></div>
+      </div>
+      <a class="g-manage" href="pit-boss-game-detail.html?game=5-5-plo">Manage tables &amp; waitlist
+        <svg width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1.5 1.5L7 7.5 1.5 13.5"/></svg></a>
+    </div>
+
+    <!-- 5/10 NLH (avg unset) -->
+    <div class="ps-card game-card ps-rise">
+      <span class="accent-rail"></span>
+      <div class="g-head">
+        <div><div class="g-stake">5/10 NLH</div><div class="g-sub">Min ₾1,000 · 1 table</div></div>
+        <span class="ps-stake-pill"><span class="type">NLH</span></span>
+      </div>
+      <div class="g-metrics">
+        <div class="gm seats"><div class="gm-v">2</div><div class="gm-k">Open seats</div></div>
+        <div class="gm"><div class="gm-v">0</div><div class="gm-k">Waitlist</div></div>
+        <div class="gm avg-cell" data-avg=""><div class="gm-v">—</div><div class="gm-k">Avg · tap to set</div></div>
+      </div>
+      <a class="g-manage" href="pit-boss-game-detail.html?game=5-10-nlh">Manage tables &amp; waitlist
+        <svg width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1.5 1.5L7 7.5 1.5 13.5"/></svg></a>
+    </div>
+
+    <a class="new-game" href="pit-boss-new-game.html">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+      Open a new game
+    </a>
+  </div>
+
+  <div class="ps-tabbar">
+    <div class="ps-tab is-active"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>Floor</div>
+    <div class="ps-tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>Reservations</div>
+    <div class="ps-tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.5-2.4 1a7 7 0 0 0-1.7-1l-.3-2.5h-4l-.3 2.5a7 7 0 0 0-1.7 1l-2.4-1-2 3.5 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.5 2.4-1a7 7 0 0 0 1.7 1l.3 2.5h4l.3-2.5a7 7 0 0 0 1.7-1l2.4 1 2-3.5-2-1.5a7 7 0 0 0 .1-1z"/></svg>Settings</div>
+  </div>
+  <div class="ps-home-indicator"></div>
+</div>
+
+<script>
+  /* Average-stack quick edit: tap → input → save → 500ms → live feedback */
+  document.querySelectorAll('.avg-cell').forEach(cell => {
+    cell.addEventListener('click', () => {
+      if (cell.querySelector('input')) return;            // already editing
+      const cur = cell.dataset.avg || '';
+      cell.innerHTML =
+        '<div class="avg-edit"><span class="cur">₾</span>' +
+        '<input class="avg-input" type="number" inputmode="numeric" value="' + cur + '" placeholder="—">' +
+        '<button class="avg-save" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 6"/></svg></button></div>' +
+        '<div class="gm-k">Avg stack</div>';
+      const input = cell.querySelector('.avg-input');
+      input.focus(); input.select();
+      cell.querySelector('.avg-save').addEventListener('click', e => {
+        e.stopPropagation();
+        const val = input.value.trim();
+        cell.innerHTML = '<div class="gm-v"><span class="spinner-sm"></span></div><div class="gm-k">Saving…</div>';
+        setTimeout(() => {
+          const disp = val ? '₾' + Number(val).toLocaleString('en-US') : '—';
+          cell.dataset.avg = val;
+          cell.innerHTML = '<div class="gm-v">' + disp + '</div><div class="gm-k saved">✓ Saved</div>';
+          setTimeout(() => {
+            const k = cell.querySelector('.gm-k');
+            if (k) { k.textContent = 'Avg · tap edit'; k.classList.remove('saved'); }
+          }, 1600);
+        }, 500);
+      });
+    });
+  });
+
+  window.addEventListener('message', e => {
+    if (e.data && e.data.psTheme !== undefined) {
+      if (e.data.psTheme) document.documentElement.setAttribute('data-theme', e.data.psTheme);
+      else document.documentElement.removeAttribute('data-theme');
+    }
+  });
+</script>
+</body>
+</html>

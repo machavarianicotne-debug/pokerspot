@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="liquid-sport">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot · Pit Boss — Game Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* SCREEN-SPECIFIC LAYOUT ONLY */
+  .nav-back { width: 38px; height: 38px; border-radius: var(--radius-full); display: grid; place-items: center;
+    color: var(--color-text); background: var(--glass-bg-regular); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur-thin)); text-decoration: none; }
+  .nav-mid { text-align: center; }
+  .nav-mid .t { font-family: var(--font-family-display); font-size: var(--type-headline);
+    font-weight: var(--weight-black); letter-spacing: var(--tracking-snug); }
+  .nav-mid .s { font-size: var(--type-micro); font-weight: var(--weight-bold); letter-spacing: var(--tracking-wide);
+    text-transform: uppercase; color: var(--color-text-faint); }
+
+  /* avg meta strip */
+  .meta-strip { display: flex; align-items: center; gap: var(--space-3); padding: 12px 14px;
+    border-radius: var(--radius-md); background: var(--glass-bg-thin); border: 1px solid var(--glass-border);
+    margin-bottom: var(--space-5); }
+  .meta-strip .mk { font-size: var(--type-caption); color: var(--color-text-faint); font-weight: var(--weight-bold);
+    text-transform: uppercase; letter-spacing: var(--tracking-wide); }
+  .meta-strip .mv { font-family: var(--font-family-display); font-size: var(--type-headline);
+    font-weight: var(--weight-black); }
+  .meta-strip .edit-avg { margin-left: auto; font-size: var(--type-subhead); font-weight: var(--weight-bold);
+    color: var(--color-accent-secondary); background: none; border: none; cursor: pointer; }
+  .avg-input { width: 80px; background: transparent; border: none; border-bottom: 2px solid var(--color-accent-secondary);
+    color: var(--color-text); font-family: var(--font-family-display); font-size: var(--type-headline);
+    font-weight: var(--weight-black); outline: none; }
+  .spinner-sm { width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid color-mix(in srgb, var(--color-accent-primary) 30%, transparent);
+    border-top-color: var(--color-accent-primary); display: inline-block; animation: ps-spin .7s linear infinite; }
+  @keyframes ps-spin { to { transform: rotate(360deg); } }
+
+  .section { margin: var(--space-2) 4px var(--space-3); display: flex; align-items: center; }
+  .section .add { margin-left: auto; font-size: var(--type-caption); font-weight: var(--weight-black);
+    color: var(--color-accent-primary); background: none; border: none; cursor: pointer; text-transform: uppercase;
+    letter-spacing: var(--tracking-wide); }
+
+  /* tables */
+  .table-card { padding: 14px 16px; margin-bottom: var(--space-3); }
+  .t-head { display: flex; align-items: center; gap: var(--space-2); margin-bottom: 12px; }
+  .t-name { font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black); }
+  .t-count { font-size: var(--type-caption); color: var(--color-text-muted); font-weight: var(--weight-bold); }
+  .t-count .filled { color: var(--color-accent-primary); }
+  .t-step { margin-left: auto; display: flex; gap: 6px; }
+  .t-step button { width: 30px; height: 30px; border-radius: var(--radius-full); border: 1px solid var(--glass-border);
+    background: var(--glass-bg-regular); color: var(--color-text); font-size: 17px; font-weight: var(--weight-bold);
+    cursor: pointer; line-height: 1; }
+  .t-ctrl { font-size: var(--type-caption); font-weight: var(--weight-bold); padding: 6px 10px;
+    border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: var(--glass-bg-regular);
+    color: var(--color-text-muted); cursor: pointer; }
+  .seats { display: grid; grid-template-columns: repeat(9, 1fr); gap: 6px; }
+  .seat { aspect-ratio: 1; border-radius: 50%; border: 2px solid var(--glass-border); background: transparent;
+    cursor: pointer; transition: transform var(--duration-fast), background var(--duration-fast); }
+  .seat:active { transform: scale(0.9); }
+  .seat.filled { background: var(--color-accent-primary); border-color: var(--color-accent-primary);
+    box-shadow: 0 0 8px -1px var(--color-accent-primary); }
+  .add-table { width: 100%; padding: 13px; border-radius: var(--radius-md); border: 1.5px dashed var(--glass-border);
+    background: var(--glass-bg-thin); color: var(--color-accent-primary); font-weight: var(--weight-bold);
+    font-size: var(--type-subhead); cursor: pointer; margin-bottom: var(--space-5); }
+
+  /* waitlist */
+  .wl-item { padding: 12px 14px; margin-bottom: var(--space-2); }
+  .wl-top { display: flex; align-items: center; gap: var(--space-3); }
+  .wl-pos { font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black);
+    color: var(--color-accent-primary); min-width: 22px; }
+  .wl-name { font-size: var(--type-body); font-weight: var(--weight-bold); }
+  .wl-meta { font-size: var(--type-caption); color: var(--color-text-faint); }
+  .wl-item.is-called { border-color: color-mix(in srgb, var(--color-status-live) 45%, transparent);
+    background: color-mix(in srgb, var(--color-status-live) 8%, var(--glass-bg-thin)); }
+  .called-badge { display: none; margin-left: auto; font-size: var(--type-micro); font-weight: var(--weight-black);
+    text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--color-status-live);
+    padding: 4px 8px; border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--color-status-live) 14%, transparent); }
+  .wl-item.is-called .called-badge { display: inline-block; }
+  .wl-actions { display: flex; gap: 6px; margin-top: 10px; }
+  .wl-actions button { flex: 1; font-size: var(--type-caption); font-weight: var(--weight-bold); padding: 8px 4px;
+    border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: var(--glass-bg-regular);
+    color: var(--color-text); cursor: pointer; }
+  .wl-actions button.primary { background: var(--color-accent-primary); color: var(--color-on-accent);
+    border-color: transparent; }
+  .wl-actions button.danger { color: var(--color-status-live); flex: 0 0 40px; }
+  .removed { opacity: 0; transform: translateX(40px); transition: .3s; }
+
+  /* reservations */
+  .res-item { padding: 12px 14px; margin-bottom: var(--space-2); }
+  .res-main { display: flex; align-items: center; }
+  .res-name { font-size: var(--type-body); font-weight: var(--weight-bold); }
+  .res-meta { font-size: var(--type-caption); color: var(--color-text-muted); margin-top: 2px; }
+  .res-badge { margin-left: auto; }
+  .res-actions { display: flex; gap: 6px; margin-top: 10px; }
+  .res-actions button { flex: 1; font-size: var(--type-caption); font-weight: var(--weight-bold); padding: 8px;
+    border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: var(--glass-bg-regular);
+    color: var(--color-text); cursor: pointer; }
+  .res-actions button.accept { background: var(--color-accent-primary); color: var(--color-on-accent); border-color: transparent; }
+  .res-actions button.reject { color: var(--color-status-live); }
+  .res-actions button.arrived { background: var(--color-accent-secondary); color: var(--color-on-accent); border-color: transparent; }
+
+  /* action sheet */
+  .sheet-backdrop { position: absolute; inset: 0; z-index: 8; background: rgba(0,0,0,0.5);
+    opacity: 0; pointer-events: none; transition: opacity var(--duration-normal); }
+  .sheet-backdrop.show { opacity: 1; pointer-events: auto; }
+  .sheet { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 9; border-radius: var(--radius-xl);
+    background: var(--glass-bg-thick); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur-thick)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur-thick)) saturate(var(--glass-saturate));
+    box-shadow: var(--inset-highlight), var(--elevation-5); padding: 10px 14px 14px;
+    transform: translateY(120%); transition: transform var(--duration-normal) var(--ease-decelerate); }
+  .sheet.show { transform: translateY(0); }
+  .sheet-grab { width: 36px; height: 5px; border-radius: 3px; background: var(--glass-border); margin: 0 auto 12px; }
+  .sheet-title { font-size: var(--type-caption); font-weight: var(--weight-black); text-transform: uppercase;
+    letter-spacing: var(--tracking-wide); color: var(--color-text-faint); margin-bottom: 10px; text-align: center; }
+  .sheet-act { width: 100%; padding: 15px; border-radius: var(--radius-md); border: 1px solid var(--glass-border);
+    background: var(--glass-bg-regular); color: var(--color-text); font-size: var(--type-body);
+    font-weight: var(--weight-bold); cursor: pointer; margin-bottom: 8px; }
+  .sheet-act.primary { background: var(--color-accent-primary); color: var(--color-on-accent); border-color: transparent; }
+  .sheet-act.danger { color: var(--color-status-live); }
+  .sheet-cancel { width: 100%; padding: 14px; border-radius: var(--radius-md); border: none;
+    background: transparent; color: var(--color-text-muted); font-size: var(--type-body); font-weight: var(--weight-bold);
+    cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="ps-phone">
+  <div class="ps-statusbar">
+    <span>9:41</span>
+    <span class="ps-status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="ps-glass-nav">
+    <a class="nav-back" href="pit-boss-live-floor.html" aria-label="Back">
+      <svg width="11" height="18" viewBox="0 0 11 18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9.5 1.5L2 9l7.5 7.5"/></svg>
+    </a>
+    <div class="nav-mid"><div class="t">1/3 NLH</div><div class="s">Royal Poker · Live Floor</div></div>
+    <span style="width:38px"></span>
+  </div>
+
+  <div class="ps-screen">
+    <!-- avg stack strip -->
+    <div class="meta-strip" id="avgStrip" data-avg="2400">
+      <span class="mk">Avg stack</span>
+      <span class="mv" id="avgVal">₾2,400</span>
+      <button class="edit-avg" id="avgEdit">Edit</button>
+    </div>
+
+    <!-- tables -->
+    <div class="section"><span class="ps-overline">Tables · 2</span></div>
+
+    <div class="ps-card table-card">
+      <div class="t-head">
+        <span class="t-name">Table 1</span>
+        <span class="t-count"><span class="filled">8</span>/9 seated</span>
+        <span class="t-step"><button class="t-minus">−</button><button class="t-plus">+</button></span>
+      </div>
+      <div class="seats" data-filled="8" data-max="9"></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="t-ctrl">Break</button><button class="t-ctrl">Close</button>
+      </div>
+    </div>
+
+    <div class="ps-card table-card">
+      <div class="t-head">
+        <span class="t-name">Table 2</span>
+        <span class="t-count"><span class="filled">9</span>/9 seated</span>
+        <span class="t-step"><button class="t-minus">−</button><button class="t-plus">+</button></span>
+      </div>
+      <div class="seats" data-filled="9" data-max="9"></div>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button class="t-ctrl">Break</button><button class="t-ctrl">Close</button>
+      </div>
+    </div>
+
+    <button class="add-table" onclick="alert('Add table — opens a 3rd 1/3 NLH table')">+ Add table</button>
+
+    <!-- waitlist -->
+    <div class="section"><span class="ps-overline" id="wlHead">Waitlist · 4</span>
+      <button class="add" id="addWalkin">+ Walk-in</button></div>
+    <div id="waitlist"></div>
+
+    <!-- reservations -->
+    <div class="section"><span class="ps-overline">Reservations · pending</span></div>
+    <div id="reservations">
+      <div class="ps-card res-item">
+        <div class="res-main">
+          <div><div class="res-name">Levan · 2 players</div><div class="res-meta">22:30 · note: "regular, corner seat"</div></div>
+          <span class="res-badge ps-status-badge is-open">Pending</span>
+        </div>
+        <div class="res-actions">
+          <button class="accept" data-act="accept">Accept</button>
+          <button class="reject" data-act="reject">Reject</button>
+        </div>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- action sheet -->
+  <div class="sheet-backdrop" id="backdrop"></div>
+  <div class="sheet" id="sheet">
+    <div class="sheet-grab"></div>
+    <div class="sheet-title" id="sheetTitle">Seat</div>
+    <div id="sheetActions"></div>
+    <button class="sheet-cancel" id="sheetCancel">Cancel</button>
+  </div>
+
+  <div class="ps-home-indicator"></div>
+</div>
+
+<script>
+  /* ---------- build seat grids ---------- */
+  document.querySelectorAll('.seats').forEach(grid => {
+    const max = +grid.dataset.max, filled = +grid.dataset.filled;
+    for (let i = 0; i < max; i++) {
+      const b = document.createElement('button');
+      b.className = 'seat' + (i < filled ? ' filled' : '');
+      grid.appendChild(b);
+    }
+  });
+
+  function updateTableCount(card) {
+    const filled = card.querySelectorAll('.seat.filled').length;
+    card.querySelector('.t-count .filled').textContent = filled;
+  }
+
+  /* ---------- action sheet ---------- */
+  const sheet = document.getElementById('sheet');
+  const backdrop = document.getElementById('backdrop');
+  const sheetActions = document.getElementById('sheetActions');
+  const sheetTitle = document.getElementById('sheetTitle');
+  function openSheet(title, actions) {
+    sheetTitle.textContent = title;
+    sheetActions.innerHTML = '';
+    actions.forEach(a => {
+      const b = document.createElement('button');
+      b.className = 'sheet-act' + (a.cls ? ' ' + a.cls : '');
+      b.textContent = a.label;
+      b.onclick = () => { a.fn(); closeSheet(); };
+      sheetActions.appendChild(b);
+    });
+    sheet.classList.add('show'); backdrop.classList.add('show');
+  }
+  function closeSheet() { sheet.classList.remove('show'); backdrop.classList.remove('show'); }
+  backdrop.onclick = closeSheet;
+  document.getElementById('sheetCancel').onclick = closeSheet;
+
+  /* ---------- seat taps ---------- */
+  function bindSeats() {
+    document.querySelectorAll('.seat').forEach(seat => {
+      seat.onclick = () => {
+        const card = seat.closest('.table-card');
+        if (seat.classList.contains('filled')) {
+          openSheet('Occupied seat', [
+            { label: 'Player left — open seat', cls: 'danger',
+              fn: () => { seat.classList.remove('filled'); updateTableCount(card); } }
+          ]);
+        } else {
+          const top = document.querySelector('#waitlist .wl-item');
+          const actions = [];
+          if (top) {
+            const nm = top.querySelector('.wl-name').textContent;
+            actions.push({ label: 'Call next — #1 ' + nm, cls: 'primary',
+              fn: () => { seat.classList.add('filled'); updateTableCount(card); removeWl(top); } });
+          }
+          actions.push({ label: 'Seat a walk-in',
+            fn: () => { seat.classList.add('filled'); updateTableCount(card); } });
+          openSheet('Open seat', actions);
+        }
+      };
+    });
+  }
+  bindSeats();
+
+  /* ---------- +/- counter fallback ---------- */
+  document.querySelectorAll('.table-card').forEach(card => {
+    card.querySelector('.t-plus').onclick = () => {
+      const e = card.querySelector('.seat:not(.filled)'); if (e) { e.classList.add('filled'); updateTableCount(card); }
+    };
+    card.querySelector('.t-minus').onclick = () => {
+      const f = [...card.querySelectorAll('.seat.filled')].pop(); if (f) { f.classList.remove('filled'); updateTableCount(card); }
+    };
+  });
+
+  /* ---------- waitlist ---------- */
+  const wl = document.getElementById('waitlist');
+  const wlSeed = [
+    { name: 'Giorgi', meta: 'joined 22:48' },
+    { name: 'Nino',   meta: 'joined 22:55' },
+    { name: 'Davit',  meta: 'joined 23:02' },
+    { name: 'Anna',   meta: 'joined 23:09' }
+  ];
+  function wlItem(name, meta, top) {
+    const el = document.createElement('div');
+    el.className = 'ps-card wl-item';
+    el.innerHTML =
+      '<div class="wl-top"><span class="wl-pos">0</span>' +
+        '<div><div class="wl-name">' + name + '</div><div class="wl-meta">' + (meta || 'walk-in') + '</div></div>' +
+        '<span class="called-badge">Called</span></div>' +
+      '<div class="wl-actions">' +
+        '<button class="primary" data-act="call">Call</button>' +
+        '<button data-act="seat">Seat</button>' +
+        '<button data-act="noshow">No-show</button>' +
+        '<button class="danger" data-act="remove">×</button></div>';
+    el.querySelectorAll('.wl-actions button').forEach(b => b.onclick = () => {
+      const act = b.dataset.act;
+      if (act === 'call') el.classList.add('is-called');
+      else removeWl(el);   // seat / no-show / remove all leave the list
+    });
+    if (top && wl.firstChild) wl.insertBefore(el, wl.firstChild); else wl.appendChild(el);
+    renumber();
+    return el;
+  }
+  function removeWl(el) { el.classList.add('removed'); setTimeout(() => { el.remove(); renumber(); }, 300); }
+  function renumber() {
+    const items = [...wl.querySelectorAll('.wl-item:not(.removed)')];
+    items.forEach((it, i) => it.querySelector('.wl-pos').textContent = i + 1);
+    document.getElementById('wlHead').textContent = 'Waitlist · ' + items.length;
+  }
+  wlSeed.forEach(p => wlItem(p.name, p.meta, false));
+
+  document.getElementById('addWalkin').onclick = () => {
+    const name = prompt('Walk-in name'); if (name && name.trim()) wlItem(name.trim(), 'walk-in', false);
+  };
+
+  /* ---------- reservations ---------- */
+  document.querySelectorAll('#reservations .res-item').forEach(res => {
+    const actions = res.querySelector('.res-actions');
+    const badge = res.querySelector('.res-badge');
+    actions.querySelectorAll('button').forEach(b => b.onclick = () => {
+      const act = b.dataset.act;
+      if (act === 'reject') { res.classList.add('removed'); setTimeout(() => res.remove(), 300); }
+      else if (act === 'accept') {
+        badge.className = 'res-badge ps-status-badge is-live';
+        badge.innerHTML = '<span class="ps-live-dot"></span>Accepted';
+        actions.innerHTML = '<button class="arrived" data-act="arrived">Mark arrived → top of waitlist</button>';
+        actions.querySelector('button').onclick = () => {
+          const nm = res.querySelector('.res-name').textContent.split(' · ')[0];
+          wlItem(nm, 'reservation · arrived', true);
+          res.classList.add('removed'); setTimeout(() => res.remove(), 300);
+        };
+      }
+    });
+  });
+
+  /* ---------- avg-stack edit (tap → input → save → 500ms → live) ---------- */
+  const strip = document.getElementById('avgStrip');
+  function fmtAvg(v) { return v ? '₾' + Number(v).toLocaleString('en-US') : '—'; }
+  function avgDisplay() {
+    strip.innerHTML = '<span class="mk">Avg stack</span><span class="mv">' + fmtAvg(strip.dataset.avg)
+      + '</span><button class="edit-avg">Edit</button>';
+    strip.querySelector('.edit-avg').onclick = avgStartEdit;
+  }
+  function avgStartEdit() {
+    strip.innerHTML = '<span class="mk">Avg stack</span>'
+      + '<span class="mv"><span style="font-family:var(--font-family-display)">₾</span>'
+      + '<input class="avg-input" id="avgInput" type="number" inputmode="numeric" value="'
+      + (strip.dataset.avg || '') + '" placeholder="—"></span>'
+      + '<button class="edit-avg" style="color:var(--color-accent-primary)">Save</button>';
+    const input = strip.querySelector('#avgInput'); input.focus(); input.select();
+    strip.querySelector('.edit-avg').onclick = avgSave;
+  }
+  function avgSave() {
+    const val = strip.querySelector('#avgInput').value.trim();
+    strip.innerHTML = '<span class="mk">Avg stack</span><span class="mv"><span class="spinner-sm"></span></span>'
+      + '<button class="edit-avg">Saving…</button>';
+    setTimeout(() => {
+      strip.dataset.avg = val;
+      strip.innerHTML = '<span class="mk">Avg stack</span><span class="mv">' + fmtAvg(val)
+        + '</span><button class="edit-avg" style="color:var(--color-accent-primary)">✓ Saved</button>';
+      setTimeout(avgDisplay, 1500);
+    }, 500);
+  }
+  avgDisplay();
+
+  window.addEventListener('message', e => {
+    if (e.data && e.data.psTheme !== undefined) {
+      if (e.data.psTheme) document.documentElement.setAttribute('data-theme', e.data.psTheme);
+      else document.documentElement.removeAttribute('data-theme');
+    }
+  });
+</script>
+</body>
+</html>

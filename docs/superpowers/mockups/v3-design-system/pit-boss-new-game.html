@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="liquid-sport">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot · Pit Boss — New Game</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* SCREEN-SPECIFIC LAYOUT ONLY */
+  .nav-back { width: 38px; height: 38px; border-radius: var(--radius-full); display: grid; place-items: center;
+    color: var(--color-text); background: var(--glass-bg-regular); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur-thin)); text-decoration: none; }
+  .nav-title { font-size: var(--type-body); font-weight: var(--weight-bold); }
+
+  .group { margin-bottom: var(--space-6); }
+  .glabel { display: block; font-size: var(--type-caption); font-weight: var(--weight-black);
+    letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--color-text-faint);
+    margin-bottom: var(--space-3); }
+  .glabel .opt { color: var(--color-text-faint); font-weight: var(--weight-medium); text-transform: none; letter-spacing: 0; }
+
+  .seg { display: flex; background: var(--glass-bg-regular); border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md); padding: 4px; }
+  .seg span { flex: 1; text-align: center; padding: 11px; border-radius: var(--radius-sm);
+    font-size: var(--type-body); font-weight: var(--weight-bold); color: var(--color-text-muted); cursor: pointer;
+    transition: background var(--duration-fast); }
+  .seg span.on { background: var(--color-accent-primary); color: var(--color-on-accent); }
+
+  .choices { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .choice { padding: 11px 15px; border-radius: var(--radius-md); background: var(--glass-bg-thin);
+    border: 1px solid var(--glass-border); cursor: pointer; font-size: var(--type-body);
+    font-weight: var(--weight-bold); color: var(--color-text);
+    transition: transform var(--duration-fast), border-color var(--duration-fast); }
+  .choice:active { transform: scale(0.96); }
+  .choice.on { border-color: var(--color-accent-primary);
+    background: color-mix(in srgb, var(--color-accent-primary) 12%, transparent); color: var(--color-accent-primary); }
+
+  .money { display: flex; align-items: center; gap: 8px; padding: 0 var(--space-4); min-height: 50px;
+    background: var(--glass-bg-thin); border: 1px solid var(--glass-border); border-radius: var(--radius-md); }
+  .money .cur { font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black);
+    color: var(--color-text-muted); }
+  .money input { flex: 1; background: transparent; border: none; outline: none; color: var(--color-text);
+    font-family: var(--font-family-body); font-size: var(--type-headline); font-weight: var(--weight-bold); }
+  .money input::placeholder { color: var(--color-text-faint); font-weight: var(--weight-medium); }
+
+  .custom-blinds { margin-top: var(--space-2); display: none; }
+  .custom-blinds.show { display: block; }
+
+  .stepper { display: flex; align-items: center; gap: var(--space-4); }
+  .step-btn { width: 46px; height: 46px; border-radius: var(--radius-full); display: grid; place-items: center;
+    background: var(--glass-bg-regular); border: 1px solid var(--glass-border); color: var(--color-text);
+    font-size: 24px; font-weight: var(--weight-bold); cursor: pointer; }
+  .step-btn:active { transform: scale(0.94); }
+  .step-val { font-family: var(--font-family-display); font-size: var(--type-display-2); font-weight: var(--weight-black);
+    min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; }
+  .step-unit { font-size: var(--type-body); color: var(--color-text-muted); }
+
+  .submit-bar { position: absolute; left: var(--space-4); right: var(--space-4); bottom: 16px; z-index: 6; }
+  .submit-bar .ps-btn { width: 100%; }
+  .ps-btn.is-loading { opacity: 0.8; cursor: progress; }
+  .spinner { width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid color-mix(in srgb, var(--color-on-accent) 35%, transparent); border-top-color: var(--color-on-accent);
+    display: inline-block; animation: ps-spin .7s linear infinite; }
+  @keyframes ps-spin { to { transform: rotate(360deg); } }
+
+  .success { position: absolute; inset: 0; z-index: 10; display: none; flex-direction: column; align-items: center;
+    justify-content: center; gap: var(--space-4); text-align: center; padding: var(--space-8);
+    background: color-mix(in srgb, var(--color-bg-0) 80%, transparent);
+    backdrop-filter: blur(var(--glass-blur-thick)); -webkit-backdrop-filter: blur(var(--glass-blur-thick)); }
+  .success.show { display: flex; }
+  .success .ring { width: 92px; height: 92px; border-radius: 50%; display: grid; place-items: center;
+    color: var(--color-on-accent); background: var(--color-accent-primary);
+    box-shadow: 0 0 50px -6px var(--color-accent-primary); animation: pop var(--duration-slow) var(--ease-standard); }
+  @keyframes pop { 0%{transform:scale(0.4);opacity:0} 60%{transform:scale(1.08)} 100%{transform:scale(1);opacity:1} }
+  .success .st { font-family: var(--font-family-display); font-size: var(--type-title); font-weight: var(--weight-black); }
+  .success .ss { font-size: var(--type-body); color: var(--color-text-muted); line-height: 1.45; max-width: 82%; }
+  .success .ps-btn { width: 80%; }
+</style>
+</head>
+<body>
+<div class="ps-phone">
+  <div class="ps-statusbar">
+    <span>9:41</span>
+    <span class="ps-status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="ps-glass-nav">
+    <a class="nav-back" href="pit-boss-live-floor.html" aria-label="Back">
+      <svg width="11" height="18" viewBox="0 0 11 18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9.5 1.5L2 9l7.5 7.5"/></svg>
+    </a>
+    <span class="nav-title">Open a new game</span>
+    <span style="width:38px"></span>
+  </div>
+
+  <div class="ps-screen" style="padding-bottom:96px">
+    <div class="group">
+      <span class="glabel">Game type</span>
+      <div class="seg" id="type"><span class="on">NLH</span><span>PLO</span></div>
+    </div>
+
+    <div class="group">
+      <span class="glabel">Blinds</span>
+      <div class="choices" id="blinds">
+        <span class="choice on">1/3</span><span class="choice">2/5</span>
+        <span class="choice">5/5</span><span class="choice">5/10</span>
+        <span class="choice" id="customPill">Custom</span>
+      </div>
+      <div class="custom-blinds" id="customBlinds">
+        <div class="money"><input type="text" placeholder="e.g. 10/20" /></div>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="glabel">Min buy-in</span>
+      <div class="money"><span class="cur">₾</span><input type="number" inputmode="numeric" placeholder="200" value="200" /></div>
+    </div>
+
+    <div class="group">
+      <span class="glabel">Initial average stack <span class="opt">(optional)</span></span>
+      <div class="money"><span class="cur">₾</span><input type="number" inputmode="numeric" placeholder="Leave blank if unknown" /></div>
+    </div>
+
+    <div class="group">
+      <span class="glabel">Tables to open</span>
+      <div class="stepper">
+        <button class="step-btn" id="minus">−</button>
+        <span class="step-val" id="tables">1</span>
+        <button class="step-btn" id="plus">+</button>
+        <span class="step-unit">table(s)</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="submit-bar">
+    <button class="ps-btn ps-btn--primary" id="submit">Open game</button>
+  </div>
+
+  <div class="success" id="success">
+    <div class="ring"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 6"/></svg></div>
+    <div class="st">Game opened</div>
+    <div class="ss" id="successSub">1/3 NLH is now live on the floor.</div>
+    <a class="ps-btn ps-btn--secondary" href="pit-boss-live-floor.html">Back to floor</a>
+  </div>
+
+  <div class="ps-home-indicator"></div>
+</div>
+
+<script>
+  let type = 'NLH', blinds = '1/3', tables = 1;
+
+  document.querySelectorAll('#type span').forEach(s => s.onclick = () => {
+    document.querySelectorAll('#type span').forEach(o => o.classList.remove('on'));
+    s.classList.add('on'); type = s.textContent;
+  });
+
+  document.querySelectorAll('#blinds .choice').forEach(c => c.onclick = () => {
+    document.querySelectorAll('#blinds .choice').forEach(o => o.classList.remove('on'));
+    c.classList.add('on');
+    const custom = c.id === 'customPill';
+    document.getElementById('customBlinds').classList.toggle('show', custom);
+    blinds = custom ? (document.querySelector('#customBlinds input').value || 'custom') : c.textContent;
+  });
+  document.querySelector('#customBlinds input').addEventListener('input', e => { blinds = e.target.value || 'custom'; });
+
+  document.getElementById('plus').onclick = () => { if (tables < 3) document.getElementById('tables').textContent = ++tables; };
+  document.getElementById('minus').onclick = () => { if (tables > 1) document.getElementById('tables').textContent = --tables; };
+
+  document.getElementById('submit').addEventListener('click', function () {
+    this.disabled = true; this.classList.add('is-loading');
+    this.innerHTML = '<span class="spinner"></span>Opening…';
+    setTimeout(() => {
+      document.getElementById('successSub').textContent =
+        blinds + ' ' + type + ' is now live on the floor (' + tables + ' table' + (tables > 1 ? 's' : '') + ').';
+      document.getElementById('success').classList.add('show');
+    }, 500);
+  });
+
+  window.addEventListener('message', e => {
+    if (e.data && e.data.psTheme !== undefined) {
+      if (e.data.psTheme) document.documentElement.setAttribute('data-theme', e.data.psTheme);
+      else document.documentElement.removeAttribute('data-theme');
+    }
+  });
+</script>
+</body>
+</html>

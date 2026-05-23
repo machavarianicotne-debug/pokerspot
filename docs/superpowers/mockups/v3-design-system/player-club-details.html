@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="liquid-sport">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot · Club Details (tokens)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* SCREEN-SPECIFIC LAYOUT ONLY — all values from tokens.css */
+  .nav-back { width: 38px; height: 38px; border-radius: var(--radius-full);
+    display: grid; place-items: center; color: var(--color-text);
+    background: var(--glass-bg-regular); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur-thin)); text-decoration: none;
+    transition: transform var(--duration-fast) var(--ease-standard); }
+  .nav-back:active { transform: scale(0.92); }
+  .nav-title { font-size: var(--type-body); font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-snug); max-width: 220px; overflow: hidden;
+    white-space: nowrap; text-overflow: ellipsis; }
+
+  /* info block */
+  .info { display: flex; flex-direction: column; gap: var(--space-3);
+    padding: var(--space-4); border-radius: var(--radius-lg);
+    background: var(--glass-bg-thin); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur-regular)) saturate(var(--glass-saturate));
+    box-shadow: var(--inset-highlight), var(--elevation-3); margin-bottom: var(--space-5); }
+  .info-top { display: flex; align-items: center; gap: var(--space-3); }
+  .logo-orb { width: 56px; height: 56px; border-radius: var(--radius-md); flex: none;
+    display: grid; place-items: center; font-size: 24px; font-weight: var(--weight-black);
+    font-family: var(--font-family-display); color: var(--color-on-accent);
+    background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary));
+    box-shadow: var(--elevation-2); }
+  .info-name { font-family: var(--font-family-display); font-size: var(--type-title);
+    font-weight: var(--weight-black); letter-spacing: var(--tracking-snug); }
+  .info-name + .ps-overline { margin-top: 3px; }
+  .info-rows { display: flex; flex-direction: column; gap: var(--space-2);
+    border-top: 1px solid var(--glass-border); padding-top: var(--space-3); }
+  .info-row { display: flex; align-items: center; gap: var(--space-3);
+    font-size: var(--type-body); color: var(--color-text-muted); }
+  .info-row svg { flex: none; opacity: 0.7; }
+  .info-row.callable { color: var(--color-accent-secondary); font-weight: var(--weight-bold);
+    text-decoration: none; }
+  .info-row .open-now { margin-left: auto; font-size: var(--type-micro);
+    font-weight: var(--weight-black); letter-spacing: var(--tracking-wide);
+    color: var(--color-status-live); text-transform: uppercase; }
+
+  /* stake cards */
+  .stake-head { display: flex; align-items: flex-start; justify-content: space-between;
+    gap: var(--space-3); padding: 14px 16px 8px; }
+  .stake-name { font-family: var(--font-family-display); font-size: var(--type-headline);
+    font-weight: var(--weight-black); letter-spacing: var(--tracking-snug); }
+  .stake-buyin { margin-top: 3px; font-size: var(--type-caption);
+    color: var(--color-text-muted); font-weight: var(--weight-medium); line-height: 1.35; }
+  .stake-head-right { display: flex; align-items: center; gap: 8px; flex: none; }
+  .stake-score { display: flex; gap: var(--space-3); padding: 0 16px 12px; }
+  .stake-action { padding: 0 16px 16px; }
+  .stake-action .ps-btn { width: 100%; }
+  .ps-card { margin-bottom: var(--space-4); }
+
+  /* JOIN button states */
+  .ps-btn--joined { background: transparent; color: var(--color-accent-primary);
+    border-color: var(--color-accent-primary); }
+  .ps-btn.is-loading { opacity: 0.75; cursor: progress; }
+  .spinner { width: 15px; height: 15px; border-radius: 50%;
+    border: 2px solid color-mix(in srgb, var(--color-on-accent) 35%, transparent);
+    border-top-color: var(--color-on-accent); display: inline-block;
+    animation: ps-spin 0.7s linear infinite; }
+  @keyframes ps-spin { to { transform: rotate(360deg); } }
+
+  /* "Joined" badge — sits where the stake pill is, only when joined */
+  .joined-badge { display: none; align-items: center; gap: 4px;
+    font-size: var(--type-micro); font-weight: var(--weight-black);
+    letter-spacing: var(--tracking-wide); text-transform: uppercase;
+    color: var(--color-accent-primary); padding: 4px 8px; border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--color-accent-primary) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-accent-primary) 35%, transparent); }
+  .ps-card.is-joined .joined-badge { display: inline-flex; }
+  .ps-card.is-joined .ps-stake-pill { display: none; }
+
+  /* accent rail pulse on join */
+  .accent-rail.is-pulsing { animation: rail-pulse 1.6s var(--ease-standard) 2; }
+  @keyframes rail-pulse {
+    0%,100% { box-shadow: 0 0 0 0 transparent; }
+    50%     { box-shadow: 0 0 18px 2px var(--color-accent-primary); }
+  }
+
+  /* empty state (open but no games) */
+  .empty-state { text-align: center; padding: var(--space-10) var(--space-5);
+    border-radius: var(--radius-lg); background: var(--glass-bg-thin);
+    border: 1px dashed var(--glass-border); }
+  .empty-state .emoji { font-size: 40px; opacity: 0.85; }
+  .empty-state .et { font-family: var(--font-family-display); font-size: var(--type-headline);
+    font-weight: var(--weight-black); margin-top: var(--space-3); }
+  .empty-state .es { font-size: var(--type-subhead); color: var(--color-text-muted);
+    margin-top: var(--space-2); line-height: 1.45; }
+
+  /* sticky reserve action */
+  .reserve-bar { position: absolute; left: var(--space-4); right: var(--space-4); bottom: 84px;
+    z-index: 6; }
+  .reserve-bar .ps-btn { width: 100%; }
+</style>
+</head>
+<body>
+<div class="ps-phone">
+  <div class="ps-statusbar">
+    <span>9:41</span>
+    <span class="ps-status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="ps-glass-nav">
+    <a class="nav-back" href="player-clubs-list.html" aria-label="Back">
+      <svg width="11" height="18" viewBox="0 0 11 18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9.5 1.5L2 9l7.5 7.5"/></svg>
+    </a>
+    <span class="nav-title" id="navTitle">Club</span>
+    <span class="ps-avatar">SZ</span>
+  </div>
+
+  <div class="ps-screen">
+    <div id="info"></div>
+    <div id="games"></div>
+    <div style="height: 56px"></div>
+  </div>
+
+  <!-- sticky reserve action -->
+  <div class="reserve-bar">
+    <button class="ps-btn ps-btn--secondary" id="reserveBtn">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+      Reserve a seat for tonight
+    </button>
+  </div>
+
+  <div class="ps-tabbar">
+    <div class="ps-tab is-active"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-2.5 4-6 6.2-6 9.7A6 6 0 0 0 12 18a6 6 0 0 0 6-6.3C18 8.2 14.5 6 12 2z"/></svg>Clubs</div>
+    <div class="ps-tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Activity</div>
+    <div class="ps-tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile</div>
+  </div>
+  <div class="ps-home-indicator"></div>
+</div>
+
+<script>
+/* ---- MOCK DATA (Flutter: this comes from a repository, not hardcoded) ---- */
+const clubsData = {
+  'royal': {
+    name: 'Royal Poker Tbilisi', city: 'Tbilisi', address: 'Chavchavadze Ave 25',
+    phone: '+995 599 12 34 56', hours: '20:00 — 06:00', logo: 'R',
+    games: [
+      { stake: '1/3 NLH',  minBuyIn: '₾200',   avgStack: '₾2,400', tables: 2, openSeats: 1, waitlist: 4 },
+      { stake: '5/5 PLO',  minBuyIn: '₾500',   avgStack: '₾4,800', tables: 1, openSeats: 0, waitlist: 6 },
+      { stake: '5/10 NLH', minBuyIn: '₾1,000', avgStack: '₾8,500', tables: 1, openSeats: 2, waitlist: 0 }
+    ]
+  },
+  'bellagio': {
+    name: 'Bellagio Batumi', city: 'Batumi', address: 'Ninoshvili St 12',
+    phone: '+995 577 88 99 00', hours: '21:00 — 05:00', logo: 'B',
+    games: [
+      { stake: '1/2 NLH', minBuyIn: '₾100', avgStack: '₾1,800', tables: 2, openSeats: 4, waitlist: 0 },
+      { stake: '2/5 NLH', minBuyIn: '₾300', avgStack: '₾3,200', tables: 1, openSeats: 0, waitlist: 2 }
+    ]
+  },
+  'shangri-la': {
+    name: 'Shangri La Tbilisi', city: 'Tbilisi', address: 'Agmashenebeli Ave 145',
+    phone: '+995 599 22 33 44', hours: '22:00 — 08:00', logo: 'S',
+    games: [
+      { stake: '2/5 NLH', minBuyIn: '₾400', avgStack: '₾3,800', tables: 1, openSeats: 0, waitlist: 6 }
+    ]
+  },
+  'iveria': {
+    name: 'Iveria Casino', city: 'Tbilisi', address: 'Republic Sq 5',
+    phone: '+995 599 55 66 77', hours: '18:00 — 04:00', logo: 'I',
+    games: []   // open but empty
+  }
+};
+
+const TICK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 6"/></svg>';
+
+function gameCard(g, i) {
+  const isPLO = g.stake.includes('PLO');
+  const type = isPLO ? 'PLO' : 'NLH';
+  const typeFull = isPLO ? "Pot-Limit Omaha" : "No-Limit Hold'em";
+  const full = g.openSeats === 0;
+  const tablesWord = g.tables > 1 ? 'Tables' : 'Table';
+  const seatsMetric = full
+    ? '<div class="ps-metric is-full"><div class="value">FULL</div><div class="label">No seats</div></div>'
+    : '<div class="ps-metric is-hero"><div class="value">' + g.openSeats + '</div><div class="label">Open seats</div></div>';
+  const waitMetric = (full
+      ? '<div class="ps-metric is-hero">'
+      : '<div class="ps-metric">')
+    + '<div class="value waitlist-count">' + g.waitlist + '</div><div class="label">Waitlist</div></div>';
+  return ''
+    + '<div class="ps-card ps-rise ' + (full ? 'is-full' : '') + '" data-game="' + i + '">'
+    +   '<span class="accent-rail"></span>'
+    +   '<div class="stake-head">'
+    +     '<div>'
+    +       '<div class="stake-name">' + g.stake + '</div>'
+    +       '<div class="stake-buyin">' + typeFull + ' · Min ' + g.minBuyIn
+    +         ' · Avg stack ' + g.avgStack + ' · ' + g.tables + ' table' + (g.tables > 1 ? 's' : '') + '</div>'
+    +     '</div>'
+    +     '<div class="stake-head-right">'
+    +       '<span class="ps-stake-pill"><span class="type">' + type + '</span></span>'
+    +       '<span class="joined-badge">' + TICK + 'Joined</span>'
+    +     '</div>'
+    +   '</div>'
+    +   '<div class="stake-score">' + seatsMetric
+    +     '<div class="ps-metric"><div class="value">' + g.tables + '</div><div class="label">' + tablesWord + '</div></div>'
+    +     waitMetric + '</div>'
+    +   '<div class="stake-action"><button class="ps-btn ps-btn--primary join-btn" data-state="default">Join waitlist</button></div>'
+    + '</div>';
+}
+
+function render(key) {
+  const data = clubsData[key] || clubsData['royal'];
+  const isLive = data.games.length > 0;
+  document.getElementById('navTitle').textContent = data.name;
+
+  document.getElementById('info').innerHTML = ''
+    + '<div class="info ps-rise">'
+    +   '<div class="info-top">'
+    +     '<div class="logo-orb">' + data.logo + '</div>'
+    +     '<div><div class="info-name">' + data.name + '</div>'
+    +       '<div class="ps-overline">' + data.city + ' · Poker Club</div></div>'
+    +     '<span class="ps-status-badge ' + (isLive ? 'is-live' : 'is-open') + '" style="margin-left:auto">'
+    +       (isLive ? '<span class="ps-live-dot"></span>Live' : 'Open') + '</span>'
+    +   '</div>'
+    +   '<div class="info-rows">'
+    +     '<div class="info-row"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>' + data.address + ', ' + data.city + '</div>'
+    +     '<a class="info-row callable" href="tel:' + data.phone.replace(/\s/g, '') + '"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3h3l2 5-2.5 1.5a12 12 0 0 0 5 5L19 17l1 1v3a1 1 0 0 1-1 1A16 16 0 0 1 3 6a1 1 0 0 1 1-1z"/></svg>' + data.phone + '</a>'
+    +     '<div class="info-row"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Open daily · ' + data.hours + '<span class="open-now">● Open now</span></div>'
+    +   '</div>'
+    + '</div>';
+
+  let gamesHtml;
+  if (!isLive) {
+    gamesHtml = '<div class="ps-overline" style="margin:0 4px 12px">Tonight</div>'
+      + '<div class="empty-state ps-rise"><div class="emoji">🪑</div>'
+      + '<div class="et">No games running</div>'
+      + '<div class="es">The floor is open — check back later, or reserve a seat for tonight.</div></div>';
+  } else {
+    gamesHtml = '<div class="ps-overline" style="margin:0 4px 12px">Live games · ' + data.games.length
+      + ' stake' + (data.games.length > 1 ? 's' : '') + '</div>';
+    data.games.forEach((g, i) => { gamesHtml += gameCard(g, i); });
+  }
+  document.getElementById('games').innerHTML = gamesHtml;
+  attachJoin();
+}
+
+function attachJoin() {
+  document.querySelectorAll('.join-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const card = btn.closest('.ps-card');
+      const countEl = card.querySelector('.waitlist-count');
+      const rail = card.querySelector('.accent-rail');
+
+      if (btn.dataset.state === 'default') {
+        btn.dataset.state = 'pending';
+        btn.disabled = true;
+        btn.classList.add('is-loading');
+        btn.innerHTML = '<span class="spinner"></span>Joining…';
+        setTimeout(() => {
+          const pos = Math.floor(Math.random() * 7) + 3;   // 3–9
+          btn.dataset.state = 'joined';
+          btn.disabled = false;
+          btn.classList.remove('is-loading', 'ps-btn--primary');
+          btn.classList.add('ps-btn--joined');
+          btn.innerHTML = TICK + " Joined · You're #" + pos;
+          if (countEl) countEl.textContent = (parseInt(countEl.textContent, 10) || 0) + 1;
+          card.classList.add('is-joined');
+          rail.classList.add('is-pulsing');
+          setTimeout(() => rail.classList.remove('is-pulsing'), 3400);
+        }, 500);
+
+      } else if (btn.dataset.state === 'joined') {
+        if (window.confirm('Leave waitlist?')) {
+          btn.dataset.state = 'default';
+          btn.classList.remove('ps-btn--joined');
+          btn.classList.add('ps-btn--primary');
+          btn.textContent = 'Join waitlist';
+          if (countEl) countEl.textContent = Math.max(0, (parseInt(countEl.textContent, 10) || 1) - 1);
+          card.classList.remove('is-joined');
+        }
+      }
+    });
+  });
+}
+
+/* init: read ?club= , fall back to royal */
+const clubKey = new URLSearchParams(location.search).get('club') || 'royal';
+render(clubKey);
+
+document.getElementById('reserveBtn').addEventListener('click', () => {
+  window.alert('Reservation flow — coming up next');
+});
+
+/* allow theme-playground to drive theme live */
+window.addEventListener('message', e => {
+  if (e.data && e.data.psTheme !== undefined) {
+    if (e.data.psTheme) document.documentElement.setAttribute('data-theme', e.data.psTheme);
+    else document.documentElement.removeAttribute('data-theme');
+  }
+});
+</script>
+</body>
+</html>

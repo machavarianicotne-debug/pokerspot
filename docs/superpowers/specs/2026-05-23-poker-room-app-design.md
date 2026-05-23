@@ -282,6 +282,10 @@ no reservation doc is created. Both timers use `ARRIVAL_DEADLINE_MINUTES` (30).
   registered.
 - **All-clubs live overview** — browse into any club as a **read-only observer**
   (see its live floor without write controls).
+- **Users management** — searchable list of every registered user (by name /
+  phone), filterable by role (player / pitboss / superadmin), sortable
+  newest-first or most-active. Tap a user → profile (sessions, playtime, Pit
+  Boss assignment history) with **block / unblock** (confirm).
 
 ### Super Admin — Analytics (light, MVP)
 
@@ -344,6 +348,8 @@ no reservation doc is created. Both timers use `ARRIVAL_DEADLINE_MINUTES` (30).
   auth.uid`); a **Pit Boss** only their club's threads (`clubId ==
   token.assignedClubId`). `messages`: created only by the sender
   (`senderId == auth.uid`), readable by both participants.
+- A **Super Admin** may read the whole `users` collection (and block/unblock);
+  players/pit bosses read only their own user doc.
 - Role checks use the **custom claim** `request.auth.token.role` (no extra read).
 
 ---

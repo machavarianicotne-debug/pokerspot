@@ -236,10 +236,12 @@ a specific player does not change others' positions.
 4. **Join waitlist** for a stake (multiple allowed); see own position; leave.
 5. **Reserve** — **instant**: holds a seat for 30 min if one is open (live
    countdown), otherwise instantly joins the waitlist. No time picker / party / note.
-6. **My status** — own active waitlists & reservations, each with a **live
+6. **My status** — a **Currently playing** card (club · table · seat + live
+   timer) when seated; own active waitlists & reservations, each with a **live
    countdown** when a seat is held or your turn is called; plus a **My Playtime**
-   section: today's total, last-7-days bar chart, lifetime total + avg session,
-   and last session.
+   section: today's total, by-club this month, last-7-days bar chart, lifetime
+   total + avg session, last session. **Players don't end their own sessions** —
+   a session ends when the Pit Boss marks the player left.
 7. **Profile** — edit displayName & language; **Logout**; **Delete Account**
    (see "Account deletion & logout" below).
 8. **Push** — seat called, reservation accepted, reservation expiring.
@@ -259,8 +261,10 @@ section. Tabs: **Floor · Inbox · Stats · Settings**.
     normalized — ცოტნე = Cotne); pick a registered player (locality-biased
     results, phone hidden, shows "member since") or **+ Add as walk-in**; or
     **Call #1** from the waitlist. Tap an **occupied** seat (shows
-    "Cotne M. · 2h 17m") → **player left** (ends the session) / **no-show** /
-    **move to another table**. Sessions over 8h show a ⚠️ warning (no auto-end).
+    "Cotne M. · 2h 17m") → **player left** (sets `endedAt`, frees the seat,
+    removes the player's live card) / **no-show** / **move to another table**.
+    Players never end their own sessions. Sessions over 8h show a ⚠️ warning
+    (no auto-end).
   - **Blinds** (inline editable, **per game** — mirrors across same-stake tables,
     reflected to players in real time, 0.5s pulse), **average stack** (inline
     editable, per game), and min buy-in.

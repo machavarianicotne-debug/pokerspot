@@ -43,7 +43,8 @@
   .now-playing .np-meta { font-size: var(--type-caption); color: var(--color-text-muted); margin-top: 2px; }
   .now-playing .np-timer { font-family: var(--font-family-display); font-weight: var(--weight-black);
     color: var(--color-status-live); font-variant-numeric: tabular-nums; font-size: var(--type-title); margin-top: 6px; }
-  .now-playing .ps-btn { min-height: 40px; padding: 0 14px; font-size: var(--type-subhead); flex: none; }
+  .now-playing .np-hint { font-size: var(--type-caption); color: var(--color-text-faint); font-style: italic; margin-top: 6px; }
+  .now-playing .np-chev { color: var(--color-text-faint); flex: none; align-self: center; }
 
   /* by-club breakdown */
   .byclub-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; font-size: var(--type-subhead);
@@ -137,6 +138,7 @@
       <div id="playBars" style="display:flex;align-items:flex-end;gap:7px;height:84px"></div>
       <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--glass-border);font-size:var(--type-subhead);color:var(--color-text-muted)">Last: <b style="color:var(--color-text)">Royal Poker · 2h 17m</b> · 2 days ago · avg 3h 56m</div>
     </div>
+    <button id="endDemo" class="ps-btn ps-btn--secondary" style="width:100%;margin-top:8px;opacity:.65;font-size:var(--type-subhead)">End session (demo only)</button>
   </div>
 
   <div class="ps-tabbar">
@@ -182,17 +184,16 @@
       '<span class="accent-rail"></span>' +
       '<div class="item-main"><div class="np-title">🟢 Currently playing</div>' +
       '<div class="np-meta">' + session.club + ' · Table ' + session.table + ' · Seat ' + session.seat + '</div>' +
-      '<div class="np-timer" id="npTimer">0:00:00</div></div>' +
-      '<button class="ps-btn ps-btn--secondary" id="standUp">Stand up</button></a>';
-    document.getElementById('standUp').onclick = e => {
-      e.preventDefault(); e.stopPropagation();
-      if (confirm('Stand up — end this session?')) {
-        todayBaseMin += Math.floor((Date.now() - session.startedAt) / 60000);
-        PSStore.set('todayBaseMin', todayBaseMin);
-        session = false; PSStore.set('currentSession', false);
-        renderNow(); updateToday();
-      }
-    };
+      '<div class="np-timer" id="npTimer">0:00:00</div>' +
+      '<div class="np-hint">Ends when the Pit Boss marks you left</div></div>' +
+      '<svg class="np-chev" width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1.5 1.5L7 7.5 1.5 13.5"/></svg></a>';
+  }
+  function endSession() {            // mockup only — real app: Pit Boss "player left"
+    if (!session) return;
+    todayBaseMin += Math.floor((Date.now() - session.startedAt) / 60000);
+    PSStore.set('todayBaseMin', todayBaseMin);
+    session = false; PSStore.set('currentSession', false);
+    renderNow(); updateToday();
   }
   function updateToday() {
     const live = session ? Math.floor((Date.now() - session.startedAt) / 60000) : 0;
@@ -222,6 +223,11 @@
     updateToday();
   }
   tick(); setInterval(tick, 1000);
+
+  document.getElementById('endDemo').onclick = () => {
+    if (!session) { alert('No active session.'); return; }
+    if (confirm('Demo only — simulate the Pit Boss marking you "left"?')) endSession();
+  };
 
   window.addEventListener('message', e => {
     if (e.data && e.data.psTheme !== undefined) {

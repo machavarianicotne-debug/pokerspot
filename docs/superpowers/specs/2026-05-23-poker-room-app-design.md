@@ -27,7 +27,7 @@ it is a single app with role-based routing.
 
 ### Non-goals (MVP)
 
-See §13 (v2 backlog). Notably: no iOS at launch, no per-seat player identity,
+See §14 (v2 backlog). Notably: no iOS at launch, no per-seat player identity,
 no deep analytics, no in-app chat, no multi-day reservations.
 
 ---
@@ -157,6 +157,9 @@ clubOverviews/{clubId}                # denormalized, Cloud-Function-maintained
   updatedAt
   # client derives live status (🟢/🟡/⚫) from status + openingHours + games
 ```
+
+**Versioning:** every document carries a `schemaVersion` (int) for phased
+migrations — see §12.H.
 
 **Waitlist ordering:** by `position` (float). New entries: `position = max+1`.
 Reservation "Arrived" inserts at top: `position = currentMin − 1`. Manual seat of
@@ -320,7 +323,106 @@ marked Arrived within **30 minutes of `reservedTime`** (grace window).
 
 ---
 
-## 12. Testing Strategy
+## 12. Architecture & Maintainability (Changeability)
+
+**Guiding principle: changeability above all.** Any change — a colour, a business
+rule, a feature toggle, a backend swap, a translation, a string — must touch
+**one or two files**, never ripple across the codebase. The structure below
+enforces that.
+
+### Layering — Clean Architecture, feature-first
+
+```
+lib/
+  core/      constants, errors, theme, feature_flags, config, logging,
+             migrations, utils
+  features/  auth/ clubs/ waitlist/ reservations/ pit_boss_floor/
+             super_admin/ profile/ onboarding/
+             (each: domain/ data/ presentation/)
+  shared/    reusable widgets & services
+  l10n/      app_en.arb, app_ka.arb, app_ru.arb
+```
+
+Each feature is built in isolation (own domain/data/presentation). A new feature
+= a new folder, with no edits to existing ones.
+
+**A. Business rules & constants — never inline.**
+`lib/core/constants/business_rules.dart`: `reservationExpiry` (30 min),
+`waitlistCallTimeout` (null = manual in MVP; 20 min in v2, gated by
+`autoNoShowTimer`), `maxPlayersPerTable` (9), `maxWaitlistsPerPlayer` (null = no
+cap MVP), `defaultCurrency` (GEL), `minBuyIn`, `maxBuyIn`, …
+`lib/core/constants/validation_rules.dart`: phone format (E.164), name length, …
+**Zero magic numbers/strings** elsewhere — all named constants.
+
+**B. Feature flags — `lib/core/feature_flags.dart`.**
+MVP default `false`: `multiClubPitBoss`, `autoNoShowTimer`,
+`autoReservationConvertToWaitlist`, `deepAnalytics`, `geoMap`, `perSeatIdentity`,
+`templateAutoRestore`, `crossClubWaitlist`, `iosSupport`. Environment-based
+override (dev/staging/prod). Activating the v2 backlog = flip flags, not rewrite.
+*(Light analytics is the un-flagged MVP baseline; `deepAnalytics` gates only the
+v2 deep version.)*
+
+**C. Repository pattern — backend behind interfaces.**
+Domain defines abstract interfaces returning domain types & `Stream`s
+(`AuthRepository`, `UsersRepository`, `ClubsRepository`, `WaitlistRepository`,
+`ReservationsRepository`). Data provides concrete `Firebase…Repository`
+implementations. **Contract tests** run one suite against any implementation.
+⚠️ **Honest boundary:** pure CRUD + reactive reads abstract cleanly, but
+Firebase-specific *infrastructure* — real-time listener semantics,
+**custom-claims auth**, **Cloud Functions** (aggregation/push/expiry),
+**FCM**, **security rules** — does not map 1:1 to another backend and would need
+re-implementation. The repository keeps the *app layer* portable; the *infra
+layer* is not a free swap. "Swap in a few files" applies to data access, not to
+the whole real-time/auth/functions stack.
+
+**D. State management — Riverpod.** Centralised providers per feature; swappable
+in tests; compile-time-safe.
+
+**E. Design tokens & theming — `lib/core/theme/`.**
+`tokens.dart` (colours, typography, spacing/8pt, radii, shadows, motion, glass
+materials — human-readable names like `colorAccentPrimary`, not `c1`);
+`components/` (`PsCard`, `StatusBadge`, `StakePill`, `LiveIndicator`,
+`FilterPill`, `GlassNavBar`, buttons, inputs). One token file re-skins the whole
+app; switching direction (Liquid Sport → Dark Casino → Editorial) is one token
+block, not a refactor. Prototyped first in CSS
+(`mockups/v3-design-system/`), then ported 1:1 to Dart.
+
+**F. Internationalisation — `lib/l10n/`.** ARB files + `flutter gen-l10n`. **No
+hardcoded strings in UI** — every string is an l10n key. Translators edit ARB;
+developers don't touch copy.
+
+**G. Environment config — `lib/core/config/environment.dart`.** dev / staging /
+prod; separate Firebase project IDs; per-env flag overrides; loaded via
+`--dart-define-from-file` (`env-dev.json`, `env-prod.json`).
+
+**H. Data-model versioning — `lib/core/migrations/`.** Every document carries
+`schemaVersion`. A field change = one migration file + a bump, not a rewrite;
+supports phased Cloud-Function rollout.
+
+**I. Error handling — `lib/core/errors/app_errors.dart`.** Typed error hierarchy;
+centralised reporting (Crashlytics-ready); user-facing messages via l10n.
+
+**J. Logging & observability — `lib/core/logging/app_logger.dart`.** Wrapper over
+Firebase Analytics; centralised event tracking (change in one file); levels
+debug/info/warning/error.
+
+### Contradiction check vs. earlier decisions
+
+- ✅ **Consistent:** no-cap waitlists, manual no-show MVP (now a constant +
+  `autoNoShowTimer` flag), light analytics stays MVP (`deepAnalytics` off),
+  Android-first (`iosSupport` off), 30-min reservation expiry (now a constant).
+- ⚠️ **Tension flagged (C):** "swap backend in a few files" holds for *data
+  access only*. The real-time + custom-claims + Cloud-Functions + FCM +
+  security-rules design is **Firebase-specific** and would need re-implementation
+  elsewhere. Architecture isolates it in the data/infra layer so the rest of the
+  app is unaffected — but it is not a trivial swap. No MVP-scope change; just an
+  honest boundary.
+- ➕ **New (no conflict):** Riverpod, Clean Architecture feature-first, repository
+  pattern, `schemaVersion` on documents.
+
+---
+
+## 13. Testing Strategy
 
 - **Pure-Dart unit tests** for domain logic: waitlist ordering & top-insert, seat
   counting / open-seat computation, multi-waitlist resolution on seat, reservation
@@ -332,7 +434,7 @@ marked Arrived within **30 minutes of `reservedTime`** (grace window).
 
 ---
 
-## 13. v2 Backlog (deferred)
+## 14. v2 Backlog (deferred)
 
 iOS build/release · per-seat player identity & chip stacks · auto no-show timer
 on waitlist calls · multi-day / future reservations · geo / map / distance sorting
@@ -342,7 +444,7 @@ cross-club waitlist resolution.
 
 ---
 
-## 14. Assumptions
+## 15. Assumptions
 
 - Reservation 30-min window counts from `reservedTime` (grace), confirmed.
 - One Pit Boss = one club in MVP.
@@ -356,7 +458,7 @@ cross-club waitlist resolution.
 
 ---
 
-## 15. Build & Release
+## 16. Build & Release
 
 - Flutter (Dart), single app, role-based routing.
 - **Android-first**: build/sign/distribute from Windows.

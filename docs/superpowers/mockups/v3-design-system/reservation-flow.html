@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="liquid-sport">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot · Reserve (tokens)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* SCREEN-SPECIFIC LAYOUT ONLY */
+  .nav-back { width: 38px; height: 38px; border-radius: var(--radius-full); display: grid; place-items: center;
+    color: var(--color-text); background: var(--glass-bg-regular); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur-thin)); text-decoration: none; }
+  .nav-title { font-size: var(--type-body); font-weight: var(--weight-bold); }
+
+  .ctx { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-5); }
+  .ctx .logo-orb { width: 44px; height: 44px; border-radius: var(--radius-md); display: grid; place-items: center;
+    font-family: var(--font-family-display); font-weight: var(--weight-black); font-size: 20px;
+    color: var(--color-on-accent); background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary)); }
+  .ctx .nm { font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black); }
+
+  .group { margin-bottom: var(--space-6); }
+  .glabel { display: block; font-size: var(--type-caption); font-weight: var(--weight-black);
+    letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--color-text-faint);
+    margin-bottom: var(--space-3); }
+  .choices { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+  .choice { padding: 11px 15px; border-radius: var(--radius-md); background: var(--glass-bg-thin);
+    border: 1px solid var(--glass-border); cursor: pointer; font-size: var(--type-body);
+    font-weight: var(--weight-bold); color: var(--color-text);
+    transition: transform var(--duration-fast) var(--ease-standard), border-color var(--duration-fast); }
+  .choice:active { transform: scale(0.96); }
+  .choice.on { border-color: var(--color-accent-primary);
+    background: color-mix(in srgb, var(--color-accent-primary) 12%, transparent); color: var(--color-accent-primary); }
+  .hint { font-size: var(--type-caption); color: var(--color-text-faint); margin-top: var(--space-2); }
+
+  .stepper { display: flex; align-items: center; gap: var(--space-4); }
+  .step-btn { width: 46px; height: 46px; border-radius: var(--radius-full); display: grid; place-items: center;
+    background: var(--glass-bg-regular); border: 1px solid var(--glass-border); color: var(--color-text);
+    font-size: 24px; font-weight: var(--weight-bold); cursor: pointer; }
+  .step-btn:active { transform: scale(0.94); }
+  .step-val { font-family: var(--font-family-display); font-size: var(--type-display-2);
+    font-weight: var(--weight-black); min-width: 48px; text-align: center; font-variant-numeric: tabular-nums; }
+  .step-unit { font-size: var(--type-body); color: var(--color-text-muted); }
+
+  .ps-textarea { width: 100%; min-height: 84px; padding: var(--space-3) var(--space-4);
+    background: var(--glass-bg-thin); border: 1px solid var(--glass-border); border-radius: var(--radius-md);
+    color: var(--color-text); font-family: var(--font-family-body); font-size: var(--type-body);
+    resize: none; }
+  .ps-textarea::placeholder { color: var(--color-text-faint); }
+  .ps-textarea:focus { outline: none; border-color: var(--color-accent-secondary); }
+
+  .submit-bar { position: absolute; left: var(--space-4); right: var(--space-4); bottom: 16px; z-index: 6; }
+  .submit-bar .ps-btn { width: 100%; }
+
+  /* success overlay */
+  .success { position: absolute; inset: 0; z-index: 10; display: none; flex-direction: column;
+    align-items: center; justify-content: center; gap: var(--space-4); text-align: center; padding: var(--space-8);
+    background: color-mix(in srgb, var(--color-bg-0) 78%, transparent);
+    backdrop-filter: blur(var(--glass-blur-thick)); -webkit-backdrop-filter: blur(var(--glass-blur-thick)); }
+  .success.show { display: flex; }
+  .success .ring { width: 92px; height: 92px; border-radius: var(--radius-full); display: grid; place-items: center;
+    color: var(--color-on-accent); background: var(--color-accent-primary);
+    box-shadow: 0 0 50px -6px var(--color-accent-primary); animation: pop var(--duration-slow) var(--ease-standard); }
+  @keyframes pop { 0%{transform:scale(0.4);opacity:0} 60%{transform:scale(1.08)} 100%{transform:scale(1);opacity:1} }
+  .success .st { font-family: var(--font-family-display); font-size: var(--type-title); font-weight: var(--weight-black); }
+  .success .ss { font-size: var(--type-body); color: var(--color-text-muted); line-height: 1.45; max-width: 80%; }
+  .success .ps-btn { width: 80%; }
+</style>
+</head>
+<body>
+<div class="ps-phone">
+  <div class="ps-statusbar">
+    <span>9:41</span>
+    <span class="ps-status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="ps-glass-nav">
+    <a class="nav-back" href="player-club-details.html?club=royal" aria-label="Back">
+      <svg width="11" height="18" viewBox="0 0 11 18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9.5 1.5L2 9l7.5 7.5"/></svg>
+    </a>
+    <span class="nav-title">Reserve a seat</span>
+    <span style="width:38px"></span>
+  </div>
+
+  <div class="ps-screen" style="padding-bottom:96px">
+    <div class="ctx">
+      <div class="logo-orb">R</div>
+      <div><div class="nm">Royal Poker Tbilisi</div><div class="ps-overline">Tonight · Tbilisi</div></div>
+    </div>
+
+    <div class="group">
+      <span class="glabel">Stake</span>
+      <div class="choices" id="stakes">
+        <span class="choice on">1/3 NLH</span>
+        <span class="choice">5/5 PLO</span>
+        <span class="choice">5/10 NLH</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="glabel">Arrival time</span>
+      <div class="choices" id="times">
+        <span class="choice on">ASAP</span>
+        <span class="choice">21:00</span>
+        <span class="choice">22:00</span>
+        <span class="choice">23:00</span>
+        <span class="choice">00:00</span>
+      </div>
+      <div class="hint">Tonight only · held for 30 min after your time</div>
+    </div>
+
+    <div class="group">
+      <span class="glabel">Party size</span>
+      <div class="stepper">
+        <button class="step-btn" id="minus">−</button>
+        <span class="step-val" id="party">1</span>
+        <button class="step-btn" id="plus">+</button>
+        <span class="step-unit">player(s)</span>
+      </div>
+    </div>
+
+    <div class="group">
+      <span class="glabel">Note <span style="color:var(--color-text-faint);font-weight:var(--weight-medium)">(optional)</span></span>
+      <textarea class="ps-textarea" placeholder="Anything the floor should know? (e.g. regular, prefer corner seat)"></textarea>
+    </div>
+  </div>
+
+  <div class="submit-bar">
+    <button class="ps-btn ps-btn--primary" id="submit">Request reservation</button>
+  </div>
+
+  <!-- success overlay -->
+  <div class="success" id="success">
+    <div class="ring"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 6"/></svg></div>
+    <div class="st">Reservation requested</div>
+    <div class="ss">We'll notify you when the floor accepts it. You can track it in My Status.</div>
+    <a class="ps-btn ps-btn--secondary" href="my-status.html">View My Status</a>
+  </div>
+
+  <div class="ps-home-indicator"></div>
+</div>
+
+<script>
+  function singleSelect(containerId) {
+    const c = document.getElementById(containerId);
+    c.querySelectorAll('.choice').forEach(ch => ch.addEventListener('click', () => {
+      c.querySelectorAll('.choice').forEach(o => o.classList.remove('on'));
+      ch.classList.add('on');
+    }));
+  }
+  singleSelect('stakes'); singleSelect('times');
+
+  let party = 1;
+  const partyEl = document.getElementById('party');
+  document.getElementById('plus').addEventListener('click', () => { if (party < 8) partyEl.textContent = ++party; });
+  document.getElementById('minus').addEventListener('click', () => { if (party > 1) partyEl.textContent = --party; });
+
+  document.getElementById('submit').addEventListener('click', () => {
+    document.getElementById('success').classList.add('show');
+  });
+
+  window.addEventListener('message', e => {
+    if (e.data && e.data.psTheme !== undefined) {
+      if (e.data.psTheme) document.documentElement.setAttribute('data-theme', e.data.psTheme);
+      else document.documentElement.removeAttribute('data-theme');
+    }
+  });
+</script>
+</body>
+</html>

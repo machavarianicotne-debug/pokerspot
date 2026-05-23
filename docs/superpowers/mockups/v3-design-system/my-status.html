@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="liquid-sport">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot · My Status (tokens)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* SCREEN-SPECIFIC LAYOUT ONLY */
+  .nav-title { font-family: var(--font-family-display); font-size: var(--type-title);
+    font-weight: var(--weight-black); letter-spacing: var(--tracking-snug); }
+  .ps-overline.section { margin: var(--space-2) 4px var(--space-3); }
+
+  .item { display: flex; align-items: center; gap: var(--space-3); padding: 15px 16px; }
+  .item .accent-rail { background: var(--color-accent-secondary); }
+  .item-main { flex: 1; min-width: 0; }
+  .item-club { font-size: var(--type-headline); font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-snug); }
+  .item-meta { font-size: var(--type-caption); color: var(--color-text-muted); margin-top: 2px; }
+  .item-status { font-size: var(--type-subhead); color: var(--color-text-muted); margin-top: 7px;
+    display: flex; align-items: center; gap: 7px; }
+  .item-status .pos { font-family: var(--font-family-display); font-size: var(--type-headline);
+    font-weight: var(--weight-black); color: var(--color-accent-primary); letter-spacing: var(--tracking-tight); }
+  .item .ps-btn { min-height: 40px; padding: 0 16px; font-size: var(--type-subhead); flex: none; }
+
+  /* called = seat ready, highlighted */
+  .item.is-ready { background: color-mix(in srgb, var(--color-status-live) 10%, var(--glass-bg-thin));
+    border-color: color-mix(in srgb, var(--color-status-live) 45%, transparent); }
+  .item.is-ready .accent-rail { background: var(--color-status-live); animation: rail-pulse 1.6s var(--ease-standard) infinite; }
+  @keyframes rail-pulse { 0%,100%{box-shadow:0 0 0 0 transparent} 50%{box-shadow:0 0 16px 2px var(--color-status-live)} }
+  .item.is-ready .item-status { color: var(--color-status-live); font-weight: var(--weight-bold); }
+
+  .item.removing { opacity: 0; transform: translateX(40px);
+    transition: opacity var(--duration-normal), transform var(--duration-normal); }
+  .empty { text-align: center; padding: var(--space-6); font-size: var(--type-subhead);
+    color: var(--color-text-faint); font-style: italic; }
+</style>
+</head>
+<body>
+<div class="ps-phone">
+  <div class="ps-statusbar">
+    <span>9:41</span>
+    <span class="ps-status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="ps-glass-nav">
+    <span class="nav-title">My Status</span>
+    <span class="ps-avatar">SZ</span>
+  </div>
+
+  <div class="ps-screen">
+    <div class="ps-overline section">On the waitlist · 2</div>
+
+    <div class="ps-card item is-ready ps-rise">
+      <span class="accent-rail"></span>
+      <div class="item-main">
+        <div class="item-club">Bellagio Batumi</div>
+        <div class="item-meta">1/2 NLH · Batumi</div>
+        <div class="item-status"><span class="ps-live-dot" style="color:var(--color-status-live)"></span>Seat ready — head to the floor</div>
+      </div>
+      <button class="ps-btn ps-btn--secondary leave">Leave</button>
+    </div>
+
+    <div class="ps-card item ps-rise">
+      <span class="accent-rail"></span>
+      <div class="item-main">
+        <div class="item-club">Royal Poker Tbilisi</div>
+        <div class="item-meta">1/3 NLH · Tbilisi</div>
+        <div class="item-status"><span class="pos">#3</span> in line · Waiting</div>
+      </div>
+      <button class="ps-btn ps-btn--secondary leave">Leave</button>
+    </div>
+
+    <div class="ps-overline section">Reservations · 2</div>
+
+    <div class="ps-card item ps-rise">
+      <span class="accent-rail"></span>
+      <div class="item-main">
+        <div class="item-club">Shangri La Tbilisi</div>
+        <div class="item-meta">2/5 NLH · Tbilisi</div>
+        <div class="item-status"><span class="ps-status-badge is-live" style="background:color-mix(in srgb,var(--color-accent-secondary) 18%,transparent);color:var(--color-accent-secondary)">Accepted</span> 22:30 · 2 people</div>
+      </div>
+      <button class="ps-btn ps-btn--secondary leave">Cancel</button>
+    </div>
+
+    <div class="ps-card item ps-rise">
+      <span class="accent-rail"></span>
+      <div class="item-main">
+        <div class="item-club">Royal Poker Tbilisi</div>
+        <div class="item-meta">5/5 PLO · Tbilisi</div>
+        <div class="item-status"><span class="ps-status-badge is-open">Pending</span> 23:00 · 1 person</div>
+      </div>
+      <button class="ps-btn ps-btn--secondary leave">Cancel</button>
+    </div>
+  </div>
+
+  <div class="ps-tabbar">
+    <a class="ps-tab" href="player-clubs-list.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2c-2.5 4-6 6.2-6 9.7A6 6 0 0 0 12 18a6 6 0 0 0 6-6.3C18 8.2 14.5 6 12 2z"/></svg>Clubs</a>
+    <div class="ps-tab is-active"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M22 12h-4l-3 9L9 3l-3 9H2z" opacity="0.25"/><path d="M22 12h-4l-3 9L9 3l-3 9H2" fill="none" stroke="currentColor" stroke-width="2"/></svg>Activity</div>
+    <a class="ps-tab" href="profile.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile</a>
+  </div>
+  <div class="ps-home-indicator"></div>
+</div>
+
+<script>
+  document.querySelectorAll('.leave').forEach(btn => btn.addEventListener('click', () => {
+    const item = btn.closest('.item');
+    const verb = btn.textContent.trim();
+    if (window.confirm(verb === 'Cancel' ? 'Cancel this reservation?' : 'Leave waitlist?')) {
+      item.classList.add('removing');
+      setTimeout(() => item.remove(), 300);
+    }
+  }));
+
+  window.addEventListener('message', e => {
+    if (e.data && e.data.psTheme !== undefined) {
+      if (e.data.psTheme) document.documentElement.setAttribute('data-theme', e.data.psTheme);
+      else document.documentElement.removeAttribute('data-theme');
+    }
+  });
+</script>
+</body>
+</html>

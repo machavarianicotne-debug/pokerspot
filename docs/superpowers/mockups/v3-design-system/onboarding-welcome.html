@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="liquid-sport">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot · Welcome (tokens)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* SCREEN-SPECIFIC LAYOUT ONLY */
+  .ob { flex: 1; display: flex; flex-direction: column; padding: var(--space-6) var(--space-5) var(--space-5);
+    position: relative; z-index: 4; }
+  .hero-orb { width: 84px; height: 84px; border-radius: var(--radius-xl); display: grid; place-items: center;
+    font-size: 44px; font-family: var(--font-family-display); font-weight: var(--weight-black);
+    color: var(--color-on-accent); margin: var(--space-6) 0 var(--space-5);
+    background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary));
+    box-shadow: var(--elevation-3), 0 0 40px -6px var(--color-accent-primary); }
+  .welcome-title { font-family: var(--font-family-display); font-size: 32px; font-weight: var(--weight-black);
+    letter-spacing: var(--tracking-tight); line-height: 1.05; }
+  .welcome-title .accent { color: var(--color-accent-primary); }
+  .welcome-sub { font-size: var(--type-headline); color: var(--color-text-muted); margin-top: var(--space-3);
+    line-height: 1.4; max-width: 90%; }
+  .field { margin-top: var(--space-6); }
+  .field-label { display: block; font-size: var(--type-caption); font-weight: var(--weight-black);
+    letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--color-text-faint);
+    margin-bottom: var(--space-2); }
+  .lang-grid { display: flex; gap: var(--space-2); }
+  .lang-opt { flex: 1; text-align: center; padding: 14px 8px; border-radius: var(--radius-md);
+    background: var(--glass-bg-thin); border: 1px solid var(--glass-border); cursor: pointer;
+    font-size: var(--type-body); font-weight: var(--weight-bold); color: var(--color-text);
+    transition: transform var(--duration-fast) var(--ease-standard), border-color var(--duration-fast); }
+  .lang-opt:active { transform: scale(0.97); }
+  .lang-opt small { display: block; font-size: var(--type-micro); color: var(--color-text-faint);
+    font-weight: var(--weight-medium); margin-top: 2px; }
+  .lang-opt.on { border-color: var(--color-accent-primary);
+    background: color-mix(in srgb, var(--color-accent-primary) 12%, transparent); color: var(--color-accent-primary); }
+  .lang-opt.on small { color: var(--color-accent-primary); }
+  .ob-foot { margin-top: auto; padding-top: var(--space-6); }
+  .ob-foot .ps-btn { width: 100%; }
+  .ob-foot .ps-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .terms { text-align: center; font-size: var(--type-caption); color: var(--color-text-faint);
+    margin-top: var(--space-3); line-height: 1.4; }
+</style>
+</head>
+<body>
+<div class="ps-phone">
+  <div class="ps-statusbar">
+    <span>9:41</span>
+    <span class="ps-status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="ob">
+    <div class="hero-orb">♠</div>
+    <div class="welcome-title">Welcome to <span class="accent">PokerSpot</span></div>
+    <div class="welcome-sub">Find live poker across Georgia — see open seats, join waitlists, reserve your spot.</div>
+
+    <div class="field">
+      <label class="field-label" for="name">Your name</label>
+      <input class="ps-input" id="name" type="text" placeholder="e.g. Giorgi" autocomplete="name" />
+    </div>
+
+    <div class="field">
+      <span class="field-label">Language</span>
+      <div class="lang-grid">
+        <div class="lang-opt" data-lang="ka">ქა<small>Georgian</small></div>
+        <div class="lang-opt on" data-lang="en">EN<small>English</small></div>
+        <div class="lang-opt" data-lang="ru">РУ<small>Русский</small></div>
+      </div>
+    </div>
+
+    <div class="ob-foot">
+      <button class="ps-btn ps-btn--primary" id="start" disabled>Get Started</button>
+      <div class="terms">By continuing you agree to the Terms &amp; Privacy Policy.</div>
+    </div>
+  </div>
+
+  <div class="ps-home-indicator"></div>
+</div>
+
+<script>
+  const name = document.getElementById('name');
+  const start = document.getElementById('start');
+  name.addEventListener('input', () => { start.disabled = name.value.trim().length < 2; });
+
+  document.querySelectorAll('.lang-opt').forEach(opt => opt.addEventListener('click', () => {
+    document.querySelectorAll('.lang-opt').forEach(o => o.classList.remove('on'));
+    opt.classList.add('on');
+  }));
+
+  start.addEventListener('click', () => {
+    if (!start.disabled) window.location.href = 'player-clubs-list.html';
+  });
+
+  window.addEventListener('message', e => {
+    if (e.data && e.data.psTheme !== undefined) {
+      if (e.data.psTheme) document.documentElement.setAttribute('data-theme', e.data.psTheme);
+      else document.documentElement.removeAttribute('data-theme');
+    }
+  });
+</script>
+</body>
+</html>

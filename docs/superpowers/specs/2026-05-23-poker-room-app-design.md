@@ -128,8 +128,11 @@ pitBossAssignments/{phoneE164}        # pending assignment applied on first sign
   clubId  assignedBy(uid)  createdAt
 
 clubs/{clubId}
-  name  address  geo(GeoPoint, optional)  languages[]  status(active|inactive)
-  photoUrl  createdAt  updatedAt
+  name  city  address  phone  openingHours  geo(GeoPoint, optional, v2 map)
+  languages[]  status(active|inactive)  photoUrl(logo)  createdAt  updatedAt
+  # city: separate field ("Tbilisi", "Batumi") for sort & filter
+  # phone: shown as tap-to-call on the Player club detail screen
+  # openingHours: { mon:{open,close}, ... sun:{open,close}, is24_7:bool }
 
 clubs/{clubId}/games/{gameId}
   type(NLH|PLO)  blinds(string e.g. "1/3")  buyInMin  buyInMax
@@ -149,9 +152,10 @@ clubs/{clubId}/reservations/{resId}
   createdAt  acceptedAt  expiresAt
 
 clubOverviews/{clubId}                # denormalized, Cloud-Function-maintained
-  clubName  status
+  clubName  city  status  openingHours  photoUrl
   games: [ { gameId, type, blinds, openTables, openSeats, waitlistCount } ]
   updatedAt
+  # client derives live status (🟢/🟡/⚫) from status + openingHours + games
 ```
 
 **Waitlist ordering:** by `position` (float). New entries: `position = max+1`.
@@ -167,14 +171,26 @@ a specific player does not change others' positions.
 
 ### Player
 
-1. Sign in with phone OTP; pick language.
-2. **Club list** — live overview per club: running games (stake), open seats,
-   waitlist length. Sorted by activity (open seats / running games) then name.
-3. **Club detail** — per-stake live cards.
+1. **Onboarding** — sign in with phone OTP. On **first** sign-in a **Welcome**
+   screen captures **displayName (required)** + **language (ka/en/ru)**, then →
+   Club list. `displayName` is later editable in Profile.
+2. **Club list** — live overview per club: city, running games (stake), open
+   seats, waitlist length, and a **live status badge**:
+   - 🟢 **Live** — active + within opening hours + has open games
+   - 🟡 **Open but empty** — active + within opening hours + no games opened yet
+   - ⚫ **Closed** — off-hours, or left inactive by Super Admin
+
+   Computed client-side from `status` + `openingHours` + current time + games.
+   **Sort: Live → Open but empty → Closed**, then by city/name.
+3. **Club detail** — header **info block** (logo, name, city, address,
+   **tap-to-call phone**, opening hours), then per-stake live cards below.
+   Tap-to-call opens the device dialer via Flutter `url_launcher` (small, MVP).
 4. **Join waitlist** for a stake (multiple allowed); see own position; leave.
 5. **Reserve** — same-day, choose stake + time + party size + note.
 6. **My status** — own active waitlists & reservations.
-7. **Push** — seat called, reservation accepted, reservation expiring.
+7. **Profile** — edit displayName & language; **Logout**; **Delete Account**
+   (see "Account deletion & logout" below).
+8. **Push** — seat called, reservation accepted, reservation expiring.
 
 ### Pit Boss — "Live Floor" (own club)
 
@@ -207,6 +223,43 @@ marked Arrived within **30 minutes of `reservedTime`** (grace window).
 - `expiresAt = reservedTime + 30min`. Enforced by a Cloud Function timer
   (Cloud Tasks enqueued on accept, or a 1-minute scheduled sweep).
 
+### Super Admin
+
+- **Clubs list** — entry point to CRUD; shows all clubs with status.
+- **Create / Edit club** form — all data-model fields: name, city, address,
+  phone, openingHours, languages, photo (logo), geo (optional).
+- **Deactivate club** — **soft delete** (`status = inactive`), never a hard delete.
+- **Assign Pit Boss** — enter a phone number + choose a club → assign. If the
+  user exists, claims are set immediately; otherwise a **pending assignment** is
+  stored (applied on first sign-in).
+- **Pending assignments** list — Pit Bosses assigned by phone who have not yet
+  registered.
+- **All-clubs live overview** — browse into any club as a **read-only observer**
+  (see its live floor without write controls).
+
+### Super Admin — Analytics (light, MVP)
+
+- **Dashboard** — per-club counts: active players, open tables, waitlist size,
+  pending reservations.
+- **Daily aggregates** (selected day): total players seated, total reservations
+  made, peak hour.
+- **7-day trend** — small chart of player counts per day.
+- **Source:** Firestore aggregation queries computed on read. **No separate
+  analytics collection in MVP.** Deep analytics (rake, session length, player
+  LTV) → v2.
+
+### Account deletion & logout
+
+- **Profile** exposes **Logout** and **Delete Account**.
+- **Delete Account** (Player): confirmation dialog ("permanently deletes your
+  data, cannot be undone") → Cloud Function `deleteAccount` deletes the user doc,
+  cancels active waitlist entries, cancels reservations, removes FCM tokens, and
+  deletes the Firebase Auth user → returns to Login. *(Required by Google Play
+  for apps with accounts.)*
+- A **Pit Boss** attempting delete is blocked with a warning ("contact Super
+  Admin first"). **Super Admin** self-delete is disabled (separate manual owner
+  procedure).
+
 ---
 
 ## 7. Cloud Functions (Blaze)
@@ -220,6 +273,7 @@ marked Arrived within **30 minutes of `reservedTime`** (grace window).
 | `notifyReservation` | Firestore: reservation → `accepted` / expiring | FCM push to player |
 | `resolveSeated` | Firestore: waitlist entry → `seated` | Auto-cancel that user's other active same-club entries |
 | `expireReservations` | Cloud Tasks (per reservation) or 1-min schedule | Set `expired` when past `expiresAt` without `arrived` |
+| `deleteAccount` | Callable (account owner) | Delete user doc, cancel waitlist entries & reservations, remove FCM tokens, delete Auth user (Player only) |
 
 ---
 
@@ -292,7 +346,9 @@ cross-club waitlist resolution.
 
 - Reservation 30-min window counts from `reservedTime` (grace), confirmed.
 - One Pit Boss = one club in MVP.
-- Club list sort: by activity, then name (geo sorting is v2).
+- Club list sort: live status (🟢 Live → 🟡 Open but empty → ⚫ Closed), then
+  city/name. Live status is computed client-side from `status` + `openingHours`
+  + current time + open games. Geo/distance sorting is v2.
 - Currency displayed as GEL.
 - No hard cap on simultaneous waitlists per player in MVP (revisit if abused).
 - A single production Firebase project; local dev via emulators (separate

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="liquid-sport">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot · Super Admin — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* SCREEN-SPECIFIC LAYOUT ONLY */
+  .nav-title { font-family: var(--font-family-display); font-size: var(--type-title); font-weight: var(--weight-black);
+    letter-spacing: var(--tracking-snug); }
+
+  .pcard { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4); border-radius: var(--radius-lg);
+    background: var(--glass-bg-thin); border: 1px solid var(--glass-border); margin-bottom: var(--space-5); }
+  .pcard .av { width: 58px; height: 58px; border-radius: 50%; flex: none; display: grid; place-items: center;
+    font-family: var(--font-family-display); font-weight: var(--weight-black); font-size: 22px; color: var(--color-on-accent);
+    background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary)); }
+  .pcard .pn { font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black); }
+  .pcard .pp { font-size: var(--type-caption); color: var(--color-text-muted); margin-top: 2px; }
+  .owner { display: inline-block; margin-top: 5px; font-size: var(--type-micro); font-weight: var(--weight-black);
+    text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--color-on-accent);
+    background: var(--color-accent-primary); padding: 3px 9px; border-radius: var(--radius-sm); }
+
+  .gh { font-size: var(--type-micro); font-weight: var(--weight-black); letter-spacing: var(--tracking-overline);
+    text-transform: uppercase; color: var(--color-text-faint); margin: 0 4px var(--space-2); }
+  .sgroup { background: var(--glass-bg-thin); border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+    overflow: hidden; margin-bottom: var(--space-5); backdrop-filter: blur(var(--glass-blur-regular)); }
+  .srow { display: flex; align-items: center; gap: var(--space-3); padding: 13px 16px; min-height: 52px; }
+  .srow + .srow { border-top: 1px solid var(--glass-border); }
+  .srow .lbl { font-size: var(--type-body); font-weight: var(--weight-medium); }
+  .srow .val { margin-left: auto; font-size: var(--type-body); color: var(--color-text-muted); font-weight: var(--weight-bold); }
+  .srow.editable { cursor: pointer; }
+  .srow.editable .val { color: var(--color-accent-secondary); }
+  .srow.editable .val::after { content: " ✎"; opacity: .7; }
+
+  .lang-mini { display: flex; gap: 6px; margin-left: auto; }
+  .lang-mini span { padding: 6px 11px; border-radius: var(--radius-full); font-size: var(--type-caption); font-weight: var(--weight-bold);
+    color: var(--color-text-muted); background: var(--glass-bg-regular); border: 1px solid var(--glass-border); cursor: pointer; }
+  .lang-mini span.on { color: var(--color-accent-primary); border-color: var(--color-accent-primary);
+    background: color-mix(in srgb, var(--color-accent-primary) 12%, transparent); }
+
+  .flag { margin-left: auto; font-size: var(--type-micro); font-weight: var(--weight-black); text-transform: uppercase;
+    letter-spacing: var(--tracking-wide); padding: 4px 10px; border-radius: var(--radius-sm); }
+  .flag.on { color: var(--color-accent-primary); background: color-mix(in srgb, var(--color-accent-primary) 14%, transparent); }
+  .flag.off { color: var(--color-text-faint); background: var(--glass-bg-regular); }
+
+  .actions { display: flex; flex-direction: column; gap: var(--space-3); }
+  .actions .ps-btn { width: 100%; }
+  .ps-btn--danger { background: transparent; color: var(--color-status-live);
+    border-color: color-mix(in srgb, var(--color-status-live) 50%, transparent); }
+  .ps-btn--ghost { background: var(--glass-bg-regular); color: var(--color-text); border-color: var(--glass-border); }
+
+  .toast { position: absolute; left: 50%; bottom: 92px; transform: translateX(-50%) translateY(20px); z-index: 20;
+    background: var(--color-accent-primary); color: var(--color-on-accent); font-weight: var(--weight-bold);
+    font-size: var(--type-subhead); padding: 12px 18px; border-radius: var(--radius-full); box-shadow: var(--elevation-4);
+    opacity: 0; pointer-events: none; transition: opacity .25s, transform .25s; white-space: nowrap; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .ps-tab svg { margin-bottom: 0; }
+</style>
+</head>
+<body>
+<div class="ps-phone">
+  <div class="ps-statusbar">
+    <span>9:41</span>
+    <span class="ps-status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="ps-glass-nav"><span class="nav-title">Settings</span><span class="ps-avatar">SA</span></div>
+
+  <div class="ps-screen">
+    <div class="pcard">
+      <div class="av">S</div>
+      <div><div class="pn">Sandro Z.</div><div class="pp">+995 599 00 11 22</div><span class="owner">Owner · Super Admin</span></div>
+    </div>
+
+    <div class="gh">App-wide defaults</div>
+    <div class="sgroup">
+      <div class="srow"><span class="lbl">Default language (new clubs)</span>
+        <div class="lang-mini" id="lang"><span data-l="ka">ქა</span><span class="on" data-l="en">EN</span><span data-l="ru">РУ</span></div></div>
+      <div class="srow"><span class="lbl">Default currency</span><span class="val" style="color:var(--color-text-muted)">GEL ₾</span></div>
+      <div class="srow editable" data-rule="expiry"><span class="lbl">Reservation expiry</span><span class="val" id="expiry">30 min</span></div>
+      <div class="srow editable" data-rule="maxSeats"><span class="lbl">Max players / table</span><span class="val" id="maxSeats">9</span></div>
+    </div>
+
+    <div class="gh">Feature flags (read-only in MVP)</div>
+    <div class="sgroup">
+      <div class="srow"><span class="lbl">Club chat</span><span class="flag on">On</span></div>
+      <div class="srow"><span class="lbl">Auto no-show timer</span><span class="flag off">Off</span></div>
+      <div class="srow"><span class="lbl">Deep analytics</span><span class="flag off">Off</span></div>
+      <div class="srow"><span class="lbl">Geo / map</span><span class="flag off">Off</span></div>
+      <div class="srow"><span class="lbl">Multi-club Pit Boss</span><span class="flag off">Off</span></div>
+      <div class="srow"><span class="lbl">iOS support</span><span class="flag off">Off</span></div>
+    </div>
+
+    <div class="gh">System health</div>
+    <div class="sgroup">
+      <div class="srow"><span class="lbl">Total clubs</span><span class="val">5 · 4 active</span></div>
+      <div class="srow"><span class="lbl">Registered users</span><span class="val">612</span></div>
+      <div class="srow"><span class="lbl">— players / pit bosses / admins</span><span class="val" style="color:var(--color-text-faint)">598 / 13 / 1</span></div>
+      <div class="srow"><span class="lbl">Messages (24h)</span><span class="val">47</span></div>
+      <div class="srow"><span class="lbl">Last update</span><span class="val" style="color:var(--color-text-faint)">23 May, 18:02</span></div>
+    </div>
+
+    <div class="gh">Developer</div>
+    <div class="actions" style="margin-bottom:var(--space-5)">
+      <button class="ps-btn ps-btn--ghost" id="reset">Reset demo data</button>
+    </div>
+
+    <div class="actions">
+      <button class="ps-btn ps-btn--danger" id="logout">Log out</button>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="ps-tabbar">
+    <a class="ps-tab" href="super-admin-dashboard.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="5" height="9" rx="1"/><rect x="10" y="7" width="5" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>Dashboard</a>
+    <a class="ps-tab" href="super-admin-clubs-crud.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V7l6-4 6 4v14M9 21v-6h6v6M15 10h6v11"/></svg>Clubs</a>
+    <a class="ps-tab" href="super-admin-assign-pitboss.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M15.5 20c0-2 1-3.5 3-3.5"/></svg>Pit Bosses</a>
+    <div class="ps-tab is-active"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V19a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7 17.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.7 7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H10a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V10a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>Settings</div>
+  </div>
+  <div class="ps-home-indicator"></div>
+</div>
+
+<script src="store.js"></script>
+<script>
+  const toast = document.getElementById('toast');
+  function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 2200); }
+
+  /* editable global business rules (persisted) */
+  const rules = PSStore.get('rules', { expiry: 30, maxSeats: 9 });
+  document.getElementById('expiry').textContent = rules.expiry + ' min';
+  document.getElementById('maxSeats').textContent = rules.maxSeats;
+  document.querySelectorAll('.srow.editable').forEach(row => row.onclick = () => {
+    const r = row.dataset.rule;
+    const cur = r === 'expiry' ? rules.expiry : rules.maxSeats;
+    const v = prompt(r === 'expiry' ? 'Reservation expiry (minutes)' : 'Max players per table', cur);
+    if (v && !isNaN(+v)) {
+      rules[r] = +v; PSStore.set('rules', rules);
+      if (r === 'expiry') document.getElementById('expiry').textContent = +v + ' min';
+      else document.getElementById('maxSeats').textContent = +v;
+      showToast('✓ Saved');
+    }
+  });
+
+  document.querySelectorAll('#lang span').forEach(s => s.onclick = () => {
+    document.querySelectorAll('#lang span').forEach(o => o.classList.remove('on')); s.classList.add('on');
+  });
+
+  document.getElementById('reset').onclick = () => {
+    if (confirm('Reset all demo data?\n\nClears added tables, invites, and saved rules. Reloads the app.')) {
+      PSStore.reset(); showToast('Demo data reset'); setTimeout(() => location.reload(), 700);
+    }
+  };
+  document.getElementById('logout').onclick = () => {
+    if (confirm('Log out of PokerSpot Admin?')) window.location.href = 'onboarding-welcome.html';
+  };
+
+  window.addEventListener('message', e => {
+    if (e.data && e.data.psTheme !== undefined) {
+      if (e.data.psTheme) document.documentElement.setAttribute('data-theme', e.data.psTheme);
+      else document.documentElement.removeAttribute('data-theme');
+    }
+  });
+</script>
+</body>
+</html>

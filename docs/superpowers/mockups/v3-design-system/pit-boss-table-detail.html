@@ -48,6 +48,35 @@
   .seat:active { transform: translate(-50%,-50%) scale(0.85); }
   .seat.filled { background: var(--color-accent-primary); border-color: var(--color-accent-primary);
     box-shadow: 0 0 8px -1px var(--color-accent-primary); }
+  .seat.warn { background: var(--color-status-open); border-color: var(--color-status-open);
+    box-shadow: 0 0 8px -1px var(--color-status-open); }
+
+  /* seated players list (live timers) */
+  .seated { margin: 2px 0 12px; }
+  .seated .sh { font-size: var(--type-micro); font-weight: var(--weight-black); letter-spacing: var(--tracking-overline);
+    text-transform: uppercase; color: var(--color-text-faint); margin-bottom: 4px; }
+  .seated-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; font-size: var(--type-subhead);
+    border-top: 1px solid color-mix(in srgb, var(--glass-border) 60%, transparent); cursor: pointer; }
+  .seated-item .sn { width: 22px; height: 22px; border-radius: 6px; flex: none; display: grid; place-items: center;
+    font-size: var(--type-micro); font-weight: var(--weight-black); background: var(--glass-bg-regular); border: 1px solid var(--glass-border); }
+  .seated-item .nm { flex: 1; font-weight: var(--weight-bold); }
+  .seated-item .nm .wk { font-size: var(--type-micro); color: var(--color-text-faint); font-weight: var(--weight-medium); }
+  .seated-item .tm { font-family: var(--font-family-display); font-weight: var(--weight-black);
+    color: var(--color-accent-secondary); font-variant-numeric: tabular-nums; }
+  .seated-item.warn .tm { color: var(--color-status-open); }
+
+  /* seat search (in bottom sheet) */
+  .seat-search input { width: 100%; min-height: 48px; padding: 0 14px; margin-bottom: 10px; border-radius: var(--radius-md);
+    background: var(--glass-bg-thin); border: 1px solid var(--glass-border); color: var(--color-text);
+    font-family: var(--font-family-body); font-size: var(--type-body); outline: none; }
+  .seat-result { display: flex; align-items: center; gap: 10px; width: 100%; padding: 11px 14px; border-radius: var(--radius-md);
+    border: 1px solid var(--glass-border); background: var(--glass-bg-regular); color: var(--color-text); cursor: pointer;
+    margin-bottom: 8px; text-align: left; font-size: var(--type-body); }
+  .seat-result .ra { width: 32px; height: 32px; border-radius: 50%; flex: none; display: grid; place-items: center;
+    font-weight: var(--weight-black); color: var(--color-on-accent); background: linear-gradient(135deg, var(--color-accent-secondary), #0a84ff); }
+  .seat-result .rn { font-weight: var(--weight-bold); } .seat-result .rs { font-size: var(--type-caption); color: var(--color-text-faint); }
+  .seat-result.primary { background: var(--color-accent-primary); color: var(--color-on-accent); border-color: transparent; }
+  .seat-result.walkin { border-style: dashed; color: var(--color-accent-primary); justify-content: center; font-weight: var(--weight-bold); }
 
   /* meta rows (blinds / avg / min) */
   .meta-row { display: flex; align-items: center; gap: var(--space-3); padding: 11px 0;
@@ -171,6 +200,7 @@
         <div class="felt" data-filled="7" data-max="9">
           <div class="felt-label"><div class="c"><span class="open">2</span>/9</div><div class="k">Open</div></div>
         </div>
+        <div class="seated" id="seatedT1"></div>
         <div class="meta-row"><span class="mr-k">Blinds</span><button class="mr-v editable blinds-val">1/3</button><span class="mr-hint">tap to change</span></div>
         <div class="meta-row"><span class="mr-k">Avg stack</span><button class="mr-v editable avg-val">₾2,400</button><span class="mr-hint">tap to edit</span></div>
         <div class="meta-row"><span class="mr-k">Min buy-in</span><span class="mr-v" style="color:var(--color-text)">₾200</span></div>
@@ -182,13 +212,13 @@
         </div>
 
         <div class="res-block">
-          <div class="wl-h"><span class="ps-overline">Reservations · 1 pending</span></div>
+          <div class="wl-h"><span class="ps-overline">Reservations · 1 seat held</span></div>
           <div id="reservations">
             <div class="res-item">
               <span class="res-name">Levan · 3 players</span>
-              <span class="ps-status-badge is-open">Pending</span>
-              <div class="res-act"><button class="accept" data-act="accept">Accept</button><button class="x" data-act="reject">✕</button></div>
-              <div class="res-meta">@ 21:00 · note: "regulars"</div>
+              <span class="ps-status-badge is-live"><span class="ps-live-dot"></span><span class="countdown" data-deadline="">30:00</span></span>
+              <div class="res-act"><button class="arrived" data-act="arrived">Arrived → top</button><button class="x" data-act="reject">✕</button></div>
+              <div class="res-meta">Seat held · player arrives within 30 min or it's released</div>
             </div>
           </div>
         </div>
@@ -297,45 +327,128 @@
     document.getElementById('editSave').onclick = () => { onSave(input.value.trim()); closeSheet(); };
   }
 
-  /* ---------- seats (oval layout) ---------- */
+  /* ---------- per-seat identity + live session timers ---------- */
+  const WARN_MS = 8 * 3600 * 1000;   // sessionWarningHours
+  const REGISTERED = [
+    { n: 'Cotne M.', s: 'Jan 2026' }, { n: 'Nino K.', s: 'Feb 2026' }, { n: 'Davit T.', s: 'Mar 2026' },
+    { n: 'Anna B.', s: 'Jan 2026' }, { n: 'Luka P.', s: 'Apr 2026' }, { n: 'Mariam G.', s: 'Feb 2026' },
+    { n: 'Saba L.', s: 'Mar 2026' }, { n: 'Irakli D.', s: 'Jan 2026' }, { n: 'Tamar Kh.', s: 'May 2026' }
+  ];
+  const T1_SEED = [
+    { name: 'Cotne M.', mins: 137, reg: 1 }, { name: 'Nino K.', mins: 42, reg: 1 }, { name: 'Giorgi R.', mins: 18, reg: 1 },
+    { name: 'Levan', mins: 73, reg: 0 }, { name: 'Mariam G.', mins: 9, reg: 1 }, { name: 'Saba L.', mins: 201, reg: 1 },
+    { name: 'Beka', mins: 495, reg: 0 }   // >8h → warning
+  ];
+  function fmtT(ms) {
+    const s = Math.max(0, Math.floor(ms / 1000)), h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), x = s % 60;
+    return h + ':' + String(m).padStart(2, '0') + ':' + String(x).padStart(2, '0');
+  }
+
   function layoutSeats(felt) {
     const max = +felt.dataset.max, filled = +felt.dataset.filled;
     for (let i = 0; i < max; i++) {
       const ang = (i / max) * Math.PI * 2 - Math.PI / 2;
-      const x = 50 + 40 * Math.cos(ang), y = 50 + 38 * Math.sin(ang);
       const s = document.createElement('button');
       s.className = 'seat' + (i < filled ? ' filled' : '');
-      s.style.left = x + '%'; s.style.top = y + '%';
+      s.style.left = (50 + 40 * Math.cos(ang)) + '%'; s.style.top = (50 + 38 * Math.sin(ang)) + '%';
+      s.dataset.seat = (i + 1);
       felt.appendChild(s);
       s.onclick = () => seatTap(s, felt);
     }
   }
+  document.querySelectorAll('.felt').forEach(layoutSeats);
+
+  const t1 = document.querySelector('.table-card .felt');   // Table 1
+  [...t1.querySelectorAll('.seat.filled')].forEach((s, i) => {
+    const o = T1_SEED[i] || { name: 'Player', mins: 30, reg: 1 };
+    s.dataset.name = o.name; s.dataset.reg = o.reg; s.dataset.seatedAt = (Date.now() - o.mins * 60000);
+  });
+
   function updateFelt(felt) {
     const filled = felt.querySelectorAll('.seat.filled').length, max = +felt.dataset.max, open = max - filled;
-    const lbl = felt.querySelector('.felt-label');
-    lbl.innerHTML = open > 0
+    felt.querySelector('.felt-label').innerHTML = open > 0
       ? '<div class="c"><span class="open">' + open + '</span>/' + max + '</div><div class="k">Open</div>'
       : '<div class="c">' + max + '/' + max + '</div><div class="k">Full</div>';
   }
+  function occupy(seat, felt, name, reg) {
+    seat.classList.add('filled'); seat.dataset.name = name; seat.dataset.reg = reg ? 1 : 0;
+    seat.dataset.seatedAt = Date.now(); updateFelt(felt); renderSeated();
+  }
+  function vacate(seat, felt) {
+    seat.classList.remove('filled', 'warn'); delete seat.dataset.name; delete seat.dataset.seatedAt;
+    updateFelt(felt); renderSeated();
+  }
   function seatTap(seat, felt) {
     if (seat.classList.contains('filled')) {
-      openActions('Occupied seat', [
-        { label: 'Player left — open seat', cls: 'danger', fn: () => { seat.classList.remove('filled'); updateFelt(felt); } },
-        { label: 'No-show / kick + remove from list', cls: 'danger', fn: () => { seat.classList.remove('filled'); updateFelt(felt); } }
+      const nm = seat.dataset.name || 'Player';
+      openActions('Seat ' + seat.dataset.seat + ' · ' + nm, [
+        { label: 'Player left — end session', cls: 'danger', fn: () => vacate(seat, felt) },
+        { label: 'No-show', cls: 'danger', fn: () => vacate(seat, felt) },
+        { label: 'Move to another table', fn: () => alert('Move ' + nm + ' → pick a table') }
       ]);
-    } else {
-      const top = document.querySelector('#waitlist .wl-item');
-      const actions = [];
-      if (top) {
-        const nm = top.querySelector('.wl-name').firstChild.textContent.trim();
-        actions.push({ label: 'Call #1 from waitlist — ' + nm, cls: 'primary', fn: () => { top.classList.add('is-called'); } });
-        actions.push({ label: 'Seat #1 — ' + nm, fn: () => { seat.classList.add('filled'); updateFelt(felt); removeWl(top); } });
-      }
-      actions.push({ label: 'Add walk-in (manual)', fn: () => { seat.classList.add('filled'); updateFelt(felt); } });
-      openActions('Open seat', actions);
-    }
+    } else { openSearch(seat, felt); }
   }
-  document.querySelectorAll('.felt').forEach(layoutSeats);
+
+  function openSearch(seat, felt) {
+    sheetTitle.textContent = 'Seat a player';
+    sheetBody.innerHTML = '<div class="seat-search"><input id="seatQ" placeholder="Search name / surname / phone…" autocomplete="off"></div><div id="seatResults"></div>';
+    showSheet();
+    const q = document.getElementById('seatQ'), res = document.getElementById('seatResults');
+    function draw() {
+      const v = q.value.trim().toLowerCase(); let html = '';
+      const top = document.querySelector('#waitlist .wl-item');
+      if (top && !v) {
+        const nm = top.querySelector('.wl-name').firstChild.textContent.trim();
+        html += '<button class="seat-result primary" data-call="1"><span class="ra">' + nm[0] + '</span><span class="rn">Call #1 — ' + nm + '</span></button>';
+      }
+      REGISTERED.filter(r => !v || r.n.toLowerCase().includes(v)).slice(0, 5).forEach(r => {
+        html += '<button class="seat-result" data-name="' + r.n + '"><span class="ra">' + r.n[0] + '</span><span><span class="rn">' + r.n + '</span><br><span class="rs">member since ' + r.s + '</span></span></button>';
+      });
+      html += '<button class="seat-result walkin" data-walkin="1">+ Add as walk-in' + (v ? ' "' + q.value.trim() + '"' : '') + '</button>';
+      res.innerHTML = html;
+      res.querySelectorAll('[data-name]').forEach(b => b.onclick = () => { occupy(seat, felt, b.dataset.name, true); closeSheet(); });
+      const cb = res.querySelector('[data-call]');
+      if (cb) cb.onclick = () => { const tp = document.querySelector('#waitlist .wl-item'); const nm = tp.querySelector('.wl-name').firstChild.textContent.trim(); occupy(seat, felt, nm, true); removeWl(tp); closeSheet(); };
+      res.querySelector('[data-walkin]').onclick = () => { occupy(seat, felt, q.value.trim() || 'Walk-in', false); closeSheet(); };
+    }
+    q.addEventListener('input', draw); q.focus(); draw();
+  }
+
+  const seatedEl = document.getElementById('seatedT1');
+  function renderSeated() {
+    const seats = [...t1.querySelectorAll('.seat.filled')];
+    let html = seats.length ? '<div class="sh">Seated · ' + seats.length + '</div>' : '';
+    seats.forEach(s => {
+      const reg = s.dataset.reg === '1';
+      html += '<div class="seated-item" data-seat="' + s.dataset.seat + '"><span class="sn">' + s.dataset.seat + '</span>' +
+        '<span class="nm">' + (s.dataset.name || 'Player') + (reg ? '' : ' <span class="wk">walk-in</span>') + '</span>' +
+        '<span class="tm" data-at="' + s.dataset.seatedAt + '">0:00:00</span></div>';
+    });
+    seatedEl.innerHTML = html;
+    seatedEl.querySelectorAll('.seated-item').forEach(it => it.onclick = () => {
+      const seat = [...t1.querySelectorAll('.seat')].find(x => x.dataset.seat === it.dataset.seat);
+      if (seat) seatTap(seat, t1);
+    });
+    tick();
+  }
+  function tick() {
+    const now = Date.now();
+    document.querySelectorAll('#seatedT1 .seated-item').forEach(it => {
+      const tm = it.querySelector('.tm'), el = now - (+tm.dataset.at), warn = el > WARN_MS;
+      tm.textContent = fmtT(el); it.classList.toggle('warn', warn);
+      const seat = [...t1.querySelectorAll('.seat')].find(x => x.dataset.seat === it.dataset.seat);
+      if (seat) seat.classList.toggle('warn', warn);
+    });
+    document.querySelectorAll('.countdown[data-deadline]').forEach(c => {
+      if (!c.dataset.deadline) return;                       // not started yet
+      const left = (+c.dataset.deadline) - now;
+      if (left <= 0) { c.textContent = 'expired'; return; }
+      const s = Math.floor(left / 1000);
+      c.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    });
+  }
+  renderSeated();
+  setInterval(tick, 1000);
 
   /* ---------- shared waitlist ---------- */
   const wl = document.getElementById('waitlist');
@@ -346,7 +459,15 @@
       '<div class="wl-act"><button class="primary" data-act="call">Call</button>' +
       '<button data-act="seat">Seat</button><button class="x" data-act="remove">✕</button></div>';
     el.querySelectorAll('.wl-act button').forEach(b => b.onclick = () => {
-      if (b.dataset.act === 'call') el.classList.add('is-called'); else removeWl(el);
+      if (b.dataset.act === 'call') {
+        el.classList.add('is-called');
+        if (!el.querySelector('.countdown')) {
+          const c = document.createElement('span');
+          c.className = 'countdown'; c.dataset.deadline = Date.now() + 30 * 60000;
+          c.style.cssText = 'margin-left:8px;color:var(--color-status-live);font-weight:800;font-size:var(--type-micro)';
+          el.querySelector('.wl-name').after(c);
+        }
+      } else removeWl(el);
     });
     if (top && wl.firstChild) wl.insertBefore(el, wl.firstChild); else wl.appendChild(el);
     renumber();
@@ -362,17 +483,10 @@
 
   /* ---------- reservations ---------- */
   document.querySelectorAll('#reservations .res-item').forEach(res => {
-    const act = res.querySelector('.res-act'), badge = res.querySelector('.ps-status-badge');
-    act.querySelectorAll('button').forEach(b => b.onclick = () => {
-      if (b.dataset.act === 'reject') { res.classList.add('removed'); setTimeout(() => res.remove(), 300); }
-      else {
-        badge.className = 'ps-status-badge is-live'; badge.innerHTML = '<span class="ps-live-dot"></span>Accepted';
-        act.innerHTML = '<button class="arrived">Arrived → top of waitlist</button>';
-        act.querySelector('button').onclick = () => {
-          wlItem(res.querySelector('.res-name').textContent.split(' · ')[0], true);
-          res.classList.add('removed'); setTimeout(() => res.remove(), 300);
-        };
-      }
+    res.querySelector('.countdown').dataset.deadline = Date.now() + 30 * 60000;   // instant 30-min hold
+    res.querySelectorAll('.res-act button').forEach(b => b.onclick = () => {
+      if (b.dataset.act === 'arrived') wlItem(res.querySelector('.res-name').textContent.split(' · ')[0], true);
+      res.classList.add('removed'); setTimeout(() => res.remove(), 300);
     });
   });
 

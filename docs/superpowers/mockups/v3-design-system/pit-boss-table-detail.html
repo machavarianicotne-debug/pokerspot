@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="liquid-sport">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot · Pit Boss — Table Detail</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* SCREEN-SPECIFIC LAYOUT ONLY — table-centric */
+  .nav-back { width: 38px; height: 38px; border-radius: var(--radius-full); display: grid; place-items: center;
+    color: var(--color-text); background: var(--glass-bg-regular); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur-thin)); text-decoration: none; }
+  .nav-mid { text-align: center; }
+  .nav-mid .t { font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black); }
+  .nav-mid .s { font-size: var(--type-micro); font-weight: var(--weight-bold); letter-spacing: var(--tracking-wide);
+    text-transform: uppercase; color: var(--color-text-faint); }
+
+  .table-card { padding: 0; margin-bottom: var(--space-4); overflow: hidden; }
+  .tc-head { display: flex; align-items: center; gap: var(--space-3); padding: 14px 16px; cursor: pointer; }
+  .tc-num { width: 50px; height: 50px; border-radius: var(--radius-md); flex: none; display: grid; place-items: center;
+    font-family: var(--font-family-display); font-size: 30px; font-weight: var(--weight-black); letter-spacing: -1.5px;
+    color: var(--color-on-accent); background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary)); }
+  .tc-title { flex: 1; }
+  .tc-title .tn { font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black); }
+  .tc-title .tst { font-size: var(--type-caption); color: var(--color-text-muted); margin-top: 2px; }
+  .tc-caret { color: var(--color-text-faint); transition: transform var(--duration-normal) var(--ease-standard); }
+  .table-card.collapsed .tc-caret { transform: rotate(-90deg); }
+  .tc-body { padding: 0 16px 16px; }
+  .table-card.collapsed .tc-body { display: none; }
+
+  /* oval felt + seats */
+  .felt { position: relative; height: 150px; margin: 4px 0 14px; border-radius: 80px;
+    background: radial-gradient(120% 100% at 50% 35%, color-mix(in srgb, var(--color-accent-secondary) 10%, transparent), transparent 70%),
+      var(--glass-bg-thin); border: 1px solid var(--glass-border); }
+  .felt .felt-label { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); text-align: center; }
+  .felt .felt-label .c { font-family: var(--font-family-display); font-size: var(--type-display-2);
+    font-weight: var(--weight-black); line-height: 1; }
+  .felt .felt-label .c .open { color: var(--color-accent-primary); }
+  .felt .felt-label .k { font-size: var(--type-micro); font-weight: var(--weight-black); letter-spacing: var(--tracking-wide);
+    text-transform: uppercase; color: var(--color-text-faint); margin-top: 3px; }
+  .seat { position: absolute; width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--glass-border);
+    background: var(--color-bg-1); cursor: pointer; transform: translate(-50%,-50%);
+    transition: background var(--duration-fast), transform var(--duration-fast); }
+  .seat:active { transform: translate(-50%,-50%) scale(0.85); }
+  .seat.filled { background: var(--color-accent-primary); border-color: var(--color-accent-primary);
+    box-shadow: 0 0 8px -1px var(--color-accent-primary); }
+
+  /* meta rows (blinds / avg / min) */
+  .meta-row { display: flex; align-items: center; gap: var(--space-3); padding: 11px 0;
+    border-top: 1px solid var(--glass-border); }
+  .mr-k { font-size: var(--type-subhead); color: var(--color-text-muted); font-weight: var(--weight-medium); min-width: 92px; }
+  .mr-v { font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black);
+    background: none; border: none; color: var(--color-text); cursor: pointer; padding: 0; }
+  .mr-v.editable { color: var(--color-accent-secondary); }
+  .mr-hint { margin-left: auto; font-size: var(--type-micro); color: var(--color-text-faint);
+    text-transform: uppercase; letter-spacing: var(--tracking-wide); font-weight: var(--weight-bold); }
+  .mr-v.pulse { animation: mr-pulse .5s var(--ease-standard); }
+  @keyframes mr-pulse { 0%,100%{transform:scale(1)} 40%{transform:scale(1.18); text-shadow:0 0 14px var(--color-accent-secondary)} }
+
+  .shares { padding: 12px 0; border-top: 1px solid var(--glass-border); font-size: var(--type-subhead);
+    color: var(--color-text-faint); font-style: italic; display: flex; align-items: center; gap: 8px; }
+
+  /* waitlist */
+  .wl-block { border-top: 1px solid var(--glass-border); padding-top: 12px; margin-top: 4px; }
+  .wl-h { display: flex; align-items: center; margin-bottom: 10px; }
+  .wl-h .ps-overline { font-size: var(--type-caption); }
+  .wl-h .add { margin-left: auto; font-size: var(--type-caption); font-weight: var(--weight-black);
+    color: var(--color-accent-primary); background: none; border: none; cursor: pointer;
+    text-transform: uppercase; letter-spacing: var(--tracking-wide); }
+  .wl-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; }
+  .wl-item + .wl-item { border-top: 1px solid color-mix(in srgb, var(--glass-border) 60%, transparent); }
+  .wl-pos { font-family: var(--font-family-display); font-size: var(--type-body); font-weight: var(--weight-black);
+    color: var(--color-accent-primary); min-width: 18px; }
+  .wl-name { flex: 1; font-size: var(--type-body); font-weight: var(--weight-bold); }
+  .wl-item.is-called .wl-name::after { content: " · Called"; color: var(--color-status-live);
+    font-size: var(--type-caption); font-weight: var(--weight-black); }
+  .wl-act { display: flex; gap: 5px; }
+  .wl-act button { font-size: var(--type-micro); font-weight: var(--weight-black); padding: 6px 9px;
+    border-radius: var(--radius-sm); border: 1px solid var(--glass-border); background: var(--glass-bg-regular);
+    color: var(--color-text); cursor: pointer; text-transform: uppercase; }
+  .wl-act button.primary { background: var(--color-accent-primary); color: var(--color-on-accent); border-color: transparent; }
+  .wl-act button.x { color: var(--color-status-live); }
+  .removed { opacity: 0; transform: translateX(30px); transition: .3s; }
+
+  /* reservations */
+  .res-block { border-top: 1px solid var(--glass-border); padding-top: 12px; margin-top: 12px; }
+  .res-item { display: flex; align-items: center; gap: 10px; padding: 9px 0; flex-wrap: wrap; }
+  .res-name { flex: 1; font-size: var(--type-body); font-weight: var(--weight-bold); }
+  .res-meta { width: 100%; font-size: var(--type-caption); color: var(--color-text-muted); }
+  .res-act { display: flex; gap: 5px; }
+  .res-act button { font-size: var(--type-micro); font-weight: var(--weight-black); padding: 6px 10px; border-radius: var(--radius-sm);
+    border: 1px solid var(--glass-border); background: var(--glass-bg-regular); color: var(--color-text); cursor: pointer; text-transform: uppercase; }
+  .res-act button.accept { background: var(--color-accent-primary); color: var(--color-on-accent); border-color: transparent; }
+  .res-act button.x { color: var(--color-status-live); }
+  .res-act button.arrived { background: var(--color-accent-secondary); color: var(--color-on-accent); border-color: transparent; }
+
+  /* table controls */
+  .tc-controls { display: flex; gap: 8px; border-top: 1px solid var(--glass-border); padding-top: 14px; margin-top: 12px; }
+  .tc-controls button { flex: 1; font-size: var(--type-subhead); font-weight: var(--weight-bold); padding: 11px;
+    border-radius: var(--radius-md); border: 1px solid var(--glass-border); background: var(--glass-bg-regular);
+    color: var(--color-text-muted); cursor: pointer; }
+  .tc-controls button.close { color: var(--color-status-live); }
+
+  .add-table { width: 100%; padding: 14px; border-radius: var(--radius-lg); border: 1.5px dashed var(--glass-border);
+    background: var(--glass-bg-thin); color: var(--color-accent-primary); font-weight: var(--weight-bold);
+    font-size: var(--type-subhead); cursor: pointer; }
+
+  /* bottom sheet (shared: seat actions + edit) */
+  .sheet-backdrop { position: absolute; inset: 0; z-index: 8; background: rgba(0,0,0,0.5); opacity: 0;
+    pointer-events: none; transition: opacity var(--duration-normal); }
+  .sheet-backdrop.show { opacity: 1; pointer-events: auto; }
+  .sheet { position: absolute; left: 8px; right: 8px; bottom: 8px; z-index: 9; border-radius: var(--radius-xl);
+    background: var(--glass-bg-thick); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur-thick)) saturate(var(--glass-saturate));
+    -webkit-backdrop-filter: blur(var(--glass-blur-thick)) saturate(var(--glass-saturate));
+    box-shadow: var(--inset-highlight), var(--elevation-5); padding: 10px 14px 14px;
+    transform: translateY(120%); transition: transform var(--duration-normal) var(--ease-decelerate); }
+  .sheet.show { transform: translateY(0); }
+  .sheet-grab { width: 36px; height: 5px; border-radius: 3px; background: var(--glass-border); margin: 0 auto 12px; }
+  .sheet-title { font-size: var(--type-caption); font-weight: var(--weight-black); text-transform: uppercase;
+    letter-spacing: var(--tracking-wide); color: var(--color-text-faint); margin-bottom: 10px; text-align: center; }
+  .sheet-act { width: 100%; padding: 15px; border-radius: var(--radius-md); border: 1px solid var(--glass-border);
+    background: var(--glass-bg-regular); color: var(--color-text); font-size: var(--type-body); font-weight: var(--weight-bold);
+    cursor: pointer; margin-bottom: 8px; }
+  .sheet-act.primary { background: var(--color-accent-primary); color: var(--color-on-accent); border-color: transparent; }
+  .sheet-act.danger { color: var(--color-status-live); }
+  .sheet-cancel { width: 100%; padding: 14px; border: none; background: transparent; color: var(--color-text-muted);
+    font-size: var(--type-body); font-weight: var(--weight-bold); cursor: pointer; }
+  .sheet-edit { display: flex; gap: 8px; margin-bottom: 10px; }
+  .sheet-edit input { flex: 1; min-height: 50px; padding: 0 16px; background: var(--glass-bg-thin);
+    border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--color-text);
+    font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black); outline: none; }
+  .sheet-edit input:focus { border-color: var(--color-accent-secondary); }
+  .sheet-edit button { padding: 0 20px; border-radius: var(--radius-md); border: none; background: var(--color-accent-primary);
+    color: var(--color-on-accent); font-weight: var(--weight-black); cursor: pointer; }
+</style>
+</head>
+<body>
+<div class="ps-phone">
+  <div class="ps-statusbar">
+    <span>9:41</span>
+    <span class="ps-status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="ps-glass-nav">
+    <a class="nav-back" href="pit-boss-live-floor.html" aria-label="Back">
+      <svg width="11" height="18" viewBox="0 0 11 18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9.5 1.5L2 9l7.5 7.5"/></svg>
+    </a>
+    <div class="nav-mid"><div class="t">1/3 NLH</div><div class="s">Royal Poker · 2 tables</div></div>
+    <span style="width:38px"></span>
+  </div>
+
+  <div class="ps-screen">
+
+    <!-- TABLE 1 -->
+    <div class="ps-card table-card">
+      <div class="tc-head" data-collapse>
+        <span class="tc-num">1</span>
+        <div class="tc-title"><div class="tn">Table 1</div><div class="tst">1/3 NLH</div></div>
+        <svg class="tc-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="tc-body">
+        <div class="felt" data-filled="7" data-max="9">
+          <div class="felt-label"><div class="c"><span class="open">2</span>/9</div><div class="k">Open</div></div>
+        </div>
+        <div class="meta-row"><span class="mr-k">Blinds</span><button class="mr-v editable blinds-val">1/3</button><span class="mr-hint">tap to change</span></div>
+        <div class="meta-row"><span class="mr-k">Avg stack</span><button class="mr-v editable avg-val">₾2,400</button><span class="mr-hint">tap to edit</span></div>
+        <div class="meta-row"><span class="mr-k">Min buy-in</span><span class="mr-v" style="color:var(--color-text)">₾200</span></div>
+
+        <div class="wl-block">
+          <div class="wl-h"><span class="ps-overline" id="wlHead">Waitlist for this stake · 4</span>
+            <button class="add" id="addWalkin">+ Walk-in</button></div>
+          <div id="waitlist"></div>
+        </div>
+
+        <div class="res-block">
+          <div class="wl-h"><span class="ps-overline">Reservations · 1 pending</span></div>
+          <div id="reservations">
+            <div class="res-item">
+              <span class="res-name">Levan · 3 players</span>
+              <span class="ps-status-badge is-open">Pending</span>
+              <div class="res-act"><button class="accept" data-act="accept">Accept</button><button class="x" data-act="reject">✕</button></div>
+              <div class="res-meta">@ 21:00 · note: "regulars"</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tc-controls"><button>Take break</button><button class="close">Close table</button></div>
+      </div>
+    </div>
+
+    <!-- TABLE 2 (same stake) -->
+    <div class="ps-card table-card">
+      <div class="tc-head" data-collapse>
+        <span class="tc-num">2</span>
+        <div class="tc-title"><div class="tn">Table 2</div><div class="tst">1/3 NLH · same stake</div></div>
+        <svg class="tc-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      <div class="tc-body">
+        <div class="felt" data-filled="9" data-max="9">
+          <div class="felt-label"><div class="c">9/9</div><div class="k">Full</div></div>
+        </div>
+        <div class="meta-row"><span class="mr-k">Blinds</span><button class="mr-v editable blinds-val">1/3</button><span class="mr-hint">tap to change</span></div>
+        <div class="meta-row"><span class="mr-k">Avg stack</span><button class="mr-v editable avg-val">₾2,400</button><span class="mr-hint">tap to edit</span></div>
+        <div class="meta-row"><span class="mr-k">Min buy-in</span><span class="mr-v" style="color:var(--color-text)">₾200</span></div>
+
+        <div class="shares">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h8M12 8v8"/><circle cx="12" cy="12" r="9"/></svg>
+          Shares waitlist &amp; reservations with Table 1
+        </div>
+
+        <div class="tc-controls"><button>Take break</button><button class="close">Close table</button></div>
+      </div>
+    </div>
+
+    <button class="add-table" onclick="alert('Add table — opens Table 3 at 1/3 NLH (same stake, shared waitlist)')">+ Add table (same stake)</button>
+    <div style="height:16px"></div>
+  </div>
+
+  <!-- shared bottom sheet -->
+  <div class="sheet-backdrop" id="backdrop"></div>
+  <div class="sheet" id="sheet">
+    <div class="sheet-grab"></div>
+    <div class="sheet-title" id="sheetTitle">Seat</div>
+    <div id="sheetBody"></div>
+    <button class="sheet-cancel" id="sheetCancel">Cancel</button>
+  </div>
+
+  <div class="ps-home-indicator"></div>
+</div>
+
+<script>
+  /* ---------- collapse ---------- */
+  document.querySelectorAll('[data-collapse]').forEach(h =>
+    h.addEventListener('click', () => h.closest('.table-card').classList.toggle('collapsed')));
+
+  /* ---------- bottom sheet (actions OR edit) ---------- */
+  const sheet = document.getElementById('sheet'), backdrop = document.getElementById('backdrop');
+  const sheetBody = document.getElementById('sheetBody'), sheetTitle = document.getElementById('sheetTitle');
+  function showSheet() { sheet.classList.add('show'); backdrop.classList.add('show'); }
+  function closeSheet() { sheet.classList.remove('show'); backdrop.classList.remove('show'); }
+  backdrop.onclick = closeSheet; document.getElementById('sheetCancel').onclick = closeSheet;
+
+  function openActions(title, actions) {
+    sheetTitle.textContent = title; sheetBody.innerHTML = '';
+    actions.forEach(a => {
+      const b = document.createElement('button');
+      b.className = 'sheet-act' + (a.cls ? ' ' + a.cls : ''); b.textContent = a.label;
+      b.onclick = () => { a.fn(); closeSheet(); };
+      sheetBody.appendChild(b);
+    });
+    showSheet();
+  }
+  function openEdit(title, value, onSave) {
+    sheetTitle.textContent = title;
+    sheetBody.innerHTML = '<div class="sheet-edit"><input id="editInput" value="' + value + '">' +
+      '<button id="editSave">Save</button></div>';
+    showSheet();
+    const input = document.getElementById('editInput'); input.focus(); input.select();
+    document.getElementById('editSave').onclick = () => { onSave(input.value.trim()); closeSheet(); };
+  }
+
+  /* ---------- seats (oval layout) ---------- */
+  function layoutSeats(felt) {
+    const max = +felt.dataset.max, filled = +felt.dataset.filled;
+    for (let i = 0; i < max; i++) {
+      const ang = (i / max) * Math.PI * 2 - Math.PI / 2;
+      const x = 50 + 40 * Math.cos(ang), y = 50 + 38 * Math.sin(ang);
+      const s = document.createElement('button');
+      s.className = 'seat' + (i < filled ? ' filled' : '');
+      s.style.left = x + '%'; s.style.top = y + '%';
+      felt.appendChild(s);
+      s.onclick = () => seatTap(s, felt);
+    }
+  }
+  function updateFelt(felt) {
+    const filled = felt.querySelectorAll('.seat.filled').length, max = +felt.dataset.max, open = max - filled;
+    const lbl = felt.querySelector('.felt-label');
+    lbl.innerHTML = open > 0
+      ? '<div class="c"><span class="open">' + open + '</span>/' + max + '</div><div class="k">Open</div>'
+      : '<div class="c">' + max + '/' + max + '</div><div class="k">Full</div>';
+  }
+  function seatTap(seat, felt) {
+    if (seat.classList.contains('filled')) {
+      openActions('Occupied seat', [
+        { label: 'Player left — open seat', cls: 'danger', fn: () => { seat.classList.remove('filled'); updateFelt(felt); } },
+        { label: 'No-show / kick + remove from list', cls: 'danger', fn: () => { seat.classList.remove('filled'); updateFelt(felt); } }
+      ]);
+    } else {
+      const top = document.querySelector('#waitlist .wl-item');
+      const actions = [];
+      if (top) {
+        const nm = top.querySelector('.wl-name').firstChild.textContent.trim();
+        actions.push({ label: 'Call #1 from waitlist — ' + nm, cls: 'primary', fn: () => { top.classList.add('is-called'); } });
+        actions.push({ label: 'Seat #1 — ' + nm, fn: () => { seat.classList.add('filled'); updateFelt(felt); removeWl(top); } });
+      }
+      actions.push({ label: 'Add walk-in (manual)', fn: () => { seat.classList.add('filled'); updateFelt(felt); } });
+      openActions('Open seat', actions);
+    }
+  }
+  document.querySelectorAll('.felt').forEach(layoutSeats);
+
+  /* ---------- shared waitlist ---------- */
+  const wl = document.getElementById('waitlist');
+  const seed = ['Giorgi', 'Nino', 'Davit', 'Anna'];
+  function wlItem(name, top) {
+    const el = document.createElement('div'); el.className = 'wl-item';
+    el.innerHTML = '<span class="wl-pos">0</span><span class="wl-name">' + name + '</span>' +
+      '<div class="wl-act"><button class="primary" data-act="call">Call</button>' +
+      '<button data-act="seat">Seat</button><button class="x" data-act="remove">✕</button></div>';
+    el.querySelectorAll('.wl-act button').forEach(b => b.onclick = () => {
+      if (b.dataset.act === 'call') el.classList.add('is-called'); else removeWl(el);
+    });
+    if (top && wl.firstChild) wl.insertBefore(el, wl.firstChild); else wl.appendChild(el);
+    renumber();
+  }
+  function removeWl(el) { el.classList.add('removed'); setTimeout(() => { el.remove(); renumber(); }, 300); }
+  function renumber() {
+    const items = [...wl.querySelectorAll('.wl-item:not(.removed)')];
+    items.forEach((it, i) => it.querySelector('.wl-pos').textContent = i + 1);
+    document.getElementById('wlHead').textContent = 'Waitlist for this stake · ' + items.length;
+  }
+  seed.forEach(n => wlItem(n, false));
+  document.getElementById('addWalkin').onclick = () => { const n = prompt('Walk-in name'); if (n && n.trim()) wlItem(n.trim(), false); };
+
+  /* ---------- reservations ---------- */
+  document.querySelectorAll('#reservations .res-item').forEach(res => {
+    const act = res.querySelector('.res-act'), badge = res.querySelector('.ps-status-badge');
+    act.querySelectorAll('button').forEach(b => b.onclick = () => {
+      if (b.dataset.act === 'reject') { res.classList.add('removed'); setTimeout(() => res.remove(), 300); }
+      else {
+        badge.className = 'ps-status-badge is-live'; badge.innerHTML = '<span class="ps-live-dot"></span>Accepted';
+        act.innerHTML = '<button class="arrived">Arrived → top of waitlist</button>';
+        act.querySelector('button').onclick = () => {
+          wlItem(res.querySelector('.res-name').textContent.split(' · ')[0], true);
+          res.classList.add('removed'); setTimeout(() => res.remove(), 300);
+        };
+      }
+    });
+  });
+
+  /* ---------- blinds / avg edit (per game → mirrors across tables, 0.5s pulse) ---------- */
+  function pulseAll(sel) { document.querySelectorAll(sel).forEach(el => { el.classList.remove('pulse'); void el.offsetWidth; el.classList.add('pulse'); }); }
+  document.querySelectorAll('.blinds-val').forEach(el => el.onclick = () => {
+    openEdit('Change blinds (applies to both tables)', el.textContent, v => {
+      if (!v) return; document.querySelectorAll('.blinds-val').forEach(b => b.textContent = v);
+      document.querySelector('.nav-mid .t').textContent = v + ' NLH'; pulseAll('.blinds-val');
+    });
+  });
+  document.querySelectorAll('.avg-val').forEach(el => el.onclick = () => {
+    const cur = (el.textContent.match(/[\d,]+/) || [''])[0].replace(/,/g, '');
+    openEdit('Average stack (applies to both tables)', cur, v => {
+      const disp = v ? '₾' + Number(v).toLocaleString('en-US') : '—';
+      document.querySelectorAll('.avg-val').forEach(a => a.textContent = disp); pulseAll('.avg-val');
+    });
+  });
+
+  window.addEventListener('message', e => {
+    if (e.data && e.data.psTheme !== undefined) {
+      if (e.data.psTheme) document.documentElement.setAttribute('data-theme', e.data.psTheme);
+      else document.documentElement.removeAttribute('data-theme');
+    }
+  });
+</script>
+</body>
+</html>

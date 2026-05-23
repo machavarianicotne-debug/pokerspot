@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="liquid-sport">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot · Pit Boss — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* SCREEN-SPECIFIC LAYOUT ONLY */
+  .nav-back { width: 38px; height: 38px; border-radius: var(--radius-full); display: grid; place-items: center;
+    color: var(--color-text); background: var(--glass-bg-regular); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur-thin)); text-decoration: none; }
+  .nav-title { font-family: var(--font-family-display); font-size: var(--type-title);
+    font-weight: var(--weight-black); letter-spacing: var(--tracking-snug); }
+
+  /* profile card */
+  .pcard { display: flex; align-items: center; gap: var(--space-4); padding: var(--space-4);
+    border-radius: var(--radius-lg); background: var(--glass-bg-thin); border: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur-regular)); margin-bottom: var(--space-5); }
+  .pcard .av { width: 60px; height: 60px; border-radius: 50%; flex: none; display: grid; place-items: center;
+    font-family: var(--font-family-display); font-weight: var(--weight-black); font-size: 24px; color: var(--color-on-accent);
+    background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary)); }
+  .pcard .pn { font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black); }
+  .pcard .pc { font-size: var(--type-subhead); color: var(--color-accent-primary); font-weight: var(--weight-bold); margin-top: 2px; }
+  .pcard .pp { font-size: var(--type-caption); color: var(--color-text-muted); margin-top: 1px; }
+  .pcard .editn { margin-left: auto; align-self: flex-start; font-size: var(--type-caption); font-weight: var(--weight-bold);
+    color: var(--color-accent-secondary); background: none; border: none; cursor: pointer; }
+
+  .gh { font-size: var(--type-micro); font-weight: var(--weight-black); letter-spacing: var(--tracking-overline);
+    text-transform: uppercase; color: var(--color-text-faint); margin: 0 4px var(--space-2); }
+  .sgroup { background: var(--glass-bg-thin); border: 1px solid var(--glass-border); border-radius: var(--radius-lg);
+    overflow: hidden; margin-bottom: var(--space-5);
+    backdrop-filter: blur(var(--glass-blur-regular)); -webkit-backdrop-filter: blur(var(--glass-blur-regular)); }
+  .srow { display: flex; align-items: center; gap: var(--space-3); padding: 13px 16px; min-height: 54px; }
+  .srow + .srow { border-top: 1px solid var(--glass-border); }
+  .srow .lbl { font-size: var(--type-body); font-weight: var(--weight-medium); }
+  .srow .sub { font-size: var(--type-caption); color: var(--color-text-faint); margin-top: 2px; }
+  .srow .lblwrap { flex: 1; min-width: 0; }
+  .srow .val { margin-left: auto; font-size: var(--type-body); color: var(--color-text-muted); }
+  .ps-toggle { margin-left: auto; }
+
+  .avail-status { display: inline-flex; align-items: center; gap: 7px; font-size: var(--type-caption);
+    font-weight: var(--weight-black); padding: 5px 11px; border-radius: 999px; }
+  .avail-status.on { color: var(--color-accent-primary); background: color-mix(in srgb, var(--color-accent-primary) 14%, transparent); }
+  .avail-status.off { color: var(--color-status-live); background: color-mix(in srgb, var(--color-status-live) 14%, transparent); }
+  .avail-status i { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  .lang-mini { display: flex; gap: 6px; margin-left: auto; }
+  .lang-mini span { padding: 6px 11px; border-radius: var(--radius-full); font-size: var(--type-caption);
+    font-weight: var(--weight-bold); color: var(--color-text-muted); background: var(--glass-bg-regular);
+    border: 1px solid var(--glass-border); cursor: pointer; }
+  .lang-mini span.on { color: var(--color-accent-primary); border-color: var(--color-accent-primary);
+    background: color-mix(in srgb, var(--color-accent-primary) 12%, transparent); }
+
+  .actions { display: flex; flex-direction: column; gap: var(--space-3); }
+  .actions .ps-btn { width: 100%; }
+  .ps-btn--danger { background: transparent; color: var(--color-status-live);
+    border-color: color-mix(in srgb, var(--color-status-live) 50%, transparent); }
+  .since { text-align: center; font-size: var(--type-caption); color: var(--color-text-faint); margin-top: var(--space-3); }
+
+  .ps-tab { position: relative; }
+  .tab-badge { position: absolute; top: 2px; right: 50%; transform: translateX(20px); min-width: 17px; height: 17px;
+    border-radius: 9px; background: var(--color-status-live); color: #fff; font-size: 10px; font-weight: var(--weight-black);
+    display: grid; place-items: center; padding: 0 4px; }
+</style>
+</head>
+<body>
+<div class="ps-phone">
+  <div class="ps-statusbar">
+    <span>9:41</span>
+    <span class="ps-status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="ps-glass-nav" style="gap:12px">
+    <a class="nav-back" href="pit-boss-live-floor.html" aria-label="Back">
+      <svg width="11" height="18" viewBox="0 0 11 18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9.5 1.5L2 9l7.5 7.5"/></svg>
+    </a>
+    <span class="nav-title">Settings</span>
+  </div>
+
+  <div class="ps-screen">
+    <!-- profile -->
+    <div class="pcard">
+      <div class="av" id="av">G</div>
+      <div>
+        <div class="pn" id="pn">Giorgi M.</div>
+        <div class="pc">Pit Boss · Royal Poker Tbilisi</div>
+        <div class="pp">+995 599 12 34 56</div>
+      </div>
+      <button class="editn" id="editName">Edit name</button>
+    </div>
+
+    <!-- availability -->
+    <div class="gh">Availability</div>
+    <div class="sgroup">
+      <div class="srow">
+        <div class="lblwrap">
+          <div class="lbl">Available for chat</div>
+          <div class="sub">When off, players see "Pit Boss unavailable" and can't start new chats.</div>
+        </div>
+        <label class="ps-toggle"><input type="checkbox" id="availToggle" checked /><span class="track"></span></label>
+      </div>
+      <div class="srow">
+        <div class="lbl">Status</div>
+        <span class="avail-status on" id="availStatus"><i></i>Online</span>
+      </div>
+    </div>
+
+    <!-- notifications -->
+    <div class="gh">Notifications</div>
+    <div class="sgroup">
+      <div class="srow"><span class="lbl">New waitlist join</span><label class="ps-toggle"><input type="checkbox" checked /><span class="track"></span></label></div>
+      <div class="srow"><span class="lbl">New reservation request</span><label class="ps-toggle"><input type="checkbox" checked /><span class="track"></span></label></div>
+      <div class="srow"><span class="lbl">New chat message</span><label class="ps-toggle"><input type="checkbox" checked /><span class="track"></span></label></div>
+      <div class="srow"><span class="lbl">Reservation accepted / rejected</span><label class="ps-toggle"><input type="checkbox" checked /><span class="track"></span></label></div>
+      <div class="srow"><span class="lbl">Daily summary</span><label class="ps-toggle"><input type="checkbox" /><span class="track"></span></label></div>
+    </div>
+
+    <!-- language -->
+    <div class="gh">Language</div>
+    <div class="sgroup">
+      <div class="srow">
+        <span class="lbl">App language</span>
+        <div class="lang-mini" id="lang"><span data-l="ka">ქა</span><span class="on" data-l="en">EN</span><span data-l="ru">РУ</span></div>
+      </div>
+    </div>
+
+    <!-- account -->
+    <div class="gh">Account</div>
+    <div class="actions">
+      <button class="ps-btn ps-btn--secondary" id="stepDown">Step down as Pit Boss</button>
+      <button class="ps-btn ps-btn--danger" id="logout">Log out</button>
+      <div class="since">Member since January 2026</div>
+    </div>
+  </div>
+
+  <div class="ps-tabbar">
+    <a class="ps-tab" href="pit-boss-live-floor.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="13" y="3" width="8" height="8" rx="2"/><rect x="3" y="13" width="8" height="8" rx="2"/><rect x="13" y="13" width="8" height="8" rx="2"/></svg>Floor</a>
+    <a class="ps-tab" href="pit-boss-inbox.html" style="text-decoration:none"><span class="tab-badge">2</span><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.5 8.5 0 0 1-12 7.7L3 21l1.8-6A8.5 8.5 0 1 1 21 11.5z"/></svg>Inbox</a>
+    <div class="ps-tab is-active"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 13a1.6 1.6 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.6 1.6 0 0 0-2.7 1.1V19a2 2 0 1 1-4 0v-.1A1.6 1.6 0 0 0 7 17.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.6 1.6 0 0 0-1.1-2.7H3a2 2 0 1 1 0-4h.1A1.6 1.6 0 0 0 4.7 7l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.6 1.6 0 0 0 1.8.3H10a1.6 1.6 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.6 1.6 0 0 0 2.7 1.1l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.6 1.6 0 0 0-.3 1.8V10a1.6 1.6 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.6 1.6 0 0 0-1.5 1z"/></svg>Settings</div>
+  </div>
+  <div class="ps-home-indicator"></div>
+</div>
+
+<script>
+  document.getElementById('editName').onclick = () => {
+    const cur = document.getElementById('pn').textContent;
+    const v = prompt('Display name', cur);
+    if (v && v.trim().length >= 2) {
+      document.getElementById('pn').textContent = v.trim();
+      document.getElementById('av').textContent = v.trim()[0].toUpperCase();
+    }
+  };
+
+  const availToggle = document.getElementById('availToggle'), availStatus = document.getElementById('availStatus');
+  availToggle.addEventListener('change', () => {
+    if (availToggle.checked) { availStatus.className = 'avail-status on'; availStatus.innerHTML = '<i></i>Online'; }
+    else { availStatus.className = 'avail-status off'; availStatus.innerHTML = '<i></i>Unavailable'; }
+  });
+
+  document.querySelectorAll('#lang span').forEach(s => s.onclick = () => {
+    document.querySelectorAll('#lang span').forEach(o => o.classList.remove('on')); s.classList.add('on');
+  });
+
+  document.getElementById('stepDown').onclick = () => {
+    if (confirm('Step down as Pit Boss?\n\nA Super Admin must reassign the role. You stay Pit Boss until then.'))
+      alert('Request sent — the Super Admin has been notified.');
+  };
+  document.getElementById('logout').onclick = () => {
+    if (confirm('Log out of PokerSpot?')) window.location.href = 'onboarding-welcome.html';
+  };
+
+  window.addEventListener('message', e => {
+    if (e.data && e.data.psTheme !== undefined) {
+      if (e.data.psTheme) document.documentElement.setAttribute('data-theme', e.data.psTheme);
+      else document.documentElement.removeAttribute('data-theme');
+    }
+  });
+</script>
+</body>
+</html>

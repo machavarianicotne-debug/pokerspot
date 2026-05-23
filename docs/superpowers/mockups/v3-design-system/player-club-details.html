@@ -101,6 +101,18 @@
   .reserve-bar { position: absolute; left: var(--space-4); right: var(--space-4); bottom: 84px;
     z-index: 6; }
   .reserve-bar .ps-btn { width: 100%; }
+
+  /* chat entry (after info block) */
+  .chat-entry { display: flex; align-items: center; gap: var(--space-3); padding: 14px 16px;
+    margin-bottom: var(--space-5); border-radius: var(--radius-lg); background: var(--glass-bg-thin);
+    border: 1px solid var(--glass-border); text-decoration: none; color: inherit;
+    transition: border-color var(--duration-fast), transform var(--duration-fast); }
+  .chat-entry:hover { border-color: var(--color-accent-secondary); transform: translateY(-1px); }
+  .ce-icon { width: 42px; height: 42px; border-radius: var(--radius-md); flex: none; display: grid; place-items: center;
+    color: var(--color-on-accent); background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary)); }
+  .ce-t { font-size: var(--type-body); font-weight: var(--weight-bold); }
+  .ce-s { font-size: var(--type-caption); color: var(--color-text-muted); margin-top: 2px; }
+  .chat-entry .chev { margin-left: auto; color: var(--color-text-faint); }
 </style>
 </head>
 <body>
@@ -124,6 +136,11 @@
 
   <div class="ps-screen">
     <div id="info"></div>
+    <a class="chat-entry" id="chatEntry" href="player-club-chat.html">
+      <span class="ce-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.5 8.5 0 0 1-12 7.7L3 21l1.8-6A8.5 8.5 0 1 1 21 11.5z"/></svg></span>
+      <div class="ce-text"><div class="ce-t">Chat with Pit Boss</div><div class="ce-s">Dress code, parking, VIP — ask the floor</div></div>
+      <svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1.5 1.5L7 7.5 1.5 13.5"/></svg>
+    </a>
     <div id="games"></div>
     <div style="height: 56px"></div>
   </div>
@@ -293,6 +310,7 @@ function attachJoin() {
 /* init: read ?club= , fall back to royal */
 const clubKey = new URLSearchParams(location.search).get('club') || 'royal';
 render(clubKey);
+document.getElementById('chatEntry').href = 'player-club-chat.html?club=' + clubKey;
 
 document.getElementById('reserveBtn').addEventListener('click', () => {
   window.location.href = 'reservation-flow.html?club=' + clubKey;

@@ -27,8 +27,8 @@ it is a single app with role-based routing.
 
 ### Non-goals (MVP)
 
-See §14 (v2 backlog). Notably: no iOS at launch, no per-seat player identity,
-no deep analytics, no multi-day reservations.
+See §14 (v2 backlog). Notably: no iOS at launch, no chip-stack tracking, no deep
+analytics, no multi-day reservations.
 
 ---
 
@@ -112,17 +112,20 @@ no deep analytics, no multi-day reservations.
   Being `called` does **not** cancel other entries.
 - Pit Boss **manual override**: may seat a specific person directly (VIP/regular)
   without consuming waitlist #1; this does not reorder the queue.
-- **Seats:** tracked as a count (`seatedCount` / `maxSeats`, default 9). The UI
-  renders N seats (filled-first) for a pro feel, but **no per-seat player identity**
-  is stored — the Pit Boss physically knows who is who. Open seats for a stake
-  = Σ over open tables of `(maxSeats − seatedCount)`.
+- **Seats: per-seat identity (MVP — reverses the earlier counter-only decision).**
+  Each of a table's `maxSeats` (default 9) seats records **who** sits there
+  (registered user or walk-in) + `seatedAt`, which powers **live session timers**.
+  `seatedCount` is derived. Open seats for a stake = Σ over open tables of
+  `(maxSeats − seatedCount)`. (Chip-stack tracking stays out of scope.)
 
 ### Firestore collections
 
 ```
 users/{uid}
-  phone (E.164)  displayName  role(player|pitboss|superadmin)
+  phone (E.164)  displayName  role(player|pitboss|superadmin)  blocked(bool)
   assignedClubId(nullable)  fcmTokens[]  lang(ka|en|ru)  createdAt  updatedAt
+users/{uid}/sessionStats/summary      # player play-time aggregate
+  totalLifetimeMinutes  totalSessions  byDay(map, last 30 days)  lastSessionAt
 
 pitBossAssignments/{phoneE164}        # pending assignment applied on first sign-in
   clubId  assignedBy(uid)  createdAt
@@ -152,6 +155,18 @@ clubs/{clubId}/tables/{tableId}        # top-level per club for club-global numb
   maxSeats(default 9)  seatedCount  status(open|closed|breaking)  openedAt
   # tableNumber is club-global (not per game); + Add Table takes the next free
   #   number; a closed table frees its number
+
+clubs/{clubId}/tables/{tableId}/seats/{seatNumber}
+  occupiedBy(userId|null)  occupantName  occupantType(registered|walkin)  seatedAt
+  # per-seat identity (MVP) — powers live session timers
+
+clubs/{clubId}/sessions/{sessionId}
+  userId(nullable)  userName  isRegistered(bool)  tableNumber  gameId
+  startedAt  endedAt(nullable while active)  durationMinutes
+  # one session = seated → stand-up; re-seating starts a NEW session
+
+walkInPlayers/{walkInId}              # unregistered players the Pit Boss seats by name
+  clubId  name(normalized, cross-script)  totalLifetimeMinutes  sessionCount  lastSessionAt
 
 clubs/{clubId}/waitlist/{entryId}
   gameId  userId  displayName  position(float, for ordering & top-insert)
@@ -197,8 +212,10 @@ a specific player does not change others' positions.
 ### Player
 
 1. **Onboarding** — sign in with phone OTP. On **first** sign-in a **Welcome**
-   screen captures **displayName (required)** + **language (ka/en/ru)**, then →
-   Club list. `displayName` is later editable in Profile.
+   screen captures **displayName (required)** + **language (ka/en/ru)**, shows a
+   **GDPR notice** ("PokerSpot tracks your play sessions for personal stats and
+   club reports — by continuing you consent"), then → Club list. `displayName` is
+   later editable in Profile.
 2. **Club list** — live overview per club: city, running games (stake), open
    seats, waitlist length, and a **live status badge**:
    - 🟢 **Live** — active + within opening hours + has open games
@@ -220,7 +237,9 @@ a specific player does not change others' positions.
 5. **Reserve** — **instant**: holds a seat for 30 min if one is open (live
    countdown), otherwise instantly joins the waitlist. No time picker / party / note.
 6. **My status** — own active waitlists & reservations, each with a **live
-   countdown** when a seat is held or your turn is called.
+   countdown** when a seat is held or your turn is called; plus a **My Playtime**
+   section: today's total, last-7-days bar chart, lifetime total + avg session,
+   and last session.
 7. **Profile** — edit displayName & language; **Logout**; **Delete Account**
    (see "Account deletion & logout" below).
 8. **Push** — seat called, reservation accepted, reservation expiring.
@@ -228,17 +247,20 @@ a specific player does not change others' positions.
 ### Pit Boss — "Live Floor" (own club)
 
 UI is **table-centric** — the Pit Boss thinks per physical table, not per
-section. Tabs: **Floor · Inbox · Settings**.
+section. Tabs: **Floor · Inbox · Stats · Settings**.
 
 - **Live Floor** — a numbered card per **table** (club-global `tableNumber`,
   dominant): stake, seats X/9, blinds, avg stack, waitlist count. `+ New Game`
   (type, blinds, **currency** (default = club's), min buy-in, tables) and
   `+ New Table (same stake)`. Tap a table → table detail.
 - **Table detail** — each table is a card with:
-  - **Visual 9-seat grid** (oval). Tap **empty** seat → **Call #1** / **Seat #1**
-    (from the stake's waitlist) / **Add walk-in**. Tap **occupied** seat →
-    **player left** / **no-show + remove**. The grid is the interface (no counter
-    mode).
+  - **Visual 9-seat grid** (oval) with **per-seat identity + live timers**. Tap
+    an **empty** seat → **smart search** (name / surname / phone, cross-script
+    normalized — ცოტნე = Cotne); pick a registered player (locality-biased
+    results, phone hidden, shows "member since") or **+ Add as walk-in**; or
+    **Call #1** from the waitlist. Tap an **occupied** seat (shows
+    "Cotne M. · 2h 17m") → **player left** (ends the session) / **no-show** /
+    **move to another table**. Sessions over 8h show a ⚠️ warning (no auto-end).
   - **Blinds** (inline editable, **per game** — mirrors across same-stake tables,
     reflected to players in real time, 0.5s pulse), **average stack** (inline
     editable, per game), and min buy-in.
@@ -250,6 +272,10 @@ section. Tabs: **Floor · Inbox · Settings**.
   the next free number; a closed table frees its number.
 - **Inbox** — list of private chat threads (one per player) with unread badges →
   1-on-1 chat thread.
+- **Stats** — monthly **Player Stats** report: month picker; two tabs
+  **Registered** / **Walk-in**; ranked list of name + total hours + sessions;
+  tap a player → session history. Registered and walk-in players are kept in two
+  separate lists.
 - An evening starts with an **empty** club (no template auto-restore in MVP).
 
 ### Seating lifecycle
@@ -327,6 +353,8 @@ no reservation doc is created. Both timers use `ARRIVAL_DEADLINE_MINUTES` (30).
 | `deleteAccount` | Callable (account owner) | Delete user doc, cancel waitlist entries & reservations, remove FCM tokens, delete Auth user (Player only) |
 | `onChatMessageCreated` | Firestore: chat message create | Update `lastMessage`/`lastMessageAt` + recipient unread count; FCM push to the recipient |
 | `markChatAsRead` | Callable (thread participant) | Reset that side's unread count when the thread is opened |
+| `onSessionEnded` | Firestore: session `endedAt` set | Compute `durationMinutes`; roll it into the player's `sessionStats` (or `walkInPlayers`) aggregate |
+| `dailySessionRollup` | Scheduled (daily) | Update each player's `byDay` map; trim to last 30 days |
 
 ---
 
@@ -404,21 +432,23 @@ Each feature is built in isolation (own domain/data/presentation). A new feature
 
 **A. Business rules & constants — never inline.**
 `lib/core/constants/business_rules.dart`: `arrivalDeadlineMinutes` (30 — applies
-to both instant reservations and called waitlist entries),
-`waitlistCallTimeout` (null = manual in MVP; 20 min in v2, gated by
-`autoNoShowTimer`), `maxPlayersPerTable` (9), `maxWaitlistsPerPlayer` (null = no
-cap MVP), `defaultCurrency` (GEL), `supportedCurrencies` ([GEL, USD, EUR]), `minBuyIn`
-(>0; no `maxBuyIn` — uncapped), …
+to instant reservations AND called waitlist entries; both auto-expire),
+`sessionWarningHours` (8 — long-session ⚠️, no auto-end), `maxPlayersPerTable`
+(9), `maxWaitlistsPerPlayer` (null = no cap MVP), `defaultCurrency` (GEL),
+`supportedCurrencies` ([GEL, USD, EUR]), `minBuyIn` (>0; no `maxBuyIn` —
+uncapped), …
 `lib/core/constants/validation_rules.dart`: phone format (E.164), name length, …
 **Zero magic numbers/strings** elsewhere — all named constants.
 
 **B. Feature flags — `lib/core/feature_flags.dart`.**
-MVP default `false`: `multiClubPitBoss`, `autoNoShowTimer`,
-`autoReservationConvertToWaitlist`, `deepAnalytics`, `geoMap`, `perSeatIdentity`,
-`templateAutoRestore`, `crossClubWaitlist`, `iosSupport`. Environment-based
-override (dev/staging/prod). Activating the v2 backlog = flip flags, not rewrite.
+MVP default `false`: `multiClubPitBoss`, `autoReservationConvertToWaitlist`,
+`deepAnalytics`, `geoMap`, `templateAutoRestore`, `crossClubWaitlist`,
+`iosSupport`. Environment-based override (dev/staging/prod). Activating the v2
+backlog = flip flags, not rewrite.
 *(Light analytics is the un-flagged MVP baseline; `deepAnalytics` gates only the
-v2 deep version. `clubChat` defaults **true** — it ships in MVP.)*
+v2 deep version. `clubChat` and `perSeatIdentity` default **true** — they ship in
+MVP. The 30-min auto no-show on called waitlist entries is now MVP, so the old
+`autoNoShowTimer` flag is dropped.)*
 
 **C. Repository pattern — backend behind interfaces.**
 Domain defines abstract interfaces returning domain types & `Stream`s
@@ -466,9 +496,13 @@ debug/info/warning/error.
 
 ### Contradiction check vs. earlier decisions
 
-- ✅ **Consistent:** no-cap waitlists, manual no-show MVP (now a constant +
-  `autoNoShowTimer` flag), light analytics stays MVP (`deepAnalytics` off),
-  Android-first (`iosSupport` off), 30-min reservation expiry (now a constant).
+- ✅ **Consistent:** no-cap waitlists, light analytics stays MVP (`deepAnalytics`
+  off), Android-first (`iosSupport` off), 30-min deadline is a constant.
+- 🔁 **Reversed (intentional, later decisions):** per-seat identity is now **MVP**
+  (`perSeatIdentity` = true) — it powers session timers, superseding the earlier
+  counter-only seats. Called waitlist entries now **auto** no-show at 30 min
+  (`expireWaitlistCalls`), so the old manual-only / `autoNoShowTimer` plan is
+  dropped. Instant reservations replaced the time-picker flow.
 - ⚠️ **Tension flagged (C):** "swap backend in a few files" holds for *data
   access only*. The real-time + custom-claims + Cloud-Functions + FCM +
   security-rules design is **Firebase-specific** and would need re-implementation
@@ -494,11 +528,12 @@ debug/info/warning/error.
 
 ## 14. v2 Backlog (deferred)
 
-iOS build/release · per-seat player identity & chip stacks · auto no-show timer
-on waitlist calls · multi-day / future reservations · geo / map / distance sorting
-· previous-session table template auto-restore · multi-club Pit Boss · deep
-analytics & rake/revenue tracking · player profiles / loyalty · cross-club
-waitlist resolution. *(Private club chat moved into MVP — see §6/§7/§9.)*
+iOS build/release · chip-stack tracking · multi-day / future reservations · geo /
+map / distance sorting · previous-session table template auto-restore · multi-club
+Pit Boss · deep analytics & rake/revenue tracking · player profiles / loyalty ·
+cross-club waitlist resolution · **walk-in duplicate merge** · **walk-in →
+registered account claim**. *(Private club chat AND per-seat identity / session
+timers moved into MVP — see §5/§6/§7.)*
 
 ---
 

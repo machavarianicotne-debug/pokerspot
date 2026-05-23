@@ -28,7 +28,7 @@ it is a single app with role-based routing.
 ### Non-goals (MVP)
 
 See §14 (v2 backlog). Notably: no iOS at launch, no per-seat player identity,
-no deep analytics, no in-app chat, no multi-day reservations.
+no deep analytics, no multi-day reservations.
 
 ---
 
@@ -137,13 +137,18 @@ clubs/{clubId}
 clubs/{clubId}/games/{gameId}
   type(NLH|PLO)  blinds(string e.g. "1/3")  buyInMin  averageStack(nullable)
   status(running|closed)  createdAt  updatedAt
+  # blinds: runtime-editable by Pit Boss (per game); change reflects to players
+  #   in real time; updatedAt tracks the change (internal, not shown in UI)
   # buyInMin > 0 required; NO buyInMax — Tbilisi format is uncapped
   # averageStack: Pit Boss manual estimate; players see the last value set;
   #   null ("—") until first set. updatedAt is server-side only, never shown in
   #   UI (no freshness / "x min ago" indicator)
 
-clubs/{clubId}/games/{gameId}/tables/{tableId}
-  name  maxSeats(default 9)  seatedCount  status(open|closed|breaking)  openedAt
+clubs/{clubId}/tables/{tableId}        # top-level per club for club-global numbering
+  tableNumber(int, unique per club, auto-incremented)  gameId(ref)
+  maxSeats(default 9)  seatedCount  status(open|closed|breaking)  openedAt
+  # tableNumber is club-global (not per game); + Add Table takes the next free
+  #   number; a closed table frees its number
 
 clubs/{clubId}/waitlist/{entryId}
   gameId  userId  displayName  position(float, for ordering & top-insert)
@@ -154,6 +159,12 @@ clubs/{clubId}/reservations/{resId}
   gameId  userId  displayName  partySize  reservedTime(timestamp, same-day)
   note  status(pending|accepted|rejected|arrived|expired|cancelled)
   createdAt  acceptedAt  expiresAt
+
+chats/{chatId}                        # one private 1-on-1 thread per (club, player)
+  clubId  playerId  pitBossId  lastMessage  lastMessageAt
+  unreadByPlayer(int)  unreadByPitBoss(int)
+chats/{chatId}/messages/{messageId}
+  senderId  senderRole(player|pitboss)  text  createdAt  readAt
 
 clubOverviews/{clubId}                # denormalized, Cloud-Function-maintained
   clubName  city  status  openingHours  photoUrl
@@ -190,11 +201,14 @@ a specific player does not change others' positions.
    Computed client-side from `status` + `openingHours` + current time + games.
    **Sort: Live → Open but empty → Closed**, then by city/name.
 3. **Club detail** — header **info block** (logo, name, city, address,
-   **tap-to-call phone**, opening hours), then per-stake live cards below. Each
-   stake card shows type, **min buy-in (₾)**, **average stack (₾, or "—" if
-   unset)**, tables, open seats, and waitlist count, with a **Join waitlist**
-   action (and a **Reserve** action for the club). Tap-to-call opens the device
-   dialer via Flutter `url_launcher` (small, MVP).
+   **tap-to-call phone**, opening hours), then a **Chat with Pit Boss** entry
+   (private 1-on-1 Q&A — dress code, parking, "VIP table?"), then per-stake live
+   cards. Each stake card shows type, **min buy-in (₾)**, **average stack (₾, or
+   "—" if unset)**, tables, open seats, and waitlist count, with a **Join
+   waitlist** action (and a **Reserve** action for the club). **Blinds update in
+   real time** when the Pit Boss changes them. **Table numbers are internal**
+   (Pit Boss only) — not shown to players. Tap-to-call opens the device dialer
+   via `url_launcher` (small, MVP).
 4. **Join waitlist** for a stake (multiple allowed); see own position; leave.
 5. **Reserve** — same-day, choose stake + time + party size + note.
 6. **My status** — own active waitlists & reservations.
@@ -204,23 +218,29 @@ a specific player does not change others' positions.
 
 ### Pit Boss — "Live Floor" (own club)
 
-- **Games overview** cards: stake, open tables, open seats, waitlist count;
-  `+ New Game` (choose NLH/PLO + blinds + **min buy-in** → opens an empty table).
-- **Average stack edit:** tap a game's avg-stack value → enter a new estimate →
-  save; players see the new number immediately. Manual estimate, no timestamp /
-  freshness UI; `null` ("—") until first set.
-- **Game detail:**
-  - **Tables:** visual seat grid per table; `(- / +)` or tap-to-toggle seats;
-    `+ Add Table` (another table at the same stake); open / close / break a table.
-    - Tap **empty** seat → occupied → prompt: **Call waitlist #1** or **manual
-      seat** (walk-in not on the list).
-    - Tap **occupied** seat → empty → prompt: **manual** (player left) or advance
-      to **next called** → notification.
-  - **Waitlist** (ordered): per entry `[Call] [Seat] [No-show] [Remove]`; called
-    entries highlighted; `+ Add walk-in`.
-  - **Reservations** (pending): `[Accept] [Reject]`; accepted show `[Arrived]`.
-- An evening starts with an **empty** club (no auto-restore of a previous
-  template in MVP).
+UI is **table-centric** — the Pit Boss thinks per physical table, not per
+section. Tabs: **Floor · Inbox · Settings**.
+
+- **Live Floor** — a numbered card per **table** (club-global `tableNumber`,
+  dominant): stake, seats X/9, blinds, avg stack, waitlist count. `+ New Game`
+  and `+ New Table (same stake)`. Tap a table → table detail.
+- **Table detail** — each table is a card with:
+  - **Visual 9-seat grid** (oval). Tap **empty** seat → **Call #1** / **Seat #1**
+    (from the stake's waitlist) / **Add walk-in**. Tap **occupied** seat →
+    **player left** / **no-show + remove**. The grid is the interface (no counter
+    mode).
+  - **Blinds** (inline editable, **per game** — mirrors across same-stake tables,
+    reflected to players in real time, 0.5s pulse), **average stack** (inline
+    editable, per game), and min buy-in.
+  - **Waitlist for the stake** (`[Call] [Seat] [✕]`, `+ walk-in`) and
+    **Reservations** (`[Accept]`/`[✕]` → `Arrived` = top of waitlist) shown once
+    per stake; sibling tables show "Shares waitlist with Table N".
+  - `Close table` / `Take break`.
+- **Table numbers** are **club-global and auto-incremented**; `+ Add Table` takes
+  the next free number; a closed table frees its number.
+- **Inbox** — list of private chat threads (one per player) with unread badges →
+  1-on-1 chat thread.
+- An evening starts with an **empty** club (no template auto-restore in MVP).
 
 ### Seating lifecycle
 
@@ -287,6 +307,8 @@ marked Arrived within **30 minutes of `reservedTime`** (grace window).
 | `resolveSeated` | Firestore: waitlist entry → `seated` | Auto-cancel that user's other active same-club entries |
 | `expireReservations` | Cloud Tasks (per reservation) or 1-min schedule | Set `expired` when past `expiresAt` without `arrived` |
 | `deleteAccount` | Callable (account owner) | Delete user doc, cancel waitlist entries & reservations, remove FCM tokens, delete Auth user (Player only) |
+| `onChatMessageCreated` | Firestore: chat message create | Update `lastMessage`/`lastMessageAt` + recipient unread count; FCM push to the recipient |
+| `markChatAsRead` | Callable (thread participant) | Reset that side's unread count when the thread is opened |
 
 ---
 
@@ -304,6 +326,10 @@ marked Arrived within **30 minutes of `reservedTime`** (grace window).
 - `clubs` CRUD: `superadmin` only.
 - `clubOverviews`: read for authenticated users; **no client writes**
   (Cloud-Function-only).
+- `chats`: a **player** reads/writes only their own threads (`playerId ==
+  auth.uid`); a **Pit Boss** only their club's threads (`clubId ==
+  token.assignedClubId`). `messages`: created only by the sender
+  (`senderId == auth.uid`), readable by both participants.
 - Role checks use the **custom claim** `request.auth.token.role` (no extra read).
 
 ---
@@ -371,7 +397,7 @@ MVP default `false`: `multiClubPitBoss`, `autoNoShowTimer`,
 `templateAutoRestore`, `crossClubWaitlist`, `iosSupport`. Environment-based
 override (dev/staging/prod). Activating the v2 backlog = flip flags, not rewrite.
 *(Light analytics is the un-flagged MVP baseline; `deepAnalytics` gates only the
-v2 deep version.)*
+v2 deep version. `clubChat` defaults **true** — it ships in MVP.)*
 
 **C. Repository pattern — backend behind interfaces.**
 Domain defines abstract interfaces returning domain types & `Stream`s
@@ -450,8 +476,8 @@ debug/info/warning/error.
 iOS build/release · per-seat player identity & chip stacks · auto no-show timer
 on waitlist calls · multi-day / future reservations · geo / map / distance sorting
 · previous-session table template auto-restore · multi-club Pit Boss · deep
-analytics & rake/revenue tracking · in-app chat / player profiles / loyalty ·
-cross-club waitlist resolution.
+analytics & rake/revenue tracking · player profiles / loyalty · cross-club
+waitlist resolution. *(Private club chat moved into MVP — see §6/§7/§9.)*
 
 ---
 

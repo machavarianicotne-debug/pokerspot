@@ -128,15 +128,18 @@ pitBossAssignments/{phoneE164}        # pending assignment applied on first sign
   clubId  assignedBy(uid)  createdAt
 
 clubs/{clubId}
-  name  city  address  phone  openingHours  geo(GeoPoint, optional, v2 map)
-  languages[]  status(active|inactive)  photoUrl(logo)  createdAt  updatedAt
+  name  city  address  phone  openingHours  defaultCurrency(GEL|USD|EUR, def GEL)
+  geo(GeoPoint, optional, v2 map)  languages[]  status(active|inactive)
+  photoUrl(logo)  createdAt  updatedAt
   # city: separate field ("Tbilisi", "Batumi") for sort & filter
   # phone: shown as tap-to-call on the Player club detail screen
   # openingHours: { mon:{open,close}, ... sun:{open,close}, is24_7:bool }
 
 clubs/{clubId}/games/{gameId}
-  type(NLH|PLO)  blinds(string e.g. "1/3")  buyInMin  averageStack(nullable)
-  status(running|closed)  createdAt  updatedAt
+  type(NLH|PLO)  blinds(string e.g. "1/3")  currency(GEL|USD|EUR)  buyInMin
+  averageStack(nullable)  status(running|closed)  createdAt  updatedAt
+  # currency defaults to the club's defaultCurrency; Pit Boss can override per
+  #   game at creation (a club may run mixed-currency games)
   # blinds: runtime-editable by Pit Boss (per game); change reflects to players
   #   in real time; updatedAt tracks the change (internal, not shown in UI)
   # buyInMin > 0 required; NO buyInMax — Tbilisi format is uncapped
@@ -208,8 +211,8 @@ a specific player does not change others' positions.
    **tap-to-call phone**, opening hours), then a **Chat with Pit Boss** entry
    (private 1-on-1 Q&A — dress code, parking, "VIP table?"), then per-stake live
    cards. Each stake card shows type, **min buy-in (₾)**, **average stack (₾, or
-   "—" if unset)**, tables, open seats, and waitlist count, with a **Join
-   waitlist** action (and a **Reserve** action for the club). **Blinds update in
+   "—" if unset)** in the game's **currency symbol** (₾ / $ / €), tables, open
+   seats, and waitlist count, with a **Join waitlist** action (and a **Reserve** action for the club). **Blinds update in
    real time** when the Pit Boss changes them. **Table numbers are internal**
    (Pit Boss only) — not shown to players. Tap-to-call opens the device dialer
    via `url_launcher` (small, MVP).
@@ -229,7 +232,8 @@ section. Tabs: **Floor · Inbox · Settings**.
 
 - **Live Floor** — a numbered card per **table** (club-global `tableNumber`,
   dominant): stake, seats X/9, blinds, avg stack, waitlist count. `+ New Game`
-  and `+ New Table (same stake)`. Tap a table → table detail.
+  (type, blinds, **currency** (default = club's), min buy-in, tables) and
+  `+ New Table (same stake)`. Tap a table → table detail.
 - **Table detail** — each table is a card with:
   - **Visual 9-seat grid** (oval). Tap **empty** seat → **Call #1** / **Seat #1**
     (from the stake's waitlist) / **Add walk-in**. Tap **occupied** seat →
@@ -268,7 +272,8 @@ no reservation doc is created. Both timers use `ARRIVAL_DEADLINE_MINUTES` (30).
 
 - **Clubs list** — entry point to CRUD; shows all clubs with status.
 - **Create / Edit club** form — all data-model fields: name, city, address,
-  phone, openingHours, languages, photo (logo), geo (optional).
+  phone, openingHours, **default currency (GEL/USD/EUR)**, languages, photo
+  (logo), geo (optional).
 - **Deactivate club** — **soft delete** (`status = inactive`), never a hard delete.
 - **Assign Pit Boss** — enter a phone number + choose a club → assign. If the
   user exists, claims are set immediately; otherwise a **pending assignment** is
@@ -396,8 +401,8 @@ Each feature is built in isolation (own domain/data/presentation). A new feature
 to both instant reservations and called waitlist entries),
 `waitlistCallTimeout` (null = manual in MVP; 20 min in v2, gated by
 `autoNoShowTimer`), `maxPlayersPerTable` (9), `maxWaitlistsPerPlayer` (null = no
-cap MVP), `defaultCurrency` (GEL), `minBuyIn` (>0; no `maxBuyIn` — Tbilisi format is
-uncapped), …
+cap MVP), `defaultCurrency` (GEL), `supportedCurrencies` ([GEL, USD, EUR]), `minBuyIn`
+(>0; no `maxBuyIn` — uncapped), …
 `lib/core/constants/validation_rules.dart`: phone format (E.164), name length, …
 **Zero magic numbers/strings** elsewhere — all named constants.
 

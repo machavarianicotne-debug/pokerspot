@@ -118,6 +118,11 @@
     </div>
 
     <div class="group">
+      <span class="glabel">Currency <span class="opt">(default = club's)</span></span>
+      <div class="seg" id="currency"><span class="on" data-c="GEL" data-s="₾">₾ GEL</span><span data-c="USD" data-s="$">$ USD</span><span data-c="EUR" data-s="€">€ EUR</span></div>
+    </div>
+
+    <div class="group">
       <span class="glabel">Min buy-in</span>
       <div class="money"><span class="cur">₾</span><input id="minBuyIn" type="number" inputmode="numeric" placeholder="200" value="200" /></div>
     </div>
@@ -154,11 +159,17 @@
 
 <script src="store.js"></script>
 <script>
-  let type = 'NLH', blinds = '1/3', tables = 1;
+  let type = 'NLH', blinds = '1/3', tables = 1, currency = 'GEL', sym = '₾';
 
   document.querySelectorAll('#type span').forEach(s => s.onclick = () => {
     document.querySelectorAll('#type span').forEach(o => o.classList.remove('on'));
     s.classList.add('on'); type = s.textContent;
+  });
+
+  document.querySelectorAll('#currency span').forEach(s => s.onclick = () => {
+    document.querySelectorAll('#currency span').forEach(o => o.classList.remove('on'));
+    s.classList.add('on'); currency = s.dataset.c; sym = s.dataset.s;
+    document.querySelectorAll('.money .cur').forEach(c => c.textContent = sym);
   });
 
   document.querySelectorAll('#blinds .choice').forEach(c => c.onclick = () => {
@@ -178,14 +189,14 @@
     this.innerHTML = '<span class="spinner"></span>Opening…';
     const minV = (document.getElementById('minBuyIn').value || '').trim();
     const avgV = (document.getElementById('avgStack').value || '').trim();
-    const min = minV ? '₾' + Number(minV).toLocaleString('en-US') : '₾0';
-    const avg = avgV ? '₾' + Number(avgV).toLocaleString('en-US') : null;
+    const min = minV ? sym + Number(minV).toLocaleString('en-US') : sym + '0';
+    const avg = avgV ? sym + Number(avgV).toLocaleString('en-US') : null;
     const gameKey = blinds.replace(/\//g, '-') + '-' + type.toLowerCase();
     setTimeout(() => {
       // persist the new tables so the live floor renders them
       for (let i = 0; i < tables; i++) {
         const n = 4 + PSStore.get('extraTables', []).length;   // defaults occupy 1-3
-        PSStore.push('extraTables', { n, gameKey, blinds, type, min, avg, filled: 0, max: 9 });
+        PSStore.push('extraTables', { n, gameKey, blinds, type, currency, min, avg, filled: 0, max: 9 });
       }
       document.getElementById('successSub').textContent =
         blinds + ' ' + type + ' is now live on the floor (' + tables + ' table' + (tables > 1 ? 's' : '') + ').';

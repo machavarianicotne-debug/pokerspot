@@ -109,31 +109,31 @@
     <div id="clubList">
       <div class="ps-card club-card" data-status="active" data-name="Royal Poker Tbilisi">
         <div class="cc-logo">R</div>
-        <div class="cc-main"><div class="cc-name">Royal Poker Tbilisi</div><div class="cc-sub">Tbilisi · +995 599 12 34 56</div>
+        <div class="cc-main"><div class="cc-name">Royal Poker Tbilisi</div><div class="cc-sub">Tbilisi · +995 599 12 34 56 · ₾ GEL</div>
           <div class="cc-pb">Pit Boss: Giorgi M.</div></div>
         <span class="cc-status active">Active</span>
       </div>
       <div class="ps-card club-card" data-status="active" data-name="Bellagio Batumi">
         <div class="cc-logo">B</div>
-        <div class="cc-main"><div class="cc-name">Bellagio Batumi</div><div class="cc-sub">Batumi · +995 577 88 99 00</div>
+        <div class="cc-main"><div class="cc-name">Bellagio Batumi</div><div class="cc-sub">Batumi · +995 577 88 99 00 · $ USD</div>
           <div class="cc-pb">Pit Boss: Nika R.</div></div>
         <span class="cc-status active">Active</span>
       </div>
       <div class="ps-card club-card" data-status="active" data-name="Shangri La Tbilisi">
         <div class="cc-logo">S</div>
-        <div class="cc-main"><div class="cc-name">Shangri La Tbilisi</div><div class="cc-sub">Tbilisi · +995 599 22 33 44</div>
+        <div class="cc-main"><div class="cc-name">Shangri La Tbilisi</div><div class="cc-sub">Tbilisi · +995 599 22 33 44 · ₾ GEL</div>
           <div class="cc-pb">Pit Boss: Dato L.</div></div>
         <span class="cc-status active">Active</span>
       </div>
       <div class="ps-card club-card" data-status="active" data-name="Iveria Casino">
         <div class="cc-logo">I</div>
-        <div class="cc-main"><div class="cc-name">Iveria Casino</div><div class="cc-sub">Tbilisi · +995 599 55 66 77</div>
+        <div class="cc-main"><div class="cc-name">Iveria Casino</div><div class="cc-sub">Tbilisi · +995 599 55 66 77 · ₾ GEL</div>
           <div class="cc-pb none">Pit Boss: none (invite pending)</div></div>
         <span class="cc-status active">Active</span>
       </div>
       <div class="ps-card club-card" data-status="inactive" data-name="Mercure Tbilisi" style="display:none">
         <div class="cc-logo" style="background:var(--glass-bg-regular);color:var(--color-text-faint)">M</div>
-        <div class="cc-main"><div class="cc-name">Mercure Tbilisi</div><div class="cc-sub">Tbilisi</div>
+        <div class="cc-main"><div class="cc-name">Mercure Tbilisi</div><div class="cc-sub">Tbilisi · ₾ GEL</div>
           <div class="cc-pb none">Pit Boss: none</div></div>
         <span class="cc-status inactive">Inactive</span>
       </div>
@@ -157,6 +157,8 @@
         <div><label class="k">Phone</label><input class="ps-input" placeholder="+995 5XX XX XX XX" /></div>
       </div>
       <div class="fg"><label class="k">Address</label><input class="ps-input" placeholder="Street + number" /></div>
+      <div class="fg"><label class="k">Default currency</label>
+        <select class="ps-select" id="fCurrency"><option value="GEL">GEL · ₾</option><option value="USD">USD · $</option><option value="EUR">EUR · €</option></select></div>
       <div class="fg">
         <label class="k">Opening hours</label>
         <div class="two"><div><input class="ps-input" type="time" value="20:00" /></div><div><input class="ps-input" type="time" value="06:00" /></div></div>
@@ -191,6 +193,7 @@
   <div class="ps-home-indicator"></div>
 </div>
 
+<script src="store.js"></script>
 <script>
   /* filter */
   document.querySelectorAll('#filter span').forEach(s => s.onclick = () => {
@@ -212,7 +215,11 @@
   document.getElementById('newClub').onclick = () => openForm(false);
   document.querySelectorAll('.club-card').forEach(c => c.onclick = () => openForm(true, c.dataset.name));
   document.getElementById('foClose').onclick = () => ov.classList.remove('show');
-  document.getElementById('saveClub').onclick = () => { alert('Club saved'); ov.classList.remove('show'); };
+  document.getElementById('saveClub').onclick = () => {
+    const cur = document.getElementById('fCurrency').value;
+    PSStore.set('lastClubCurrency', cur);       // demo persistence
+    alert('Club saved · default currency ' + cur); ov.classList.remove('show');
+  };
   document.getElementById('deactivate').onclick = () => {
     if (confirm('Deactivate this club? Players stop seeing it. This is a soft delete — data is kept.')) {
       alert('Club deactivated'); ov.classList.remove('show');

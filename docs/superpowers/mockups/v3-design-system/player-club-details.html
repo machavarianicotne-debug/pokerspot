@@ -197,10 +197,10 @@ const clubsData = {
 
 const TICK = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M4 12l5 5L20 6"/></svg>';
 
+const TYPE_NAMES = { 'NLH': "No-Limit Hold'em", 'PLO': 'Pot-Limit Omaha', 'PLO5': '5-Card PLO', 'PLO6': '6-Card PLO' };
 function gameCard(g, i) {
-  const isPLO = g.stake.includes('PLO');
-  const type = isPLO ? 'PLO' : 'NLH';
-  const typeFull = isPLO ? "Pot-Limit Omaha" : "No-Limit Hold'em";
+  const type = g.stake.trim().split(/\s+/).pop();   // variant-agnostic (NLH/PLO/PLO5/PLO6)
+  const typeFull = TYPE_NAMES[type] || type;
   const full = g.openSeats === 0;
   const avg = g.avgStack ? g.avgStack : '—';   // null → placeholder
   const tablesWord = g.tables > 1 ? 'Tables' : 'Table';

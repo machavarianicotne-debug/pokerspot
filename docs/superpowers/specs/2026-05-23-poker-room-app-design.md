@@ -139,8 +139,9 @@ clubs/{clubId}
   # openingHours: { mon:{open,close}, ... sun:{open,close}, is24_7:bool }
 
 clubs/{clubId}/games/{gameId}
-  type(NLH|PLO)  blinds(string e.g. "1/3")  currency(GEL|USD|EUR)  buyInMin
+  type(NLH|PLO|PLO5|PLO6)  blinds(string e.g. "1/3")  currency(GEL|USD|EUR)  buyInMin
   averageStack(nullable)  status(running|closed)  createdAt  updatedAt
+  # type: NLH, PLO (4-card Omaha), PLO5 (5-card Omaha), PLO6 (6-card Omaha)
   # currency defaults to the club's defaultCurrency; Pit Boss can override per
   #   game at creation (a club may run mixed-currency games)
   # blinds: runtime-editable by Pit Boss (per game); change reflects to players

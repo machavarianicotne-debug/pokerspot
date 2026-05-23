@@ -153,12 +153,16 @@ clubs/{clubId}/tables/{tableId}        # top-level per club for club-global numb
 clubs/{clubId}/waitlist/{entryId}
   gameId  userId  displayName  position(float, for ordering & top-insert)
   status(waiting|called|seated|no_show|cancelled)  source(app|manual|reservation)
-  joinedAt  calledAt  seatedAt
+  joinedAt  calledAt  callDeadline(timestamp, nullable)  seatedAt
+  # callDeadline = now + 30min, set when Pit Boss calls; past it → auto no_show
 
 clubs/{clubId}/reservations/{resId}
-  gameId  userId  displayName  partySize  reservedTime(timestamp, same-day)
-  note  status(pending|accepted|rejected|arrived|expired|cancelled)
-  createdAt  acceptedAt  expiresAt
+  gameId  userId  displayName  status(pending|active|arrived|expired)
+  createdAt  arrivalDeadline(timestamp = createdAt + 30min)
+  # INSTANT hold: a reservation doc is created only when a seat is open for the
+  #   stake; the seat is held 30 min then auto-expired. No reservedTime / time
+  #   picker / party / note in MVP. If no seat is open, "Reserve" instead joins
+  #   the waitlist (no reservation doc).
 
 chats/{chatId}                        # one private 1-on-1 thread per (club, player)
   clubId  playerId  pitBossId  lastMessage  lastMessageAt
@@ -210,8 +214,10 @@ a specific player does not change others' positions.
    (Pit Boss only) — not shown to players. Tap-to-call opens the device dialer
    via `url_launcher` (small, MVP).
 4. **Join waitlist** for a stake (multiple allowed); see own position; leave.
-5. **Reserve** — same-day, choose stake + time + party size + note.
-6. **My status** — own active waitlists & reservations.
+5. **Reserve** — **instant**: holds a seat for 30 min if one is open (live
+   countdown), otherwise instantly joins the waitlist. No time picker / party / note.
+6. **My status** — own active waitlists & reservations, each with a **live
+   countdown** when a seat is held or your turn is called.
 7. **Profile** — edit displayName & language; **Logout**; **Delete Account**
    (see "Account deletion & logout" below).
 8. **Push** — seat called, reservation accepted, reservation expiring.
@@ -244,17 +250,19 @@ section. Tabs: **Floor · Inbox · Settings**.
 
 ### Seating lifecycle
 
-`waiting` → (Pit Boss **Call**) → `called` (+push) → (player arrives, Pit Boss
-**Seat**) → `seated` → other same-club active entries auto-cancelled; or
-(**No-show**) → `no_show` (manual, no auto-timer in MVP).
+`waiting` → (Pit Boss **Call**) → `called` (+push, `callDeadline = now + 30min`,
+countdown shown) → (player arrives, Pit Boss **Seat**) → `seated` → other
+same-club active entries auto-cancelled; or **No-show** — manual, **or auto**
+once `callDeadline` passes (`expireWaitlistCalls`).
 
-### Reservation lifecycle
+### Reservation lifecycle (instant)
 
-`pending` → (Pit Boss **Accept**, +push) → `accepted` → (Pit Boss **Arrived**)
-→ entry created at **top** of that stake's waitlist; or **auto-`expired`** if not
-marked Arrived within **30 minutes of `reservedTime`** (grace window).
-- `expiresAt = reservedTime + 30min`. Enforced by a Cloud Function timer
-  (Cloud Tasks enqueued on accept, or a 1-minute scheduled sweep).
+Reservations are **instant** and created only when a seat is open for the stake:
+`active` (seat held, `arrivalDeadline = createdAt + 30min`, live countdown shown
+to both player and Pit Boss) → (Pit Boss **Arrived**) `arrived`; or
+**auto-`expired`** when `arrivalDeadline` passes (frees the held seat). If **no
+seat is open**, "Reserve" instead instantly **joins the waitlist** (position #N) —
+no reservation doc is created. Both timers use `ARRIVAL_DEADLINE_MINUTES` (30).
 
 ### Super Admin
 
@@ -305,7 +313,8 @@ marked Arrived within **30 minutes of `reservedTime`** (grace window).
 | `notifySeatCalled` | Firestore: waitlist entry → `called` | FCM push to the called player |
 | `notifyReservation` | Firestore: reservation → `accepted` / expiring | FCM push to player |
 | `resolveSeated` | Firestore: waitlist entry → `seated` | Auto-cancel that user's other active same-club entries |
-| `expireReservations` | Cloud Tasks (per reservation) or 1-min schedule | Set `expired` when past `expiresAt` without `arrived` |
+| `expireReservations` | Scheduled (1-min) | Set reservation `expired` when past `arrivalDeadline` without `arrived` (frees the held seat) |
+| `expireWaitlistCalls` | Scheduled (1-min) | Set a `called` waitlist entry to `no_show` when past `callDeadline` |
 | `deleteAccount` | Callable (account owner) | Delete user doc, cancel waitlist entries & reservations, remove FCM tokens, delete Auth user (Player only) |
 | `onChatMessageCreated` | Firestore: chat message create | Update `lastMessage`/`lastMessageAt` + recipient unread count; FCM push to the recipient |
 | `markChatAsRead` | Callable (thread participant) | Reset that side's unread count when the thread is opened |
@@ -383,7 +392,8 @@ Each feature is built in isolation (own domain/data/presentation). A new feature
 = a new folder, with no edits to existing ones.
 
 **A. Business rules & constants — never inline.**
-`lib/core/constants/business_rules.dart`: `reservationExpiry` (30 min),
+`lib/core/constants/business_rules.dart`: `arrivalDeadlineMinutes` (30 — applies
+to both instant reservations and called waitlist entries),
 `waitlistCallTimeout` (null = manual in MVP; 20 min in v2, gated by
 `autoNoShowTimer`), `maxPlayersPerTable` (9), `maxWaitlistsPerPlayer` (null = no
 cap MVP), `defaultCurrency` (GEL), `minBuyIn` (>0; no `maxBuyIn` — Tbilisi format is
@@ -483,7 +493,8 @@ waitlist resolution. *(Private club chat moved into MVP — see §6/§7/§9.)*
 
 ## 15. Assumptions
 
-- Reservation 30-min window counts from `reservedTime` (grace), confirmed.
+- Reservations are instant: the 30-min hold counts from `createdAt`; the same
+  30-min deadline applies to called waitlist entries (`callDeadline`).
 - One Pit Boss = one club in MVP.
 - Club list sort: live status (🟢 Live → 🟡 Open but empty → ⚫ Closed), then
   city/name. Live status is computed client-side from `status` + `openingHours`

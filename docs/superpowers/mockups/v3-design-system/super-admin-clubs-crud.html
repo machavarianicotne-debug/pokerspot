@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="liquid-sport">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot · Super Admin — Clubs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* SCREEN-SPECIFIC LAYOUT ONLY */
+  .nav-title { font-family: var(--font-family-display); font-size: var(--type-title); font-weight: var(--weight-black);
+    letter-spacing: var(--tracking-snug); }
+
+  .seg { display: flex; background: var(--glass-bg-regular); border: 1px solid var(--glass-border);
+    border-radius: var(--radius-md); padding: 3px; margin-bottom: var(--space-4); }
+  .seg span { flex: 1; text-align: center; padding: 9px; border-radius: var(--radius-sm); font-size: var(--type-subhead);
+    font-weight: var(--weight-bold); color: var(--color-text-muted); cursor: pointer; }
+  .seg span.on { background: var(--color-accent-primary); color: var(--color-on-accent); }
+
+  .club-card { display: flex; align-items: center; gap: var(--space-3); padding: 14px 16px; margin-bottom: var(--space-3);
+    cursor: pointer; }
+  .cc-logo { width: 44px; height: 44px; border-radius: var(--radius-md); flex: none; display: grid; place-items: center;
+    font-family: var(--font-family-display); font-weight: var(--weight-black); font-size: 19px; color: var(--color-on-accent);
+    background: linear-gradient(135deg, var(--color-accent-primary), var(--color-accent-secondary)); }
+  .cc-main { flex: 1; min-width: 0; }
+  .cc-name { font-size: var(--type-body); font-weight: var(--weight-bold); }
+  .cc-sub { font-size: var(--type-caption); color: var(--color-text-muted); margin-top: 2px; }
+  .cc-pb { font-size: var(--type-caption); color: var(--color-accent-secondary); font-weight: var(--weight-bold); margin-top: 3px; }
+  .cc-pb.none { color: var(--color-text-faint); font-weight: var(--weight-medium); }
+  .cc-status { font-size: var(--type-micro); font-weight: var(--weight-black); text-transform: uppercase;
+    letter-spacing: var(--tracking-wide); padding: 4px 9px; border-radius: var(--radius-sm); flex: none; }
+  .cc-status.active { color: var(--color-accent-primary); background: color-mix(in srgb, var(--color-accent-primary) 14%, transparent); }
+  .cc-status.inactive { color: var(--color-text-faint); background: var(--glass-bg-regular); }
+
+  .fab { position: absolute; right: var(--space-4); bottom: 88px; z-index: 6; min-height: 52px; padding: 0 22px;
+    border-radius: var(--radius-full); border: none; background: var(--color-accent-primary); color: var(--color-on-accent);
+    font-size: var(--type-body); font-weight: var(--weight-black); cursor: pointer; display: inline-flex; align-items: center;
+    gap: 8px; box-shadow: var(--elevation-4), 0 0 30px -8px var(--color-accent-primary); }
+
+  /* form overlay */
+  .form-ov { position: absolute; inset: 0; z-index: 10; background: var(--color-bg-0); display: none;
+    flex-direction: column; }
+  .form-ov.show { display: flex; }
+  .fo-head { display: flex; align-items: center; gap: var(--space-3); padding: 16px; border-bottom: 1px solid var(--glass-border); }
+  .fo-head .ft { font-family: var(--font-family-display); font-size: var(--type-headline); font-weight: var(--weight-black); flex: 1; }
+  .fo-head .x { width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--glass-border);
+    background: var(--glass-bg-regular); color: var(--color-text); cursor: pointer; display: grid; place-items: center; }
+  .fo-body { flex: 1; overflow-y: auto; padding: 16px 16px 90px; scrollbar-width: none; }
+  .fo-body::-webkit-scrollbar { display: none; }
+  .fg { margin-bottom: var(--space-5); }
+  .fg label.k { display: block; font-size: var(--type-caption); font-weight: var(--weight-black);
+    letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--color-text-faint); margin-bottom: var(--space-2); }
+  .ps-input, .ps-select { width: 100%; min-height: 48px; padding: 0 14px; background: var(--glass-bg-thin);
+    border: 1px solid var(--glass-border); border-radius: var(--radius-md); color: var(--color-text);
+    font-family: var(--font-family-body); font-size: var(--type-body); outline: none; }
+  .ps-select { appearance: none; cursor: pointer; }
+  .two { display: flex; gap: var(--space-3); }
+  .two > div { flex: 1; }
+  .langs { display: flex; gap: var(--space-2); }
+  .langs span { flex: 1; text-align: center; padding: 11px; border-radius: var(--radius-md); background: var(--glass-bg-thin);
+    border: 1px solid var(--glass-border); font-weight: var(--weight-bold); cursor: pointer; font-size: var(--type-subhead); }
+  .langs span.on { border-color: var(--color-accent-primary); color: var(--color-accent-primary);
+    background: color-mix(in srgb, var(--color-accent-primary) 12%, transparent); }
+  .photo-box { height: 96px; border-radius: var(--radius-md); border: 1.5px dashed var(--glass-border);
+    background: var(--glass-bg-thin); display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 6px; color: var(--color-text-faint); font-size: var(--type-caption); font-weight: var(--weight-bold); cursor: pointer; }
+  .status-row { display: flex; align-items: center; gap: var(--space-3); padding: 12px 14px; border-radius: var(--radius-md);
+    background: var(--glass-bg-thin); border: 1px solid var(--glass-border); }
+  .status-row .lbl { font-weight: var(--weight-bold); }
+  .status-row .ps-toggle { margin-left: auto; }
+
+  .faq-item { border: 1px solid var(--glass-border); border-radius: var(--radius-md); padding: 12px; margin-bottom: var(--space-2);
+    background: var(--glass-bg-thin); }
+  .faq-item input { width: 100%; background: transparent; border: none; outline: none; color: var(--color-text);
+    font-family: var(--font-family-body); }
+  .faq-item .q { font-weight: var(--weight-bold); font-size: var(--type-body); }
+  .faq-item .a { font-size: var(--type-subhead); color: var(--color-text-muted); margin-top: 5px; border-top: 1px solid var(--glass-border); padding-top: 8px; }
+  .faq-item .rm { float: right; color: var(--color-status-live); background: none; border: none; cursor: pointer;
+    font-size: var(--type-caption); font-weight: var(--weight-black); }
+  .add-faq { width: 100%; padding: 12px; border-radius: var(--radius-md); border: 1.5px dashed var(--glass-border);
+    background: none; color: var(--color-accent-primary); font-weight: var(--weight-bold); cursor: pointer; font-size: var(--type-subhead); }
+  .deactivate { width: 100%; padding: 13px; border-radius: var(--radius-md); border: 1px solid color-mix(in srgb, var(--color-status-live) 50%, transparent);
+    background: none; color: var(--color-status-live); font-weight: var(--weight-bold); cursor: pointer; margin-top: var(--space-3); }
+  .fo-foot { position: absolute; left: 0; right: 0; bottom: 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: var(--glass-bg-thick); border-top: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur-thick)); }
+  .fo-foot .ps-btn { width: 100%; }
+</style>
+</head>
+<body>
+<div class="ps-phone">
+  <div class="ps-statusbar">
+    <span>9:41</span>
+    <span class="ps-status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="ps-glass-nav"><span class="nav-title">Clubs</span><span class="ps-avatar">SA</span></div>
+
+  <div class="ps-screen">
+    <div class="seg" id="filter"><span class="on" data-f="active">Active</span><span data-f="inactive">Inactive</span><span data-f="all">All</span></div>
+
+    <div id="clubList">
+      <div class="ps-card club-card" data-status="active" data-name="Royal Poker Tbilisi">
+        <div class="cc-logo">R</div>
+        <div class="cc-main"><div class="cc-name">Royal Poker Tbilisi</div><div class="cc-sub">Tbilisi · +995 599 12 34 56</div>
+          <div class="cc-pb">Pit Boss: Giorgi M.</div></div>
+        <span class="cc-status active">Active</span>
+      </div>
+      <div class="ps-card club-card" data-status="active" data-name="Bellagio Batumi">
+        <div class="cc-logo">B</div>
+        <div class="cc-main"><div class="cc-name">Bellagio Batumi</div><div class="cc-sub">Batumi · +995 577 88 99 00</div>
+          <div class="cc-pb">Pit Boss: Nika R.</div></div>
+        <span class="cc-status active">Active</span>
+      </div>
+      <div class="ps-card club-card" data-status="active" data-name="Shangri La Tbilisi">
+        <div class="cc-logo">S</div>
+        <div class="cc-main"><div class="cc-name">Shangri La Tbilisi</div><div class="cc-sub">Tbilisi · +995 599 22 33 44</div>
+          <div class="cc-pb">Pit Boss: Dato L.</div></div>
+        <span class="cc-status active">Active</span>
+      </div>
+      <div class="ps-card club-card" data-status="active" data-name="Iveria Casino">
+        <div class="cc-logo">I</div>
+        <div class="cc-main"><div class="cc-name">Iveria Casino</div><div class="cc-sub">Tbilisi · +995 599 55 66 77</div>
+          <div class="cc-pb none">Pit Boss: none (invite pending)</div></div>
+        <span class="cc-status active">Active</span>
+      </div>
+      <div class="ps-card club-card" data-status="inactive" data-name="Mercure Tbilisi" style="display:none">
+        <div class="cc-logo" style="background:var(--glass-bg-regular);color:var(--color-text-faint)">M</div>
+        <div class="cc-main"><div class="cc-name">Mercure Tbilisi</div><div class="cc-sub">Tbilisi</div>
+          <div class="cc-pb none">Pit Boss: none</div></div>
+        <span class="cc-status inactive">Inactive</span>
+      </div>
+    </div>
+    <div style="height:60px"></div>
+  </div>
+
+  <button class="fab" id="newClub"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M12 5v14M5 12h14"/></svg>New Club</button>
+
+  <!-- form overlay -->
+  <div class="form-ov" id="formOv">
+    <div class="fo-head">
+      <span class="ft" id="foTitle">New club</span>
+      <button class="x" id="foClose">✕</button>
+    </div>
+    <div class="fo-body">
+      <div class="fg"><label class="k">Club name</label><input class="ps-input" id="fName" placeholder="e.g. Royal Poker Tbilisi" /></div>
+      <div class="fg two">
+        <div><label class="k">City</label>
+          <select class="ps-select"><option>Tbilisi</option><option>Batumi</option><option>Kutaisi</option><option>Gori</option></select></div>
+        <div><label class="k">Phone</label><input class="ps-input" placeholder="+995 5XX XX XX XX" /></div>
+      </div>
+      <div class="fg"><label class="k">Address</label><input class="ps-input" placeholder="Street + number" /></div>
+      <div class="fg">
+        <label class="k">Opening hours</label>
+        <div class="two"><div><input class="ps-input" type="time" value="20:00" /></div><div><input class="ps-input" type="time" value="06:00" /></div></div>
+        <label class="status-row" style="margin-top:8px"><span class="lbl">Open 24/7</span><span class="ps-toggle"><input type="checkbox" /><span class="track"></span></span></label>
+      </div>
+      <div class="fg"><label class="k">Languages</label>
+        <div class="langs" id="langs"><span class="on">ქა</span><span class="on">EN</span><span>РУ</span></div></div>
+      <div class="fg"><label class="k">Logo / photo</label>
+        <div class="photo-box"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="11" r="2"/><path d="M21 17l-5-5-7 7"/></svg>Tap to upload</div></div>
+      <div class="fg"><label class="status-row"><span class="lbl">Status: Active</span><span class="ps-toggle"><input type="checkbox" checked /><span class="track"></span></span></label></div>
+
+      <div class="fg">
+        <label class="k">FAQ</label>
+        <div id="faqList">
+          <div class="faq-item"><button class="rm">Remove</button><input class="q" value="Is there a dress code?" /><input class="a" value="Smart casual — no shorts or flip-flops." /></div>
+          <div class="faq-item"><button class="rm">Remove</button><input class="q" value="Is parking available?" /><input class="a" value="Yes, free lot behind the building." /></div>
+        </div>
+        <button class="add-faq" id="addFaq">+ Add question</button>
+      </div>
+
+      <button class="deactivate" id="deactivate" style="display:none">Deactivate club (soft delete)</button>
+    </div>
+    <div class="fo-foot"><button class="ps-btn ps-btn--primary" id="saveClub">Save club</button></div>
+  </div>
+
+  <div class="ps-tabbar">
+    <a class="ps-tab" href="super-admin-dashboard.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="12" width="5" height="9" rx="1"/><rect x="10" y="7" width="5" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>Dashboard</a>
+    <div class="ps-tab is-active"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M3 21V7l6-4 6 4v14H3z" opacity="0.3"/><path d="M3 21V7l6-4 6 4v14M9 21v-6h6v6M15 10h6v11" fill="none" stroke="currentColor" stroke-width="2"/></svg>Clubs</div>
+    <a class="ps-tab" href="super-admin-assign-pitboss.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M15.5 20c0-2 1-3.5 3-3.5"/></svg>Pit Bosses</a>
+    <div class="ps-tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Settings</div>
+  </div>
+  <div class="ps-home-indicator"></div>
+</div>
+
+<script>
+  /* filter */
+  document.querySelectorAll('#filter span').forEach(s => s.onclick = () => {
+    document.querySelectorAll('#filter span').forEach(o => o.classList.remove('on')); s.classList.add('on');
+    const f = s.dataset.f;
+    document.querySelectorAll('.club-card').forEach(c => {
+      c.style.display = (f === 'all' || c.dataset.status === f) ? '' : 'none';
+    });
+  });
+
+  /* open form */
+  const ov = document.getElementById('formOv');
+  function openForm(edit, name) {
+    document.getElementById('foTitle').textContent = edit ? 'Edit club' : 'New club';
+    document.getElementById('fName').value = edit ? name : '';
+    document.getElementById('deactivate').style.display = edit ? '' : 'none';
+    ov.classList.add('show');
+  }
+  document.getElementById('newClub').onclick = () => openForm(false);
+  document.querySelectorAll('.club-card').forEach(c => c.onclick = () => openForm(true, c.dataset.name));
+  document.getElementById('foClose').onclick = () => ov.classList.remove('show');
+  document.getElementById('saveClub').onclick = () => { alert('Club saved'); ov.classList.remove('show'); };
+  document.getElementById('deactivate').onclick = () => {
+    if (confirm('Deactivate this club? Players stop seeing it. This is a soft delete — data is kept.')) {
+      alert('Club deactivated'); ov.classList.remove('show');
+    }
+  };
+
+  /* languages */
+  document.querySelectorAll('#langs span').forEach(s => s.onclick = () => s.classList.toggle('on'));
+
+  /* FAQ */
+  document.getElementById('faqList').addEventListener('click', e => {
+    if (e.target.classList.contains('rm')) e.target.closest('.faq-item').remove();
+  });
+  document.getElementById('addFaq').onclick = () => {
+    const d = document.createElement('div'); d.className = 'faq-item';
+    d.innerHTML = '<button class="rm">Remove</button><input class="q" placeholder="Question…"><input class="a" placeholder="Answer…">';
+    document.getElementById('faqList').appendChild(d);
+  };
+
+  window.addEventListener('message', e => {
+    if (e.data && e.data.psTheme !== undefined) {
+      if (e.data.psTheme) document.documentElement.setAttribute('data-theme', e.data.psTheme);
+      else document.documentElement.removeAttribute('data-theme');
+    }
+  });
+</script>
+</body>
+</html>

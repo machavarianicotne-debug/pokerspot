@@ -37,6 +37,9 @@
   .srow.editable .val { color: var(--color-accent-secondary); }
   .srow.editable .val::after { content: " ✎"; opacity: .7; }
 
+  .cur-select { margin-left: auto; appearance: none; background: var(--glass-bg-regular); border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm); color: var(--color-text); font-family: var(--font-family-body); font-weight: var(--weight-bold);
+    font-size: var(--type-subhead); padding: 7px 12px; cursor: pointer; }
   .lang-mini { display: flex; gap: 6px; margin-left: auto; }
   .lang-mini span { padding: 6px 11px; border-radius: var(--radius-full); font-size: var(--type-caption); font-weight: var(--weight-bold);
     color: var(--color-text-muted); background: var(--glass-bg-regular); border: 1px solid var(--glass-border); cursor: pointer; }
@@ -86,7 +89,8 @@
     <div class="sgroup">
       <div class="srow"><span class="lbl">Default language (new clubs)</span>
         <div class="lang-mini" id="lang"><span data-l="ka">ქა</span><span class="on" data-l="en">EN</span><span data-l="ru">РУ</span></div></div>
-      <div class="srow"><span class="lbl">Default currency</span><span class="val" style="color:var(--color-text-muted)">GEL ₾</span></div>
+      <div class="srow"><span class="lbl">Default currency</span>
+        <select class="cur-select" id="curSelect"><option value="GEL">GEL · ₾</option><option value="USD">USD · $</option><option value="EUR">EUR · €</option></select></div>
       <div class="srow editable" data-rule="expiry"><span class="lbl">Reservation expiry</span><span class="val" id="expiry">30 min</span></div>
       <div class="srow editable" data-rule="maxSeats"><span class="lbl">Max players / table</span><span class="val" id="maxSeats">9</span></div>
     </div>
@@ -157,6 +161,11 @@
   document.querySelectorAll('#lang span').forEach(s => s.onclick = () => {
     document.querySelectorAll('#lang span').forEach(o => o.classList.remove('on')); s.classList.add('on');
   });
+
+  /* default currency (app-wide; new clubs default to it) */
+  const curSel = document.getElementById('curSelect');
+  curSel.value = PSStore.get('defaultCurrency', 'GEL');
+  curSel.onchange = () => { PSStore.set('defaultCurrency', curSel.value); showToast('Default currency changed to ' + curSel.value); };
 
   document.getElementById('reset').onclick = () => {
     if (confirm('Reset all demo data?\n\nClears added tables, invites, and saved rules. Reloads the app.')) {

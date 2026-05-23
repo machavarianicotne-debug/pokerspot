@@ -64,7 +64,7 @@
       <div class="item-main">
         <div class="item-club">Bellagio Batumi</div>
         <div class="item-meta">1/2 NLH · Batumi</div>
-        <div class="item-status"><span class="ps-live-dot" style="color:var(--color-status-live)"></span>Seat ready — head to the floor</div>
+        <div class="item-status"><span class="ps-live-dot" style="color:var(--color-status-live)"></span>Your turn — head over · <span class="countdown" data-min="24" style="font-weight:var(--weight-black);color:var(--color-status-live)">24:00</span></div>
       </div>
       <button class="ps-btn ps-btn--secondary leave">Leave</button>
     </div>
@@ -86,7 +86,7 @@
       <div class="item-main">
         <div class="item-club">Shangri La Tbilisi</div>
         <div class="item-meta">2/5 NLH · Tbilisi</div>
-        <div class="item-status"><span class="ps-status-badge is-live" style="background:color-mix(in srgb,var(--color-accent-secondary) 18%,transparent);color:var(--color-accent-secondary)">Accepted</span> 22:30 · 2 people</div>
+        <div class="item-status"><span class="ps-status-badge is-live" style="background:color-mix(in srgb,var(--color-accent-secondary) 18%,transparent);color:var(--color-accent-secondary)">Seat held</span> · get there in <span class="countdown" data-min="28" style="font-weight:var(--weight-black);color:var(--color-accent-secondary)">28:00</span></div>
       </div>
       <button class="ps-btn ps-btn--secondary leave">Cancel</button>
     </div>
@@ -96,9 +96,20 @@
       <div class="item-main">
         <div class="item-club">Royal Poker Tbilisi</div>
         <div class="item-meta">5/5 PLO · Tbilisi</div>
-        <div class="item-status"><span class="ps-status-badge is-open">Pending</span> 23:00 · 1 person</div>
+        <div class="item-status"><span class="ps-status-badge is-open">Seat held</span> · <span class="countdown" data-min="12" style="font-weight:var(--weight-black);color:var(--color-status-open)">12:00</span></div>
       </div>
       <button class="ps-btn ps-btn--secondary leave">Cancel</button>
+    </div>
+
+    <div class="ps-overline section">My playtime</div>
+    <div class="ps-card" style="padding:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+        <div><div style="font-family:var(--font-family-display);font-size:var(--type-display-2);font-weight:var(--weight-black);color:var(--color-accent-primary);line-height:1">2h 30m</div><div class="ps-overline" style="margin-top:6px">Today</div></div>
+        <div><div style="font-family:var(--font-family-display);font-size:var(--type-display-2);font-weight:var(--weight-black);line-height:1">47h 23m</div><div class="ps-overline" style="margin-top:6px">Lifetime · 12 sessions</div></div>
+      </div>
+      <div class="ps-overline" style="margin-bottom:8px">Last 7 days</div>
+      <div id="playBars" style="display:flex;align-items:flex-end;gap:7px;height:84px"></div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--glass-border);font-size:var(--type-subhead);color:var(--color-text-muted)">Last: <b style="color:var(--color-text)">Royal Poker · 2h 17m</b> · 2 days ago · avg 3h 56m</div>
     </div>
   </div>
 
@@ -119,6 +130,26 @@
       setTimeout(() => item.remove(), 300);
     }
   }));
+
+  /* 7-day playtime bars */
+  const heights = [48, 60, 42, 70, 88, 100, 64], days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  document.getElementById('playBars').innerHTML = heights.map((h, i) =>
+    '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">' +
+    '<div style="width:100%;height:' + h + '%;border-radius:5px 5px 2px 2px;background:linear-gradient(180deg,var(--color-accent-primary),color-mix(in srgb,var(--color-accent-secondary) 55%,transparent))"></div>' +
+    '<div style="font-size:10px;font-weight:700;color:var(--color-text-faint);margin-top:6px">' + days[i] + '</div></div>').join('');
+
+  /* live countdowns for held seats / called turn */
+  document.querySelectorAll('.countdown[data-min]').forEach(c => c.dataset.deadline = Date.now() + (+c.dataset.min) * 60000);
+  function tick() {
+    const now = Date.now();
+    document.querySelectorAll('.countdown[data-deadline]').forEach(c => {
+      const left = (+c.dataset.deadline) - now;
+      if (left <= 0) { c.textContent = 'expired'; return; }
+      const s = Math.floor(left / 1000);
+      c.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    });
+  }
+  tick(); setInterval(tick, 1000);
 
   window.addEventListener('message', e => {
     if (e.data && e.data.psTheme !== undefined) {

@@ -105,6 +105,8 @@
   .wl-pos { font-family: var(--font-family-display); font-size: var(--type-body); font-weight: var(--weight-black);
     color: var(--color-accent-primary); min-width: 18px; }
   .wl-name { flex: 1; font-size: var(--type-body); font-weight: var(--weight-bold); }
+  .wl-name .wk { font-size: var(--type-micro); font-weight: var(--weight-medium); color: var(--color-text-faint);
+    border: 1px solid var(--glass-border); border-radius: 4px; padding: 1px 5px; margin-left: 4px; }
   .wl-item.is-called .wl-name::after { content: " · Called"; color: var(--color-status-live);
     font-size: var(--type-caption); font-weight: var(--weight-black); }
   .wl-act { display: flex; gap: 5px; }
@@ -207,7 +209,7 @@
 
         <div class="wl-block">
           <div class="wl-h"><span class="ps-overline" id="wlHead">Waitlist for this stake · 4</span>
-            <button class="add" id="addWalkin">+ Walk-in</button></div>
+            <button class="add" id="addWalkin">+ Add</button></div>
           <div id="waitlist"></div>
         </div>
 
@@ -413,6 +415,25 @@
     q.addEventListener('input', draw); q.focus(); draw();
   }
 
+  /* same smart-search pattern, but ADD to the waitlist (registered or walk-in) */
+  function openWaitlistSearch() {
+    sheetTitle.textContent = 'Add to waitlist';
+    sheetBody.innerHTML = '<div class="seat-search"><input id="wlQ" placeholder="Search name / surname / phone…" autocomplete="off"></div><div id="wlResults"></div>';
+    showSheet();
+    const q = document.getElementById('wlQ'), res = document.getElementById('wlResults');
+    function draw() {
+      const v = q.value.trim().toLowerCase(); let html = '';
+      REGISTERED.filter(r => !v || r.n.toLowerCase().includes(v)).slice(0, 5).forEach(r => {
+        html += '<button class="seat-result" data-name="' + r.n + '"><span class="ra">' + r.n[0] + '</span><span><span class="rn">' + r.n + '</span><br><span class="rs">member since ' + r.s + ' · app · gets push</span></span></button>';
+      });
+      html += '<button class="seat-result walkin" data-walkin="1">+ Add as walk-in' + (v ? ' "' + q.value.trim() + '"' : '') + ' · no app</button>';
+      res.innerHTML = html;
+      res.querySelectorAll('[data-name]').forEach(b => b.onclick = () => { wlItem(b.dataset.name, false, true); closeSheet(); });
+      res.querySelector('[data-walkin]').onclick = () => { wlItem(q.value.trim() || 'Walk-in', false, false); closeSheet(); };
+    }
+    q.addEventListener('input', draw); q.focus(); draw();
+  }
+
   const seatedEl = document.getElementById('seatedT1');
   function renderSeated() {
     const seats = [...t1.querySelectorAll('.seat.filled')];
@@ -452,9 +473,11 @@
   /* ---------- shared waitlist ---------- */
   const wl = document.getElementById('waitlist');
   const seed = ['Giorgi', 'Nino', 'Davit', 'Anna'];
-  function wlItem(name, top) {
+  function wlItem(name, top, isReg) {
+    if (isReg === undefined) isReg = true;
     const el = document.createElement('div'); el.className = 'wl-item';
-    el.innerHTML = '<span class="wl-pos">0</span><span class="wl-name">' + name + '</span>' +
+    el.innerHTML = '<span class="wl-pos">0</span><span class="wl-name">' + name +
+      (isReg ? '' : ' <span class="wk">no app</span>') + '</span>' +
       '<div class="wl-act"><button class="primary" data-act="call">Call</button>' +
       '<button data-act="seat">Seat</button><button class="x" data-act="remove">✕</button></div>';
     el.querySelectorAll('.wl-act button').forEach(b => b.onclick = () => {
@@ -478,7 +501,7 @@
     document.getElementById('wlHead').textContent = 'Waitlist for this stake · ' + items.length;
   }
   seed.forEach(n => wlItem(n, false));
-  document.getElementById('addWalkin').onclick = () => { const n = prompt('Walk-in name'); if (n && n.trim()) wlItem(n.trim(), false); };
+  document.getElementById('addWalkin').onclick = openWaitlistSearch;
 
   /* ---------- reservations ---------- */
   document.querySelectorAll('#reservations .res-item').forEach(res => {

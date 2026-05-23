@@ -166,14 +166,18 @@ clubs/{clubId}/sessions/{sessionId}
   startedAt  endedAt(nullable while active)  durationMinutes
   # one session = seated → stand-up; re-seating starts a NEW session
 
-walkInPlayers/{walkInId}              # unregistered players the Pit Boss seats by name
+walkInPlayers/{walkInId}              # unregistered players the Pit Boss adds by name
   clubId  name(normalized, cross-script)  totalLifetimeMinutes  sessionCount  lastSessionAt
+  # one record + lifecycle, created from EITHER flow: seating an open seat, or
+  #   adding to the waitlist. Walk-ins have no app → no push (notified in person).
 
 clubs/{clubId}/waitlist/{entryId}
   gameId  userId  displayName  position(float, for ordering & top-insert)
   status(waiting|called|seated|no_show|cancelled)  source(app|manual|reservation)
   joinedAt  calledAt  callDeadline(timestamp, nullable)  seatedAt
   # callDeadline = now + 30min, set when Pit Boss calls; past it → auto no_show
+  # Pit Boss can add entries: a registered player (userId set, source=manual,
+  #   push possible) or a walk-in (userId=null, source=manual, no push)
 
 clubs/{clubId}/reservations/{resId}
   gameId  userId  displayName  status(pending|active|arrived|expired)
@@ -272,9 +276,12 @@ section. Tabs: **Floor · Inbox · Stats · Settings**.
     reflected to players in real time, 0.5s pulse), **average stack** (inline
     editable, per game), and **min buy-in** (inline editable, per game — mirrors
     same-stake tables, like blinds).
-  - **Waitlist for the stake** (`[Call] [Seat] [✕]`, `+ walk-in`) and
-    **Reservations** (`[Accept]`/`[✕]` → `Arrived` = top of waitlist) shown once
-    per stake; sibling tables show "Shares waitlist with Table N".
+  - **Waitlist for the stake** — `[Call] [Seat] [✕]` per entry; **+ Add** opens
+    the **same smart search** as seating: a registered player joins with identity
+    (push possible — "you're up"); no match → **+ Add as walk-in** (guest record,
+    shown with a "no app" tag, notified **in person** by the Pit Boss, not by
+    push). **Reservations** (`[Accept]`/`[✕]` → `Arrived` = top of waitlist) show
+    once per stake; sibling tables show "Shares waitlist with Table N".
   - `Close table` / `Take break`.
 - **Table numbers** are **club-global and auto-incremented**; `+ Add Table` takes
   the next free number; a closed table frees its number.
@@ -375,7 +382,7 @@ no reservation doc is created. Both timers use `ARRIVAL_DEADLINE_MINUTES` (30).
 - **Writes** to games/tables/waitlist status: only `request.auth.token.role ==
   'pitboss' && token.assignedClubId == clubId`, or `superadmin`.
 - `waitlist` create: a player may create an entry where `userId == auth.uid`;
-  a Pit Boss may create walk-ins for their club.
+  a Pit Boss may create entries for their club (a registered player or a walk-in).
 - `reservations` create: player creates own.
 - `clubs` CRUD: `superadmin` only.
 - `clubOverviews`: read for authenticated users; **no client writes**

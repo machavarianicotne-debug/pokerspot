@@ -295,7 +295,7 @@ const clubKey = new URLSearchParams(location.search).get('club') || 'royal';
 render(clubKey);
 
 document.getElementById('reserveBtn').addEventListener('click', () => {
-  window.alert('Reservation flow — coming up next');
+  window.location.href = 'reservation-flow.html?club=' + clubKey;
 });
 
 /* allow theme-playground to drive theme live */

@@ -82,7 +82,7 @@
   </div>
 
   <div class="ps-glass-nav">
-    <a class="nav-back" href="player-club-details.html?club=royal" aria-label="Back">
+    <a class="nav-back" id="back" href="player-club-details.html?club=royal" aria-label="Back">
       <svg width="11" height="18" viewBox="0 0 11 18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9.5 1.5L2 9l7.5 7.5"/></svg>
     </a>
     <span class="nav-title">Reserve a seat</span>
@@ -91,17 +91,14 @@
 
   <div class="ps-screen" style="padding-bottom:96px">
     <div class="ctx">
-      <div class="logo-orb">R</div>
-      <div><div class="nm">Royal Poker Tbilisi</div><div class="ps-overline">Tonight · Tbilisi</div></div>
+      <div class="logo-orb" id="ctxLogo">R</div>
+      <div><div class="nm" id="ctxName">Royal Poker Tbilisi</div><div class="ps-overline" id="ctxSub">Reserving tonight · Tbilisi</div></div>
     </div>
 
     <div class="group">
       <span class="glabel">Stake</span>
-      <div class="choices" id="stakes">
-        <span class="choice on">1/3 NLH</span>
-        <span class="choice">5/5 PLO</span>
-        <span class="choice">5/10 NLH</span>
-      </div>
+      <div class="choices" id="stakes"></div>
+      <div class="hint" id="stakeNote" style="display:none">No active games yet — your request will hold for the next game.</div>
     </div>
 
     <div class="group">
@@ -148,6 +145,30 @@
 </div>
 
 <script>
+  /* club context from ?club= (Flutter: passed via route args) */
+  const clubs = {
+    royal:        { name: 'Royal Poker Tbilisi', city: 'Tbilisi', logo: 'R', stakes: ['1/3 NLH','5/5 PLO','5/10 NLH'] },
+    bellagio:     { name: 'Bellagio Batumi',     city: 'Batumi',  logo: 'B', stakes: ['1/2 NLH','2/5 NLH'] },
+    'shangri-la': { name: 'Shangri La Tbilisi',  city: 'Tbilisi', logo: 'S', stakes: ['2/5 NLH'] },
+    iveria:       { name: 'Iveria Casino',       city: 'Tbilisi', logo: 'I', stakes: [] }
+  };
+  const key = new URLSearchParams(location.search).get('club') || 'royal';
+  const club = clubs[key] || clubs.royal;
+
+  document.getElementById('ctxLogo').textContent = club.logo;
+  document.getElementById('ctxName').textContent = club.name;
+  document.getElementById('ctxSub').textContent = 'Reserving tonight · ' + club.city;
+  document.getElementById('back').setAttribute('href', 'player-club-details.html?club=' + key);
+
+  const stakesEl = document.getElementById('stakes');
+  if (club.stakes.length) {
+    stakesEl.innerHTML = club.stakes.map((s, i) =>
+      '<span class="choice' + (i === 0 ? ' on' : '') + '">' + s + '</span>').join('');
+  } else {
+    stakesEl.innerHTML = '<span class="choice on">Any game</span>';
+    document.getElementById('stakeNote').style.display = '';
+  }
+
   function singleSelect(containerId) {
     const c = document.getElementById(containerId);
     c.querySelectorAll('.choice').forEach(ch => ch.addEventListener('click', () => {

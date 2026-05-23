@@ -119,12 +119,12 @@
 
     <div class="group">
       <span class="glabel">Min buy-in</span>
-      <div class="money"><span class="cur">₾</span><input type="number" inputmode="numeric" placeholder="200" value="200" /></div>
+      <div class="money"><span class="cur">₾</span><input id="minBuyIn" type="number" inputmode="numeric" placeholder="200" value="200" /></div>
     </div>
 
     <div class="group">
       <span class="glabel">Initial average stack <span class="opt">(optional)</span></span>
-      <div class="money"><span class="cur">₾</span><input type="number" inputmode="numeric" placeholder="Leave blank if unknown" /></div>
+      <div class="money"><span class="cur">₾</span><input id="avgStack" type="number" inputmode="numeric" placeholder="Leave blank if unknown" /></div>
     </div>
 
     <div class="group">
@@ -152,6 +152,7 @@
   <div class="ps-home-indicator"></div>
 </div>
 
+<script src="store.js"></script>
 <script>
   let type = 'NLH', blinds = '1/3', tables = 1;
 
@@ -175,7 +176,17 @@
   document.getElementById('submit').addEventListener('click', function () {
     this.disabled = true; this.classList.add('is-loading');
     this.innerHTML = '<span class="spinner"></span>Opening…';
+    const minV = (document.getElementById('minBuyIn').value || '').trim();
+    const avgV = (document.getElementById('avgStack').value || '').trim();
+    const min = minV ? '₾' + Number(minV).toLocaleString('en-US') : '₾0';
+    const avg = avgV ? '₾' + Number(avgV).toLocaleString('en-US') : null;
+    const gameKey = blinds.replace(/\//g, '-') + '-' + type.toLowerCase();
     setTimeout(() => {
+      // persist the new tables so the live floor renders them
+      for (let i = 0; i < tables; i++) {
+        const n = 4 + PSStore.get('extraTables', []).length;   // defaults occupy 1-3
+        PSStore.push('extraTables', { n, gameKey, blinds, type, min, avg, filled: 0, max: 9 });
+      }
       document.getElementById('successSub').textContent =
         blinds + ' ' + type + ' is now live on the floor (' + tables + ' table' + (tables > 1 ? 's' : '') + ').';
       document.getElementById('success').classList.add('show');

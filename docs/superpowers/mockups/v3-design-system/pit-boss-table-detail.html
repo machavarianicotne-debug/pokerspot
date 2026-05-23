@@ -221,7 +221,7 @@
       </div>
     </div>
 
-    <button class="add-table" onclick="alert('Add table — opens Table 3 at 1/3 NLH (same stake, shared waitlist)')">+ Add table (same stake)</button>
+    <button class="add-table" id="addTable">+ Add table (same stake)</button>
     <div style="height:16px"></div>
   </div>
 
@@ -237,7 +237,36 @@
   <div class="ps-home-indicator"></div>
 </div>
 
+<script src="store.js"></script>
 <script>
+  const GAME_KEY = new URLSearchParams(location.search).get('game') || '1-3-nlh';
+
+  /* ---------- render persisted same-stake tables (New Table / New Game) ---------- */
+  (function renderExtras() {
+    const extras = PSStore.get('extraTables', []).filter(t => t.gameKey === GAME_KEY);
+    const addBtn = document.querySelector('.add-table');
+    extras.forEach(t => {
+      const open = t.max - t.filled;
+      const label = open > 0
+        ? '<div class="c"><span class="open">' + open + '</span>/' + t.max + '</div><div class="k">Open</div>'
+        : '<div class="c">' + t.max + '/' + t.max + '</div><div class="k">Full</div>';
+      const card = document.createElement('div'); card.className = 'ps-card table-card';
+      card.innerHTML =
+        '<div class="tc-head" data-collapse><span class="tc-num">' + t.n + '</span>' +
+          '<div class="tc-title"><div class="tn">Table ' + t.n + '</div><div class="tst">' + t.blinds + ' ' + t.type + ' · same stake</div></div>' +
+          '<svg class="tc-caret" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg></div>' +
+        '<div class="tc-body">' +
+          '<div class="felt" data-filled="' + t.filled + '" data-max="' + t.max + '"><div class="felt-label">' + label + '</div></div>' +
+          '<div class="meta-row"><span class="mr-k">Blinds</span><button class="mr-v editable blinds-val">' + t.blinds + '</button><span class="mr-hint">tap to change</span></div>' +
+          '<div class="meta-row"><span class="mr-k">Avg stack</span><button class="mr-v editable avg-val">' + (t.avg || '—') + '</button><span class="mr-hint">tap to edit</span></div>' +
+          '<div class="meta-row"><span class="mr-k">Min buy-in</span><span class="mr-v" style="color:var(--color-text)">' + t.min + '</span></div>' +
+          '<div class="shares"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h8M12 8v8"/><circle cx="12" cy="12" r="9"/></svg>Shares waitlist &amp; reservations with Table 1</div>' +
+          '<div class="tc-controls"><button>Take break</button><button class="close">Close table</button></div>' +
+        '</div>';
+      addBtn.parentNode.insertBefore(card, addBtn);
+    });
+  })();
+
   /* ---------- collapse ---------- */
   document.querySelectorAll('[data-collapse]').forEach(h =>
     h.addEventListener('click', () => h.closest('.table-card').classList.toggle('collapsed')));
@@ -372,6 +401,16 @@
       document.querySelectorAll('.avg-val').forEach(a => a.textContent = disp); pulseAll('.avg-val');
     });
   });
+
+  /* ---------- + Add table (same stake) → persist + reload ---------- */
+  document.getElementById('addTable').onclick = () => {
+    const extras = PSStore.get('extraTables', []);
+    const n = 4 + extras.length;                       // defaults occupy 1-3
+    const blinds = document.querySelector('.blinds-val').textContent;
+    const avg = document.querySelector('.avg-val').textContent;
+    PSStore.push('extraTables', { n, gameKey: GAME_KEY, blinds, type: STAKE_TYPE, min: '₾200', avg: (avg === '—' ? null : avg), filled: 0, max: 9 });
+    location.reload();
+  };
 
   window.addEventListener('message', e => {
     if (e.data && e.data.psTheme !== undefined) {

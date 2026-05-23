@@ -84,7 +84,7 @@
   </div>
 
   <div class="ps-screen">
-    <div class="summary"><b>3</b> tables · <b>2</b> games · <b>1</b> open seat · <b>10</b> waiting</div>
+    <div class="summary"><b id="tblCount">3</b> tables · <b>2</b> games · <b>1</b> open seat · <b>10</b> waiting</div>
 
     <!-- Table 1 · 1/3 NLH -->
     <a class="ps-card tbl-card" href="pit-boss-table-detail.html?game=1-3-nlh">
@@ -148,7 +148,32 @@
   <div class="ps-home-indicator"></div>
 </div>
 
+<script src="store.js"></script>
 <script>
+  /* render persisted tables added via New Game / New Table */
+  (function () {
+    const extras = PSStore.get('extraTables', []);
+    if (!extras.length) return;
+    const actions = document.querySelector('.floor-actions');
+    extras.forEach(t => {
+      const open = t.max - t.filled;
+      let dots = '';
+      for (let i = 0; i < t.max; i++) dots += '<i class="' + (i < t.filled ? 'f' : '') + '"></i>';
+      const a = document.createElement('a');
+      a.className = 'ps-card tbl-card'; a.href = 'pit-boss-table-detail.html?game=' + t.gameKey;
+      a.innerHTML =
+        '<span class="accent-rail"></span>' +
+        '<div class="tbl-head"><span class="tbl-num">' + t.n + '</span>' +
+          '<div class="tbl-info"><div class="tbl-stake">' + t.blinds + ' ' + t.type + '</div>' +
+          '<div class="tbl-sub">blinds ' + t.blinds + ' · avg ' + (t.avg || '—') + ' · min ' + t.min + '</div></div>' +
+          '<svg class="tbl-chev" width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1.5 1.5L7 7.5 1.5 13.5"/></svg></div>' +
+        '<div class="tbl-foot"><span class="mini-seats">' + dots + '</span><span class="cnt">' + t.filled + '/' + t.max + '</span>' +
+          '<span class="wl">' + open + ' open</span></div>';
+      actions.parentNode.insertBefore(a, actions);
+    });
+    document.getElementById('tblCount').textContent = 3 + extras.length;
+  })();
+
   window.addEventListener('message', e => {
     if (e.data && e.data.psTheme !== undefined) {
       if (e.data.psTheme) document.documentElement.setAttribute('data-theme', e.data.psTheme);

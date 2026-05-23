@@ -136,6 +136,7 @@
     <!-- account -->
     <div class="gh">Account</div>
     <div class="actions">
+      <button class="ps-btn ps-btn--secondary" id="resetDemo">Reset demo data</button>
       <button class="ps-btn ps-btn--secondary" id="stepDown">Step down as Pit Boss</button>
       <button class="ps-btn ps-btn--danger" id="logout">Log out</button>
       <div class="since">Member since January 2026</div>
@@ -150,6 +151,7 @@
   <div class="ps-home-indicator"></div>
 </div>
 
+<script src="store.js"></script>
 <script>
   document.getElementById('editName').onclick = () => {
     const cur = document.getElementById('pn').textContent;
@@ -176,6 +178,11 @@
   };
   document.getElementById('logout').onclick = () => {
     if (confirm('Log out of PokerSpot?')) window.location.href = 'onboarding-welcome.html';
+  };
+  document.getElementById('resetDemo').onclick = () => {
+    if (confirm('Reset all demo data?\n\nClears tables added via New Game / New Table and any invites.')) {
+      PSStore.reset(); alert('Demo data reset.'); location.href = 'pit-boss-live-floor.html';
+    }
   };
 
   window.addEventListener('message', e => {

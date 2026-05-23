@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="liquid-sport">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot · Super Admin — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="tokens.css" />
+<link rel="stylesheet" href="components.css" />
+<style>
+  /* SCREEN-SPECIFIC LAYOUT ONLY */
+  .ad-title { font-family: var(--font-family-display); font-size: var(--type-title); font-weight: var(--weight-black);
+    letter-spacing: var(--tracking-snug); }
+  .ad-title .ac { color: var(--color-accent-primary); }
+  .ad-date { font-size: var(--type-micro); font-weight: var(--weight-bold); letter-spacing: var(--tracking-wide);
+    text-transform: uppercase; color: var(--color-text-faint); margin-top: 1px; }
+
+  .welcome { font-size: var(--type-body); color: var(--color-text-muted); margin: 2px 4px var(--space-4); }
+  .welcome b { color: var(--color-text); font-weight: var(--weight-bold); }
+
+  .ps-overline.section { margin: var(--space-5) 4px var(--space-3); }
+  .ps-overline.section:first-of-type { margin-top: 0; }
+
+  /* stat grid */
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); }
+  .stat { padding: 14px 15px; border-radius: var(--radius-lg); background: var(--glass-bg-thin);
+    border: 1px solid var(--glass-border); }
+  .stat .v { font-family: var(--font-family-display); font-size: var(--type-display-1); font-weight: var(--weight-black);
+    line-height: 0.9; letter-spacing: var(--tracking-tight); font-variant-numeric: tabular-nums; }
+  .stat.players .v { color: var(--color-accent-primary); }
+  .stat.tables .v { color: var(--color-accent-secondary); }
+  .stat .k { font-size: var(--type-micro); font-weight: var(--weight-black); letter-spacing: var(--tracking-wide);
+    text-transform: uppercase; color: var(--color-text-faint); margin-top: 7px; }
+
+  /* club mini cards */
+  .club-mini { display: flex; align-items: center; gap: var(--space-3); padding: 12px 14px; margin-bottom: var(--space-2);
+    text-decoration: none; color: inherit; }
+  .club-mini .dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .dot.live { background: var(--color-accent-primary); } .dot.open { background: var(--color-status-open); }
+  .dot.closed { background: var(--color-status-closed); }
+  .cm-main { flex: 1; min-width: 0; }
+  .cm-name { font-size: var(--type-body); font-weight: var(--weight-bold); }
+  .cm-sub { font-size: var(--type-caption); color: var(--color-text-muted); margin-top: 2px; }
+  .cm-chev { color: var(--color-text-faint); }
+
+  /* 7-day trend bars */
+  .trend { padding: 16px; border-radius: var(--radius-lg); background: var(--glass-bg-thin); border: 1px solid var(--glass-border); }
+  .bars { display: flex; align-items: flex-end; gap: 8px; height: 110px; }
+  .bar { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 7px; height: 100%; justify-content: flex-end; }
+  .bar .fill { width: 100%; border-radius: 6px 6px 3px 3px;
+    background: linear-gradient(180deg, var(--color-accent-primary), color-mix(in srgb, var(--color-accent-secondary) 70%, transparent)); }
+  .bar .d { font-size: 10px; font-weight: var(--weight-bold); color: var(--color-text-faint); }
+  .trend .cap { font-size: var(--type-caption); color: var(--color-text-muted); margin-top: 10px; }
+  .trend .cap b { color: var(--color-text); font-weight: var(--weight-black); }
+
+  /* quick actions */
+  .quick { display: flex; gap: var(--space-2); }
+  .quick a { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 14px 8px;
+    border-radius: var(--radius-md); background: var(--glass-bg-thin); border: 1px solid var(--glass-border);
+    text-decoration: none; color: var(--color-text); font-size: var(--type-caption); font-weight: var(--weight-bold);
+    text-align: center; }
+  .quick a:hover { border-color: var(--color-accent-primary); }
+  .quick a svg { color: var(--color-accent-primary); }
+
+  /* admin tab bar */
+  .ad-tab svg { margin-bottom: 0; }
+</style>
+</head>
+<body>
+<div class="ps-phone">
+  <div class="ps-statusbar">
+    <span>9:41</span>
+    <span class="ps-status-icons">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="ps-glass-nav">
+    <div><div class="ad-title">Poker<span class="ac">Spot</span> Admin</div><div class="ad-date">Friday · 23 May</div></div>
+    <span class="ps-avatar">SA</span>
+  </div>
+
+  <div class="ps-screen">
+    <div class="welcome">Welcome back, <b>Sandro</b>. Here's the network right now.</div>
+
+    <div class="ps-overline section">Across all clubs · live</div>
+    <div class="stats">
+      <div class="stat players"><div class="v">63</div><div class="k">Active players</div></div>
+      <div class="stat tables"><div class="v">9</div><div class="k">Open tables</div></div>
+      <div class="stat"><div class="v">22</div><div class="k">In waitlists</div></div>
+      <div class="stat"><div class="v">5</div><div class="k">Pending reservations</div></div>
+    </div>
+
+    <div class="ps-overline section">Clubs · tap to observe</div>
+    <a class="ps-card club-mini" href="player-club-details.html?club=royal">
+      <span class="dot live"></span>
+      <div class="cm-main"><div class="cm-name">Royal Poker Tbilisi</div><div class="cm-sub">Tbilisi · 3 tables · 12 seats · 8 waiting</div></div>
+      <svg class="cm-chev" width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1.5 1.5L7 7.5 1.5 13.5"/></svg>
+    </a>
+    <a class="ps-card club-mini" href="player-club-details.html?club=bellagio">
+      <span class="dot live"></span>
+      <div class="cm-main"><div class="cm-name">Bellagio Batumi</div><div class="cm-sub">Batumi · 3 tables · 4 seats · 2 waiting</div></div>
+      <svg class="cm-chev" width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1.5 1.5L7 7.5 1.5 13.5"/></svg>
+    </a>
+    <a class="ps-card club-mini" href="player-club-details.html?club=shangri-la">
+      <span class="dot live"></span>
+      <div class="cm-main"><div class="cm-name">Shangri La Tbilisi</div><div class="cm-sub">Tbilisi · 1 table · full · 6 waiting</div></div>
+      <svg class="cm-chev" width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1.5 1.5L7 7.5 1.5 13.5"/></svg>
+    </a>
+    <a class="ps-card club-mini" href="player-club-details.html?club=iveria">
+      <span class="dot open"></span>
+      <div class="cm-main"><div class="cm-name">Iveria Casino</div><div class="cm-sub">Tbilisi · open · no games yet</div></div>
+      <svg class="cm-chev" width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1.5 1.5L7 7.5 1.5 13.5"/></svg>
+    </a>
+    <div class="ps-card club-mini" style="opacity:.6;cursor:default">
+      <span class="dot closed"></span>
+      <div class="cm-main"><div class="cm-name">Mercure Tbilisi</div><div class="cm-sub">Tbilisi · closed · opens 20:00</div></div>
+    </div>
+
+    <div class="ps-overline section">Today</div>
+    <div class="stats">
+      <div class="stat"><div class="v">148</div><div class="k">Players seated</div></div>
+      <div class="stat"><div class="v">37</div><div class="k">Reservations</div></div>
+    </div>
+
+    <div class="ps-overline section">Players · last 7 days</div>
+    <div class="trend">
+      <div class="bars">
+        <div class="bar"><div class="fill" style="height:48%"></div><div class="d">M</div></div>
+        <div class="bar"><div class="fill" style="height:60%"></div><div class="d">T</div></div>
+        <div class="bar"><div class="fill" style="height:42%"></div><div class="d">W</div></div>
+        <div class="bar"><div class="fill" style="height:70%"></div><div class="d">T</div></div>
+        <div class="bar"><div class="fill" style="height:88%"></div><div class="d">F</div></div>
+        <div class="bar"><div class="fill" style="height:100%"></div><div class="d">S</div></div>
+        <div class="bar"><div class="fill" style="height:64%"></div><div class="d">S</div></div>
+      </div>
+      <div class="cap">Peak: <b>Saturday</b> · busiest hour <b>23:00–00:00</b></div>
+    </div>
+
+    <div class="ps-overline section">Quick actions</div>
+    <div class="quick">
+      <a href="super-admin-clubs-crud.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>New club</a>
+      <a href="super-admin-assign-pitboss.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="4"/><path d="M2 21c0-4 3.2-6.5 7-6.5M17 8v6M14 11h6"/></svg>Assign PB</a>
+      <a href="super-admin-assign-pitboss.html"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>Pending</a>
+    </div>
+    <div style="height:8px"></div>
+  </div>
+
+  <div class="ps-tabbar">
+    <div class="ps-tab is-active"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><rect x="3" y="12" width="5" height="9" rx="1"/><rect x="10" y="7" width="5" height="14" rx="1"/><rect x="17" y="3" width="4" height="18" rx="1"/></svg>Dashboard</div>
+    <a class="ps-tab" href="super-admin-clubs-crud.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21V7l6-4 6 4v14M9 21v-6h6v6M15 10h6v11"/></svg>Clubs</a>
+    <a class="ps-tab" href="super-admin-assign-pitboss.html" style="text-decoration:none"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="8" r="3.5"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5M15.5 20c0-2 1-3.5 3-3.5"/></svg>Pit Bosses</a>
+    <div class="ps-tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 13a1.6 1.6 0 0 0 .3 1.8M4.6 13a1.6 1.6 0 0 1-.3 1.8"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>Settings</div>
+  </div>
+  <div class="ps-home-indicator"></div>
+</div>
+
+<script>
+  window.addEventListener('message', e => {
+    if (e.data && e.data.psTheme !== undefined) {
+      if (e.data.psTheme) document.documentElement.setAttribute('data-theme', e.data.psTheme);
+      else document.documentElement.removeAttribute('data-theme');
+    }
+  });
+</script>
+</body>
+</html>

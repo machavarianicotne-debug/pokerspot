@@ -62,9 +62,20 @@ Run (from `C:\Users\user\Desktop\np`):
 ```bash
 flutter create --org com.pokerspot --platforms=android,web --project-name pokerspot pokerspot
 ```
-Expected: "All done!" and a `pokerspot/` directory. (Android is the launch target; `web` is included so reviewers can run it without an emulator.)
+Expected: "All done!" and a `pokerspot/` directory. (Android is the launch target; `web` is included only for a quick smoke check. This plan contains **no emulator setup** — all device testing is on a real Android phone over USB.)
 
-- [ ] **Step 2: Replace `pokerspot/pubspec.yaml` dependency section**
+- [ ] **Step 2: Set minimum Android version to 23 (Android 6)**
+
+Covers ~99% of devices in the Georgian market while allowing modern Flutter features. Edit `pokerspot/android/app/build.gradle.kts`, inside `android { defaultConfig { ... } }`:
+```kotlin
+minSdk = 23
+```
+(If the generated file is Groovy `build.gradle` instead, use `minSdkVersion 23`.) Do **not** leave the default `flutter.minSdkVersion`.
+
+Run: `flutter analyze`
+Expected: "No issues found!" (config-only change).
+
+- [ ] **Step 3: Replace `pokerspot/pubspec.yaml` dependency section**
 
 Set these blocks exactly (keep the generated `name`, `description`, `environment`, `version`):
 ```yaml
@@ -91,23 +102,23 @@ flutter:
   generate: true
 ```
 
-- [ ] **Step 3: Install deps**
+- [ ] **Step 4: Install deps**
 
 Run: `cd pokerspot && flutter pub get`
 Expected: "Got dependencies!" with no version-solve errors.
 
-- [ ] **Step 4: Verify the fresh project is green**
+- [ ] **Step 5: Verify the fresh project is green**
 
 Run: `flutter analyze`
 Expected: "No issues found!"
 Run: `flutter test`
 Expected: the default widget test passes (we delete it in Task 9).
 
-- [ ] **Step 5: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add pokerspot
-git commit -m "chore: scaffold Flutter project with core dependencies"
+git commit -m "chore: scaffold Flutter project (minSdk 23) with core dependencies"
 ```
 
 ---
@@ -895,31 +906,59 @@ Expected: "No issues found!"
 Run: `flutter test`
 Expected: all tests pass (business_rules, validation_rules, feature_flags, environment, tokens, app_theme, app_smoke). No failures.
 
-- [ ] **Step 3: Smoke-run the app (manual)**
+- [ ] **Step 3: Run on a real Android phone over USB (no emulator)**
 
-Run (web, no emulator needed): `flutter run -d chrome --dart-define-from-file=env-dev.json`
-Expected: a dark screen with lime italic "PokerSpot" + "Foundation ready". (Android: `flutter run -d <device> --dart-define-from-file=env-dev.json`.)
+On the phone, one-time setup:
+1. Settings → About phone → tap **Build number** 7 times → "You are now a developer".
+2. Settings → System → **Developer options** → enable **USB debugging**.
+3. Connect the phone to the PC via USB. On the phone, accept **"Allow USB debugging / Trust this computer"** (tick "Always allow from this computer").
 
-- [ ] **Step 4: Commit a short run note**
+Then on the PC:
+```bash
+flutter devices
+```
+Expected: the phone appears in the list (e.g. `SM-A536B (mobile) • <id> • android-arm64`). If it doesn't, run `adb devices` and re-accept the trust dialog.
+```bash
+flutter run -d <device-id> --dart-define-from-file=env-dev.json
+```
+Expected: the app installs and launches on the phone — a dark screen with lime italic "PokerSpot" + "Foundation ready".
+
+- [ ] **Step 4: Build a shareable release APK**
+
+```bash
+flutter build apk --release --dart-define-from-file=env-dev.json
+```
+Expected: "✓ Built build/app/outputs/flutter-apk/app-release.apk". That file (`pokerspot/build/app/outputs/flutter-apk/app-release.apk`) can be sent to test users via WhatsApp/Telegram; they install it after enabling "Install unknown apps" for the messenger. (No signing config yet → debug-signed release; a proper upload keystore comes with the Play Console step in a later plan.)
+
+- [ ] **Step 5: Commit a short run note**
 
 Create `pokerspot/README.md`:
 ```markdown
 # PokerSpot
 
 Tbilisi poker-rooms app (Flutter + Firebase). Liquid Sport design system.
+Android-first; minSdk 23. Tested on a real device (no emulator).
 
-## Run
-- Web (quick check): `flutter run -d chrome --dart-define-from-file=env-dev.json`
-- Android: `flutter run -d <device> --dart-define-from-file=env-dev.json`
+## Run on a connected Android phone
+1. Phone: enable Developer options (tap Build number x7) → enable USB debugging.
+2. Connect via USB, accept "Trust this computer".
+3. `flutter devices`  → confirm the phone is listed.
+4. `flutter run -d <device-id> --dart-define-from-file=env-dev.json`
+
+## Shareable APK (for test users)
+`flutter build apk --release --dart-define-from-file=env-dev.json`
+→ `build/app/outputs/flutter-apk/app-release.apk` (send via WhatsApp/Telegram).
+
+## Dev
 - Tests: `flutter test`   ·   Lint: `flutter analyze`
+- Environments: `env-dev.json` (default) / `env-prod.json`.
 
-Environments: `env-dev.json` (default) / `env-prod.json`.
 Foundation only — auth, clubs, and the rest land in subsequent plans
 (`docs/superpowers/plans/`).
 ```
 ```bash
 git add pokerspot/README.md
-git commit -m "docs: add run instructions"
+git commit -m "docs: add real-device run + release APK instructions"
 ```
 
 ---

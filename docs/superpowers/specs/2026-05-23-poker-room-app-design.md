@@ -145,7 +145,8 @@ clubs/{clubId}/games/{gameId}
   #   game at creation (a club may run mixed-currency games)
   # blinds: runtime-editable by Pit Boss (per game); change reflects to players
   #   in real time; updatedAt tracks the change (internal, not shown in UI)
-  # buyInMin > 0 required; NO buyInMax — Tbilisi format is uncapped
+  # buyInMin > 0 required, runtime-editable per game (mirrors same-stake tables,
+  #   like blinds); NO buyInMax — Tbilisi format is uncapped
   # averageStack: Pit Boss manual estimate; players see the last value set;
   #   null ("—") until first set. updatedAt is server-side only, never shown in
   #   UI (no freshness / "x min ago" indicator)
@@ -267,7 +268,8 @@ section. Tabs: **Floor · Inbox · Stats · Settings**.
     (no auto-end).
   - **Blinds** (inline editable, **per game** — mirrors across same-stake tables,
     reflected to players in real time, 0.5s pulse), **average stack** (inline
-    editable, per game), and min buy-in.
+    editable, per game), and **min buy-in** (inline editable, per game — mirrors
+    same-stake tables, like blinds).
   - **Waitlist for the stake** (`[Call] [Seat] [✕]`, `+ walk-in`) and
     **Reservations** (`[Accept]`/`[✕]` → `Arrived` = top of waitlist) shown once
     per stake; sibling tables show "Shares waitlist with Table N".

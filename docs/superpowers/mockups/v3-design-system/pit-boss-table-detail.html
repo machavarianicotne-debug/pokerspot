@@ -203,7 +203,7 @@
         <div class="seated" id="seatedT1"></div>
         <div class="meta-row"><span class="mr-k">Blinds</span><button class="mr-v editable blinds-val">1/3</button><span class="mr-hint">tap to change</span></div>
         <div class="meta-row"><span class="mr-k">Avg stack</span><button class="mr-v editable avg-val">₾2,400</button><span class="mr-hint">tap to edit</span></div>
-        <div class="meta-row"><span class="mr-k">Min buy-in</span><span class="mr-v" style="color:var(--color-text)">₾200</span></div>
+        <div class="meta-row"><span class="mr-k">Min buy-in</span><button class="mr-v editable min-val">₾200</button><span class="mr-hint">tap to change</span></div>
 
         <div class="wl-block">
           <div class="wl-h"><span class="ps-overline" id="wlHead">Waitlist for this stake · 4</span>
@@ -240,7 +240,7 @@
         </div>
         <div class="meta-row"><span class="mr-k">Blinds</span><button class="mr-v editable blinds-val">1/3</button><span class="mr-hint">tap to change</span></div>
         <div class="meta-row"><span class="mr-k">Avg stack</span><button class="mr-v editable avg-val">₾2,400</button><span class="mr-hint">tap to edit</span></div>
-        <div class="meta-row"><span class="mr-k">Min buy-in</span><span class="mr-v" style="color:var(--color-text)">₾200</span></div>
+        <div class="meta-row"><span class="mr-k">Min buy-in</span><button class="mr-v editable min-val">₾200</button><span class="mr-hint">tap to change</span></div>
 
         <div class="shares">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h8M12 8v8"/><circle cx="12" cy="12" r="9"/></svg>
@@ -289,7 +289,7 @@
           '<div class="felt" data-filled="' + t.filled + '" data-max="' + t.max + '"><div class="felt-label">' + label + '</div></div>' +
           '<div class="meta-row"><span class="mr-k">Blinds</span><button class="mr-v editable blinds-val">' + t.blinds + '</button><span class="mr-hint">tap to change</span></div>' +
           '<div class="meta-row"><span class="mr-k">Avg stack</span><button class="mr-v editable avg-val">' + (t.avg || '—') + '</button><span class="mr-hint">tap to edit</span></div>' +
-          '<div class="meta-row"><span class="mr-k">Min buy-in</span><span class="mr-v" style="color:var(--color-text)">' + t.min + '</span></div>' +
+          '<div class="meta-row"><span class="mr-k">Min buy-in</span><button class="mr-v editable min-val">' + t.min + '</button><span class="mr-hint">tap to change</span></div>' +
           '<div class="shares"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 12h8M12 8v8"/><circle cx="12" cy="12" r="9"/></svg>Shares waitlist &amp; reservations with Table 1</div>' +
           '<div class="tc-controls"><button>Take break</button><button class="close">Close table</button></div>' +
         '</div>';
@@ -513,6 +513,14 @@
     openEdit('Average stack (applies to both tables)', cur, v => {
       const disp = v ? '₾' + Number(v).toLocaleString('en-US') : '—';
       document.querySelectorAll('.avg-val').forEach(a => a.textContent = disp); pulseAll('.avg-val');
+    });
+  });
+  // Min buy-in: editable per game, mirrors across same-stake tables (like blinds)
+  document.querySelectorAll('.min-val').forEach(el => el.onclick = () => {
+    const cur = (el.textContent.match(/[\d,]+/) || [''])[0].replace(/,/g, '');
+    openEdit('Min buy-in (applies to both tables)', cur, v => {
+      const disp = v ? '₾' + Number(v).toLocaleString('en-US') : '₾0';
+      document.querySelectorAll('.min-val').forEach(a => a.textContent = disp); pulseAll('.min-val');
     });
   });
 

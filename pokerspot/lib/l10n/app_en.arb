@@ -151,5 +151,10 @@
   "fullLabel": "FULL",
   "floorOpenEmpty": "Floor open — no games running yet tonight.",
   "allCitiesFilter": "All cities",
-  "liveCountLabel": "LIVE"
+  "liveCountLabel": "LIVE",
+  "liveGamesTitle": "Live games",
+  "noGamesTitle": "No games running",
+  "noGamesSub": "The floor is open — check back later, or reserve a seat for tonight.",
+  "tablesMetric": "Tables",
+  "minLabel": "Min"
 }

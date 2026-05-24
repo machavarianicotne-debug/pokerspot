@@ -151,5 +151,10 @@
   "fullLabel": "სავსე",
   "floorOpenEmpty": "დარბაზი ღიაა — თამაში ჯერ არ დაწყებულა.",
   "allCitiesFilter": "ყველა ქალაქი",
-  "liveCountLabel": "ცოცხალი"
+  "liveCountLabel": "ცოცხალი",
+  "liveGamesTitle": "ცოცხალი თამაშები",
+  "noGamesTitle": "თამაში არ მიმდინარეობს",
+  "noGamesSub": "დარბაზი ღიაა — შემოიხედე მოგვიანებით, ან დაჯავშნე ადგილი ამაღამ.",
+  "tablesMetric": "მაგიდები",
+  "minLabel": "მინ."
 }

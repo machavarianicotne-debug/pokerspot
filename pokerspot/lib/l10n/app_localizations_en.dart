@@ -468,4 +468,20 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get liveCountLabel => 'LIVE';
+
+  @override
+  String get liveGamesTitle => 'Live games';
+
+  @override
+  String get noGamesTitle => 'No games running';
+
+  @override
+  String get noGamesSub =>
+      'The floor is open — check back later, or reserve a seat for tonight.';
+
+  @override
+  String get tablesMetric => 'Tables';
+
+  @override
+  String get minLabel => 'Min';
 }

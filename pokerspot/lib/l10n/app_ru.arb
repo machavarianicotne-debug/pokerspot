@@ -151,5 +151,10 @@
   "fullLabel": "ПОЛНО",
   "floorOpenEmpty": "Зал открыт — игр пока нет.",
   "allCitiesFilter": "Все города",
-  "liveCountLabel": "LIVE"
+  "liveCountLabel": "LIVE",
+  "liveGamesTitle": "Активные игры",
+  "noGamesTitle": "Игр нет",
+  "noGamesSub": "Зал открыт — загляните позже или забронируйте место на вечер.",
+  "tablesMetric": "Столы",
+  "minLabel": "Мин"
 }

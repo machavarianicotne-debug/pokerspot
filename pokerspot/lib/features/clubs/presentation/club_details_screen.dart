@@ -18,8 +18,9 @@ import 'package:pokerspot/features/floor/presentation/providers.dart';
 import 'package:pokerspot/features/floor/presentation/reservation_flow_screen.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
+import 'package:pokerspot/shared/widgets/ps_metric.dart';
+import 'package:pokerspot/shared/widgets/ps_overline.dart';
 import 'package:pokerspot/shared/widgets/ps_scaffold.dart';
-import 'package:pokerspot/shared/widgets/ps_sheet.dart';
 
 class ClubDetailsScreen extends ConsumerWidget {
   const ClubDetailsScreen({super.key, required this.clubId});
@@ -125,15 +126,8 @@ class _Details extends StatelessWidget {
         const SizedBox(height: PsSpacing.s4),
         _ChatEntry(club: club),
         const SizedBox(height: PsSpacing.s5),
-        PsButton(
-          key: const Key('joinWaitlistBtn'),
-          label: l10n.joinWaitlist,
-          icon: Icons.event_seat,
-          onPressed: () => unawaited(
-            PsSheet.show<void>(context, child: _StakePickerSheet(clubId: club.id)),
-          ),
-        ),
-        const SizedBox(height: PsSpacing.s3),
+        _GamesSection(club: club),
+        const SizedBox(height: PsSpacing.s4),
         PsButton(
           key: const Key('reserveSeatBtn'),
           label: l10n.reserveSeat,
@@ -379,125 +373,209 @@ class _PhoneRow extends StatelessWidget {
   }
 }
 
-/// Bottom sheet listing the club's distinct stakes (from its tables). Tapping a
-/// stake joins the waitlist for it; a stake the player already waits for shows
-/// "Waiting" and is not tappable.
-class _StakePickerSheet extends ConsumerWidget {
-  const _StakePickerSheet({required this.clubId});
-  final String clubId;
+String _symbol(String currency) =>
+    currency == 'USD' ? '\$' : currency == 'EUR' ? '€' : '₾';
+String _money(String currency, num? v) => v == null ? '—' : '${_symbol(currency)}${v % 1 == 0 ? v.toInt() : v}';
+
+/// "Live games · N stakes" + a card per stake (mockup `player-club-details`),
+/// or the "No games running" empty state. Built from the club's tables (which a
+/// player may read), with open-seats / waitlist counts overlaid from the
+/// denormalized club.games (the player can't read other clubs' sessions).
+class _GamesSection extends ConsumerWidget {
+  const _GamesSection({required this.club});
+  final Club club;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppL10n.of(context);
-    final tables = ref.watch(tablesProvider(clubId)).valueOrNull ?? const <PokerTable>[];
-    final mine = ref.watch(myWaitlistProvider).valueOrNull ?? const <WaitlistEntry>[];
+    final tables = ref.watch(tablesProvider(club.id)).valueOrNull ?? const <PokerTable>[];
+    final mine = (ref.watch(myWaitlistProvider).valueOrNull ?? const <WaitlistEntry>[])
+        .where((e) => e.clubId == club.id)
+        .map((e) => e.stakes.label)
+        .toSet();
 
-    final byLabel = <String, Stakes>{};
-    for (final t in tables) {
-      byLabel[t.stakes.label] = t.stakes;
+    // Group the club's open tables by stake (source of truth for what's running).
+    final byLabel = <String, List<PokerTable>>{};
+    for (final t in tables.where((t) => t.open)) {
+      byLabel.putIfAbsent(t.stakes.label, () => []).add(t);
     }
-    final stakes = byLabel.values.toList();
-    final myLabels =
-        mine.where((e) => e.clubId == clubId).map((e) => e.stakes.label).toSet();
+    final gamesByLabel = {for (final g in club.games) g.label: g};
 
+    if (byLabel.isEmpty) {
+      return _emptyState(l10n);
+    }
+
+    final labels = byLabel.keys.toList();
     return Column(
-      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          l10n.chooseStake,
-          style: const TextStyle(
-            fontSize: PsType.headline,
-            fontWeight: PsType.weightBold,
-            color: PsColors.text,
-          ),
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: PsSpacing.s3),
+          child: PsOverline('${l10n.liveGamesTitle} · ${labels.length} ${l10n.stakesLabel.toLowerCase()}'),
         ),
-        const SizedBox(height: PsSpacing.s3),
-        if (stakes.isEmpty)
-          Padding(
-            padding: const EdgeInsets.all(PsSpacing.s4),
-            child: Text(l10n.noStakesYet, style: TextStyle(color: PsColors.textMuted)),
-          )
-        else
-          for (final s in stakes)
-            _StakeRow(
-              stakes: s,
-              waiting: myLabels.contains(s.label),
-              onJoin: myLabels.contains(s.label)
-                  ? null
-                  : () async {
-                      final messenger = ScaffoldMessenger.of(context);
-                      final navigator = Navigator.of(context);
-                      final uid = ref.read(authRepositoryProvider).currentUid;
-                      final user = ref.read(currentUserProvider).valueOrNull;
-                      if (uid != null) {
-                        await ref.read(waitlistRepositoryProvider).join(
-                              clubId: clubId,
-                              playerUid: uid,
-                              playerName: user == null
-                                  ? ''
-                                  : '${user.firstName} ${user.lastName}'.trim(),
-                              stakes: s,
-                            );
-                      }
-                      navigator.pop();
-                      messenger.showSnackBar(SnackBar(content: Text(l10n.joinedWaitlist)));
-                    },
-            ),
+        for (final label in labels)
+          _GameCard(
+            clubId: club.id,
+            stakes: byLabel[label]!.first.stakes,
+            game: gamesByLabel[label],
+            tableCount: byLabel[label]!.length,
+            tableMinBuyIn: byLabel[label]!.first.minBuyIn,
+            tableAvgStack: byLabel[label]!.first.avgStack,
+            alreadyWaiting: mine.contains(label),
+          ),
       ],
     );
   }
+
+  Widget _emptyState(AppL10n l10n) => Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: PsSpacing.s3),
+            child: PsOverline(l10n.liveGamesTitle),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: PsSpacing.s10, horizontal: PsSpacing.s5),
+            decoration: BoxDecoration(
+              color: PsColors.glassThin,
+              borderRadius: BorderRadius.circular(PsRadii.lg),
+              border: Border.all(color: PsColors.glassBorder, style: BorderStyle.solid),
+            ),
+            child: Column(
+              children: [
+                const Text('🪑', style: TextStyle(fontSize: 40)),
+                const SizedBox(height: PsSpacing.s3),
+                Text(l10n.noGamesTitle,
+                    style: const TextStyle(
+                        fontSize: PsType.headline,
+                        fontWeight: PsType.weightBlack,
+                        color: PsColors.text)),
+                const SizedBox(height: PsSpacing.s2),
+                Text(l10n.noGamesSub,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: PsType.subhead, color: PsColors.textMuted)),
+              ],
+            ),
+          ),
+        ],
+      );
 }
 
-class _StakeRow extends StatelessWidget {
-  const _StakeRow({required this.stakes, required this.waiting, this.onJoin});
+class _GameCard extends ConsumerWidget {
+  const _GameCard({
+    required this.clubId,
+    required this.stakes,
+    required this.game,
+    required this.tableCount,
+    required this.tableMinBuyIn,
+    required this.tableAvgStack,
+    required this.alreadyWaiting,
+  });
+  final String clubId;
   final Stakes stakes;
-  final bool waiting;
-  final Future<void> Function()? onJoin;
+  final ClubGame? game;
+  final int tableCount;
+  final num? tableMinBuyIn;
+  final num? tableAvgStack;
+  final bool alreadyWaiting;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppL10n.of(context);
+    final cur = stakes.currency;
+    final tables = game?.tables ?? tableCount;
+    final minBuyIn = game?.minBuyIn ?? tableMinBuyIn;
+    final avgStack = game?.avgStack ?? tableAvgStack;
+    final openSeats = game?.openSeats; // null until syncClubStats runs
+    final waiting = game?.waiting;
+    final full = openSeats == 0;
+    final type = stakes.variant.label;
+
     return Padding(
-      padding: const EdgeInsets.only(bottom: PsSpacing.s2),
-      child: GestureDetector(
-        key: Key('stake_${stakes.label}'),
-        onTap: onJoin == null ? null : () => unawaited(onJoin!()),
-        behavior: HitTestBehavior.opaque,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: PsSpacing.s4, vertical: PsSpacing.s3),
-          decoration: BoxDecoration(
-            color: PsColors.glassThin,
-            borderRadius: BorderRadius.circular(PsRadii.md),
-            border: Border.all(color: PsColors.glassBorder),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  stakes.label,
-                  style: const TextStyle(
-                    fontSize: PsType.body,
-                    fontWeight: PsType.weightBold,
-                    color: PsColors.text,
+      padding: const EdgeInsets.only(bottom: PsSpacing.s4),
+      child: PsCard(
+        key: Key('gameCard_${stakes.label}'),
+        accentRail: full ? PsColors.statusFull : PsColors.accentPrimary,
+        padding: EdgeInsets.zero,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(PsSpacing.s4, 14, PsSpacing.s4, 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(stakes.label,
+                            style: const TextStyle(
+                                fontSize: PsType.headline,
+                                fontWeight: PsType.weightBlack,
+                                letterSpacing: PsType.trackingSnug,
+                                color: PsColors.text)),
+                        const SizedBox(height: 3),
+                        Text(
+                          '$type · ${l10n.minLabel} ${_money(cur, minBuyIn)} · '
+                          '${l10n.avgStackLabel} ${_money(cur, avgStack)} · '
+                          '$tables ${l10n.tablesMetric.toLowerCase()}',
+                          style: TextStyle(
+                              fontSize: PsType.caption,
+                              fontWeight: PsType.weightMedium,
+                              color: PsColors.textMuted),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ),
-              if (waiting)
-                Text(
-                  l10n.statusWaiting,
-                  style: const TextStyle(
-                    fontSize: PsType.subhead,
-                    fontWeight: PsType.weightBold,
-                    color: PsColors.accentSecondary,
-                  ),
-                )
-              else
-                const Icon(Icons.add, color: PsColors.accentPrimary),
-            ],
-          ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(PsSpacing.s4, 0, PsSpacing.s4, PsSpacing.s3),
+              child: Row(
+                children: [
+                  if (full)
+                    PsMetric(value: l10n.fullLabel, label: l10n.noSeatsLabel, variant: PsMetricVariant.full)
+                  else
+                    PsMetric(
+                        value: openSeats?.toString() ?? '—',
+                        label: l10n.openSeatsLabel,
+                        variant: PsMetricVariant.hero),
+                  const SizedBox(width: PsSpacing.s3),
+                  PsMetric(value: '$tables', label: l10n.tablesMetric),
+                  const SizedBox(width: PsSpacing.s3),
+                  PsMetric(value: waiting?.toString() ?? '—', label: l10n.waitlistTitle),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(PsSpacing.s4, 0, PsSpacing.s4, PsSpacing.s4),
+              child: PsButton(
+                key: Key('joinGame_${stakes.label}'),
+                label: alreadyWaiting ? l10n.statusWaiting : l10n.joinWaitlist,
+                variant: alreadyWaiting ? PsButtonVariant.secondary : PsButtonVariant.primary,
+                onPressed: alreadyWaiting ? null : () => _join(context, ref),
+              ),
+            ),
+          ],
         ),
       ),
     );
+  }
+
+  void _join(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final uid = ref.read(authRepositoryProvider).currentUid;
+    if (uid == null) return;
+    final user = ref.read(currentUserProvider).valueOrNull;
+    unawaited(ref.read(waitlistRepositoryProvider).join(
+          clubId: clubId,
+          playerUid: uid,
+          playerName: user == null ? '' : '${user.firstName} ${user.lastName}'.trim(),
+          stakes: stakes,
+        ));
+    messenger.showSnackBar(SnackBar(content: Text(l10n.joinedWaitlist)));
   }
 }

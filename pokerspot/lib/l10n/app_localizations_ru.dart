@@ -468,4 +468,20 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get liveCountLabel => 'LIVE';
+
+  @override
+  String get liveGamesTitle => 'Активные игры';
+
+  @override
+  String get noGamesTitle => 'Игр нет';
+
+  @override
+  String get noGamesSub =>
+      'Зал открыт — загляните позже или забронируйте место на вечер.';
+
+  @override
+  String get tablesMetric => 'Столы';
+
+  @override
+  String get minLabel => 'Мин';
 }

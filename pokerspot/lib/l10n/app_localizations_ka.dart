@@ -468,4 +468,20 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get liveCountLabel => 'ცოცხალი';
+
+  @override
+  String get liveGamesTitle => 'ცოცხალი თამაშები';
+
+  @override
+  String get noGamesTitle => 'თამაში არ მიმდინარეობს';
+
+  @override
+  String get noGamesSub =>
+      'დარბაზი ღიაა — შემოიხედე მოგვიანებით, ან დაჯავშნე ადგილი ამაღამ.';
+
+  @override
+  String get tablesMetric => 'მაგიდები';
+
+  @override
+  String get minLabel => 'მინ.';
 }

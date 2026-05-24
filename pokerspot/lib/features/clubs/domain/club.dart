@@ -1,6 +1,54 @@
 // Clubs domain model (spec §12). Pure Dart — no Firebase imports.
 // [id] is the Firestore document id; it is not part of toMap().
 
+/// A per-stake live summary for a club (denormalized onto the club doc by the
+/// syncClubStats Cloud Function, so players — who can't read other clubs'
+/// sessions/waitlist — still see the scoreboard on the club-details screen).
+class ClubGame {
+  final String label; // e.g. "NLH 1/2 GEL"
+  final String type; // variant short label, e.g. "NLH"
+  final num? minBuyIn;
+  final num? avgStack;
+  final int tables;
+  final int openSeats;
+  final int waiting;
+
+  const ClubGame({
+    required this.label,
+    required this.type,
+    required this.minBuyIn,
+    required this.avgStack,
+    required this.tables,
+    required this.openSeats,
+    required this.waiting,
+  });
+
+  factory ClubGame.fromMap(Map<String, dynamic> m) => ClubGame(
+        label: (m['label'] ?? '') as String,
+        type: (m['type'] ?? '') as String,
+        minBuyIn: m['minBuyIn'] as num?,
+        avgStack: m['avgStack'] as num?,
+        tables: (m['tables'] ?? 0) as int,
+        openSeats: (m['openSeats'] ?? 0) as int,
+        waiting: (m['waiting'] ?? 0) as int,
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ClubGame &&
+          label == other.label &&
+          type == other.type &&
+          minBuyIn == other.minBuyIn &&
+          avgStack == other.avgStack &&
+          tables == other.tables &&
+          openSeats == other.openSeats &&
+          waiting == other.waiting;
+
+  @override
+  int get hashCode => Object.hash(label, type, minBuyIn, avgStack, tables, openSeats, waiting);
+}
+
 class Club {
   final String id;
   final String name;
@@ -18,6 +66,7 @@ class Club {
   final int openSeats; // free seats across open tables
   final int stakes; // distinct stakes currently running
   final int waiting; // active waitlist entries
+  final List<ClubGame> games; // per-stake live scoreboard (function-populated)
 
   const Club({
     required this.id,
@@ -32,6 +81,7 @@ class Club {
     this.openSeats = 0,
     this.stakes = 0,
     this.waiting = 0,
+    this.games = const [],
   });
 
   factory Club.fromMap(String id, Map<String, dynamic> m) => Club(
@@ -47,6 +97,11 @@ class Club {
         openSeats: (m['openSeats'] ?? 0) as int,
         stakes: (m['stakes'] ?? 0) as int,
         waiting: (m['waiting'] ?? 0) as int,
+        games: (m['games'] as List?)
+                ?.whereType<Map>()
+                .map((e) => ClubGame.fromMap(Map<String, dynamic>.from(e)))
+                .toList() ??
+            const [],
       );
 
   Map<String, dynamic> toMap() => {
@@ -72,6 +127,7 @@ class Club {
     int? openSeats,
     int? stakes,
     int? waiting,
+    List<ClubGame>? games,
   }) =>
       Club(
         id: id ?? this.id,
@@ -86,6 +142,7 @@ class Club {
         openSeats: openSeats ?? this.openSeats,
         stakes: stakes ?? this.stakes,
         waiting: waiting ?? this.waiting,
+        games: games ?? this.games,
       );
 
   @override
@@ -104,9 +161,18 @@ class Club {
           live == other.live &&
           openSeats == other.openSeats &&
           stakes == other.stakes &&
-          waiting == other.waiting;
+          waiting == other.waiting &&
+          _listEq(games, other.games);
 
   @override
-  int get hashCode => Object.hash(
-      id, name, city, address, photoUrl, hoursText, phone, enabled, live, openSeats, stakes, waiting);
+  int get hashCode => Object.hash(id, name, city, address, photoUrl, hoursText, phone, enabled,
+      live, openSeats, stakes, waiting, Object.hashAll(games));
+
+  static bool _listEq(List<ClubGame> a, List<ClubGame> b) {
+    if (a.length != b.length) return false;
+    for (var i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
 }

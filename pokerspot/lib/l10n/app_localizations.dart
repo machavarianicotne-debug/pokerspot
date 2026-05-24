@@ -1010,6 +1010,36 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'LIVE'**
   String get liveCountLabel;
+
+  /// No description provided for @liveGamesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Live games'**
+  String get liveGamesTitle;
+
+  /// No description provided for @noGamesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No games running'**
+  String get noGamesTitle;
+
+  /// No description provided for @noGamesSub.
+  ///
+  /// In en, this message translates to:
+  /// **'The floor is open — check back later, or reserve a seat for tonight.'**
+  String get noGamesSub;
+
+  /// No description provided for @tablesMetric.
+  ///
+  /// In en, this message translates to:
+  /// **'Tables'**
+  String get tablesMetric;
+
+  /// No description provided for @minLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Min'**
+  String get minLabel;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

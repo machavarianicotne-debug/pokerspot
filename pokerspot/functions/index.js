@@ -5,7 +5,7 @@
 // Firestore is the eur3 multi-region DB, which 1st-gen Firestore triggers do NOT
 // support — (b)/(c) therefore use the 2nd-gen (Eventarc) API in europe-west1.
 const functions = require('firebase-functions');
-const { onDocumentUpdated } = require('firebase-functions/v2/firestore');
+const { onDocumentUpdated, onDocumentWritten } = require('firebase-functions/v2/firestore');
 const admin = require('firebase-admin');
 
 admin.initializeApp();
@@ -58,6 +58,90 @@ exports.notifyCalled = onDocumentUpdated(
       data: { clubId: after.clubId || '', type: 'waitlist.called' },
     });
   },
+);
+
+// (d) Denormalize live club stats onto the club doc so PLAYERS (who can't read
+// other clubs' sessions/waitlist) still see open seats / stakes / waitlist.
+// Recompute on any session / waitlist / table write (2nd-gen).
+const stakeKey = (x) => `${x.variant}-${x.smallBlind}-${x.bigBlind}-${x.currency}`;
+const stakeLabel = (t) =>
+  `${(t.variant || '').toUpperCase()} ${t.smallBlind}/${t.bigBlind} ${t.currency || ''}`.trim();
+
+async function recomputeClub(clubId) {
+  if (!clubId) return;
+  const [tablesSnap, sessionsSnap, waitlistSnap] = await Promise.all([
+    db.collection('clubs').doc(clubId).collection('tables').get(),
+    db.collection('sessions').where('clubId', '==', clubId).where('status', '==', 'active').get(),
+    db.collection('waitlist').where('clubId', '==', clubId).get(),
+  ]);
+
+  // Group open tables by stake → per-stake game scoreboard.
+  const games = {};
+  tablesSnap.forEach((d) => {
+    const t = d.data();
+    if (t.open === false) return;
+    const k = stakeKey(t);
+    if (!games[k]) {
+      games[k] = {
+        label: stakeLabel(t), type: (t.variant || '').toUpperCase(),
+        minBuyIn: t.minBuyIn != null ? t.minBuyIn : null,
+        avgStack: t.avgStack != null ? t.avgStack : null,
+        tables: 0, seats: 0, occupied: 0, waiting: 0,
+      };
+    }
+    const g = games[k];
+    g.tables += 1;
+    g.seats += t.seatCount || 0;
+    if (t.minBuyIn != null) g.minBuyIn = g.minBuyIn == null ? t.minBuyIn : Math.min(g.minBuyIn, t.minBuyIn);
+    if (t.avgStack != null) g.avgStack = t.avgStack;
+  });
+  sessionsSnap.forEach((d) => {
+    const g = games[stakeKey(d.data())];
+    if (g) g.occupied += 1;
+  });
+  waitlistSnap.forEach((d) => {
+    const w = d.data();
+    if (w.status !== 'waiting' && w.status !== 'called') return;
+    const g = games[stakeKey(w)];
+    if (g) g.waiting += 1;
+  });
+
+  const gamesArr = Object.values(games).map((g) => ({
+    label: g.label, type: g.type, minBuyIn: g.minBuyIn, avgStack: g.avgStack,
+    tables: g.tables, openSeats: Math.max(0, g.seats - g.occupied), waiting: g.waiting,
+  }));
+  const totalOccupied = Object.values(games).reduce((a, g) => a + g.occupied, 0);
+
+  await db.collection('clubs').doc(clubId).set(
+    {
+      live: totalOccupied > 0,
+      openSeats: gamesArr.reduce((a, g) => a + g.openSeats, 0),
+      stakes: gamesArr.length,
+      waiting: gamesArr.reduce((a, g) => a + g.waiting, 0),
+      games: gamesArr,
+    },
+    { merge: true },
+  );
+}
+
+function clubIdOf(event) {
+  if (event.params && event.params.clubId) return event.params.clubId; // tables subcollection
+  const after = event.data && event.data.after && event.data.after.data();
+  const before = event.data && event.data.before && event.data.before.data();
+  return (after && after.clubId) || (before && before.clubId) || null;
+}
+
+exports.syncOnSession = onDocumentWritten(
+  { document: 'sessions/{id}', region: DB_REGION },
+  (event) => recomputeClub(clubIdOf(event)),
+);
+exports.syncOnWaitlist = onDocumentWritten(
+  { document: 'waitlist/{id}', region: DB_REGION },
+  (event) => recomputeClub(clubIdOf(event)),
+);
+exports.syncOnTable = onDocumentWritten(
+  { document: 'clubs/{clubId}/tables/{tableId}', region: DB_REGION },
+  (event) => recomputeClub(clubIdOf(event)),
 );
 
 // (c) Audit a session when it ends (2nd-gen).

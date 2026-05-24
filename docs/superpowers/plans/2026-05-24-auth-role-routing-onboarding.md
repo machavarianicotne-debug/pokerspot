@@ -1693,9 +1693,10 @@ git commit -m "feat: auth redirect + role-based router + role home shells"
 - Create: `pokerspot/firebase.json`, `pokerspot/.firebaserc`
 - Modify: `pokerspot/README.md`
 
-- [ ] **Step 1: Create `pokerspot/firebase.json`:**
+- [ ] **Step 1: Add a `hosting` block to `pokerspot/firebase.json`.** Task 1's `flutterfire configure` already wrote a `flutter` block in this file — keep it and merge `hosting` in (do NOT overwrite the file, or `flutterfire` config is lost):
 ```json
 {
+  "flutter": { /* ...existing flutterfire block — keep as-is... */ },
   "hosting": {
     "public": "build/web",
     "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],

@@ -24,5 +24,16 @@ This machine has the Flutter SDK but **no Android SDK yet**. Install it once:
 - Tests: `flutter test`   ·   Lint: `flutter analyze`   ·   Web check: `flutter run -d chrome --dart-define-from-file=env-dev.json`
 - Environments: `env-dev.json` (default) / `env-prod.json`.
 
-Foundation only — auth, clubs, and the rest land in subsequent plans
+## Auth (web-first, Plan 2)
+- Run locally: `flutter run -d chrome --dart-define-from-file=env-dev.json`
+- Live URL (shareable): https://pokerspot.web.app  (deploy: `flutter build web --dart-define-from-file=env-dev.json && firebase deploy --only hosting`)
+- Test phone numbers (Firebase Console → Auth → Phone): 555 11 11 11→111111, …66 66 66→666666.
+- Responsive: works at 375px (Chrome DevTools mobile) and 1280px (centered 440px pane).
+
+### Become Super Admin (one-time seed)
+1. Sign in with +995 555 11 11 11 / 111111, complete onboarding (you're a Player).
+2. Firebase Console → Firestore → `users/<your-uid>` → set `role` = `superadmin`.
+3. Reload the app — you now land on the Super Admin home.
+
+Clubs, reservations, and the rest land in subsequent plans
 (`docs/superpowers/plans/`).

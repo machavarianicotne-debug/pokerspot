@@ -6,6 +6,7 @@ import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
+import 'package:pokerspot/features/floor/presentation/new_game_screen.dart';
 import 'package:pokerspot/features/floor/presentation/table_detail_screen.dart';
 import 'package:pokerspot/features/floor/presentation/table_editor_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
@@ -40,14 +41,28 @@ class TablesScreen extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(PsSpacing.s4, PsSpacing.s4, PsSpacing.s4, 96),
       children: [
-        SizedBox(
-          width: double.infinity,
-          child: PsButton(
-            key: const Key('newTableBtn'),
-            label: l10n.newTable,
-            icon: Icons.add,
-            onPressed: () => TableEditorSheet.show(context, clubId: clubId),
-          ),
+        Row(
+          children: [
+            Expanded(
+              child: PsButton(
+                key: const Key('newGameBtn'),
+                label: l10n.newGame,
+                icon: Icons.add,
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => NewGameScreen(clubId: clubId)),
+                ),
+              ),
+            ),
+            const SizedBox(width: PsSpacing.s2),
+            Expanded(
+              child: PsButton(
+                key: const Key('newTableBtn'),
+                label: l10n.newTable,
+                variant: PsButtonVariant.secondary,
+                onPressed: () => TableEditorSheet.show(context, clubId: clubId),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: PsSpacing.s4),
         if (tables.isEmpty)

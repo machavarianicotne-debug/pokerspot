@@ -87,5 +87,12 @@
   "analyticsTitle": "Analytics",
   "activeLabel": "Active",
   "sessionsLabel": "Sessions",
-  "avgMinLabel": "Avg min"
+  "avgMinLabel": "Avg min",
+  "newGame": "New game",
+  "blindsLabel": "Blinds",
+  "customLabel": "Custom",
+  "minBuyInLabel": "Min buy-in",
+  "avgStackLabel": "Avg stack",
+  "tablesToOpenLabel": "Tables to open",
+  "openGameBtn": "Open game"
 }

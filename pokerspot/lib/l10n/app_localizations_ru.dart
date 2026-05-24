@@ -273,4 +273,25 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get avgMinLabel => 'Ср. мин';
+
+  @override
+  String get newGame => 'Новая игра';
+
+  @override
+  String get blindsLabel => 'Блайнды';
+
+  @override
+  String get customLabel => 'Другое';
+
+  @override
+  String get minBuyInLabel => 'Мин. бай-ин';
+
+  @override
+  String get avgStackLabel => 'Ср. стек';
+
+  @override
+  String get tablesToOpenLabel => 'Открыть столов';
+
+  @override
+  String get openGameBtn => 'Открыть игру';
 }

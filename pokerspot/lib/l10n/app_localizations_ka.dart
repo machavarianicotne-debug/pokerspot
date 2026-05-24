@@ -273,4 +273,25 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get avgMinLabel => 'საშ. წთ';
+
+  @override
+  String get newGame => 'ახალი თამაში';
+
+  @override
+  String get blindsLabel => 'ბლაინდები';
+
+  @override
+  String get customLabel => 'სხვა';
+
+  @override
+  String get minBuyInLabel => 'მინ. შესვლა';
+
+  @override
+  String get avgStackLabel => 'საშ. სტეკი';
+
+  @override
+  String get tablesToOpenLabel => 'გასახსნელი მაგიდები';
+
+  @override
+  String get openGameBtn => 'თამაშის გახსნა';
 }

@@ -626,6 +626,48 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Avg min'**
   String get avgMinLabel;
+
+  /// No description provided for @newGame.
+  ///
+  /// In en, this message translates to:
+  /// **'New game'**
+  String get newGame;
+
+  /// No description provided for @blindsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Blinds'**
+  String get blindsLabel;
+
+  /// No description provided for @customLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get customLabel;
+
+  /// No description provided for @minBuyInLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Min buy-in'**
+  String get minBuyInLabel;
+
+  /// No description provided for @avgStackLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg stack'**
+  String get avgStackLabel;
+
+  /// No description provided for @tablesToOpenLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tables to open'**
+  String get tablesToOpenLabel;
+
+  /// No description provided for @openGameBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Open game'**
+  String get openGameBtn;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

@@ -273,4 +273,25 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get avgMinLabel => 'Avg min';
+
+  @override
+  String get newGame => 'New game';
+
+  @override
+  String get blindsLabel => 'Blinds';
+
+  @override
+  String get customLabel => 'Custom';
+
+  @override
+  String get minBuyInLabel => 'Min buy-in';
+
+  @override
+  String get avgStackLabel => 'Avg stack';
+
+  @override
+  String get tablesToOpenLabel => 'Tables to open';
+
+  @override
+  String get openGameBtn => 'Open game';
 }

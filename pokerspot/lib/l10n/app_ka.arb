@@ -87,5 +87,12 @@
   "analyticsTitle": "ანალიტიკა",
   "activeLabel": "აქტიური",
   "sessionsLabel": "სესიები",
-  "avgMinLabel": "საშ. წთ"
+  "avgMinLabel": "საშ. წთ",
+  "newGame": "ახალი თამაში",
+  "blindsLabel": "ბლაინდები",
+  "customLabel": "სხვა",
+  "minBuyInLabel": "მინ. შესვლა",
+  "avgStackLabel": "საშ. სტეკი",
+  "tablesToOpenLabel": "გასახსნელი მაგიდები",
+  "openGameBtn": "თამაშის გახსნა"
 }

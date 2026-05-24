@@ -87,5 +87,12 @@
   "analyticsTitle": "Аналитика",
   "activeLabel": "Активные",
   "sessionsLabel": "Сессии",
-  "avgMinLabel": "Ср. мин"
+  "avgMinLabel": "Ср. мин",
+  "newGame": "Новая игра",
+  "blindsLabel": "Блайнды",
+  "customLabel": "Другое",
+  "minBuyInLabel": "Мин. бай-ин",
+  "avgStackLabel": "Ср. стек",
+  "tablesToOpenLabel": "Открыть столов",
+  "openGameBtn": "Открыть игру"
 }

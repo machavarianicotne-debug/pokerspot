@@ -11,6 +11,7 @@ import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
 import 'package:pokerspot/features/floor/presentation/table_detail_screen.dart';
 import 'package:pokerspot/features/floor/presentation/tables_screen.dart';
+import 'package:pokerspot/shared/widgets/ps_seat_map.dart';
 
 const _stakes = Stakes(variant: GameVariant.nlh, smallBlind: 1, bigBlind: 2, currency: 'GEL');
 const _table = PokerTable(
@@ -73,10 +74,9 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    // 9 seats; seat 1 occupied (initials "NK"), seats 2..9 free.
-    expect(find.byKey(const Key('seat_1')), findsOneWidget);
-    expect(find.byKey(const Key('seat_9')), findsOneWidget);
-    expect(find.text('NK'), findsOneWidget);
+    // Oval seat map: 9 seats, 1 occupied -> 8 open ("8/9").
+    expect(find.byType(PsSeatMap), findsOneWidget);
+    expect(find.text('8/9'), findsOneWidget);
     expect(find.byKey(const Key('editTableBtn')), findsOneWidget);
     expect(find.byKey(const Key('deleteTableBtn')), findsOneWidget);
   });

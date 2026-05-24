@@ -11,21 +11,12 @@ import 'package:pokerspot/features/floor/presentation/providers.dart';
 import 'package:pokerspot/features/floor/presentation/table_editor_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
-import 'package:pokerspot/shared/widgets/ps_overline.dart';
 import 'package:pokerspot/shared/widgets/ps_scaffold.dart';
+import 'package:pokerspot/shared/widgets/ps_seat_map.dart';
 import 'package:pokerspot/shared/widgets/ps_sheet.dart';
 
-String _initials(String name) {
-  final parts = name.replaceFirst('walk-in:', '').trim().split(RegExp(r'\s+'))
-      .where((p) => p.isNotEmpty)
-      .toList();
-  if (parts.isEmpty) return '–';
-  if (parts.length == 1) {
-    final p = parts.first;
-    return (p.length >= 2 ? p.substring(0, 2) : p).toUpperCase();
-  }
-  return (parts.first[0] + parts.last[0]).toUpperCase();
-}
+/// A seated session running longer than this glows as a warning (mockup 8h).
+const _sessionWarn = Duration(hours: 8);
 
 /// Visual seat map for one table: occupied seats show initials, free seats are
 /// tappable to seat a called/waiting player or a walk-in. Edit/delete in the nav.
@@ -86,15 +77,21 @@ class TableDetailScreen extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: PsSpacing.s5),
-                    PsOverline(l10n.seatsLabel),
-                    const SizedBox(height: PsSpacing.s3),
-                    Wrap(
-                      spacing: PsSpacing.s3,
-                      runSpacing: PsSpacing.s3,
-                      children: [
-                        for (int n = 1; n <= t.seatCount; n++)
-                          _seatTile(context, ref, t, n, bySeat[n]),
-                      ],
+                    PsSeatMap(
+                      seatCount: t.seatCount,
+                      filledSeats: bySeat.keys.toSet(),
+                      warnSeats: {
+                        for (final e in bySeat.entries)
+                          if (_isWarn(e.value)) e.key,
+                      },
+                      onSeatTap: (seat) {
+                        final s = bySeat[seat];
+                        if (s == null) {
+                          _seatPicker(context, ref, t, seat);
+                        } else {
+                          _endSession(context, ref, s);
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -105,14 +102,9 @@ class TableDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _seatTile(BuildContext context, WidgetRef ref, PokerTable t, int seat, Session? s) {
-    return _Seat(
-      seat: seat,
-      session: s,
-      onTap: s == null
-          ? () => _seatPicker(context, ref, t, seat)
-          : () => _endSession(context, ref, s),
-    );
+  static bool _isWarn(Session s) {
+    final start = s.startedAt;
+    return start != null && DateTime.now().difference(start) > _sessionWarn;
   }
 
   void _confirmDelete(BuildContext context, WidgetRef ref, PokerTable t) {
@@ -226,51 +218,6 @@ class _Nav extends StatelessWidget {
               ),
             ),
         ],
-      ),
-    );
-  }
-}
-
-class _Seat extends StatelessWidget {
-  const _Seat({required this.seat, required this.session, required this.onTap});
-  final int seat;
-  final Session? session;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final occupied = session != null;
-    return GestureDetector(
-      key: Key('seat_$seat'),
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        width: 60,
-        height: 60,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: occupied ? PsColors.accentPrimary : PsColors.glassThin,
-          border: Border.all(
-              color: occupied ? PsColors.accentPrimary : PsColors.glassBorder, width: 1.5),
-        ),
-        child: occupied
-            ? Text(_initials(session!.playerName),
-                style: const TextStyle(
-                    fontSize: PsType.subhead,
-                    fontWeight: PsType.weightBlack,
-                    color: PsColors.onAccent))
-            : Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const Icon(Icons.add, size: 16, color: PsColors.accentPrimary),
-                  Text('$seat',
-                      style: TextStyle(
-                          fontSize: PsType.micro,
-                          fontWeight: PsType.weightBold,
-                          color: PsColors.textFaint)),
-                ],
-              ),
       ),
     );
   }

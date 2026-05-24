@@ -7,8 +7,13 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
+import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
+import 'package:pokerspot/features/floor/domain/poker_table.dart';
+import 'package:pokerspot/features/floor/domain/stakes.dart';
+import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
+import 'package:pokerspot/features/floor/presentation/providers.dart';
 
 class ClubDetailsScreen extends ConsumerWidget {
   const ClubDetailsScreen({super.key, required this.clubId});
@@ -94,15 +99,107 @@ class _Details extends StatelessWidget {
           ),
         ),
         const SizedBox(height: PsSpacing.s5),
-        Card(
-          color: PsColors.bg1,
-          child: Padding(
-            padding: const EdgeInsets.all(PsSpacing.s4),
-            child: Text(l10n.tablesComingSoon,
-                style: TextStyle(color: PsColors.textMuted, fontSize: PsType.body)),
-          ),
-        ),
+        _JoinWaitlistButton(clubId: club.id),
       ],
+    );
+  }
+}
+
+class _JoinWaitlistButton extends ConsumerWidget {
+  const _JoinWaitlistButton({required this.clubId});
+  final String clubId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+    return FilledButton.icon(
+      key: const Key('joinWaitlistBtn'),
+      onPressed: () => unawaited(showModalBottomSheet<void>(
+        context: context,
+        backgroundColor: PsColors.bg1,
+        builder: (_) => _StakePickerSheet(clubId: clubId),
+      )),
+      icon: const Icon(Icons.event_seat),
+      label: Text(l10n.joinWaitlist),
+    );
+  }
+}
+
+/// Bottom sheet listing the club's distinct stakes (from its tables). Tapping a
+/// stake joins the waitlist for it; a stake the player already waits for shows
+/// "Waiting" and is not tappable.
+class _StakePickerSheet extends ConsumerWidget {
+  const _StakePickerSheet({required this.clubId});
+  final String clubId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+    final tables = ref.watch(tablesProvider(clubId)).valueOrNull ?? const <PokerTable>[];
+    final mine = ref.watch(myWaitlistProvider).valueOrNull ?? const <WaitlistEntry>[];
+
+    final byLabel = <String, Stakes>{};
+    for (final t in tables) {
+      byLabel[t.stakes.label] = t.stakes;
+    }
+    final stakes = byLabel.values.toList();
+    final myLabels =
+        mine.where((e) => e.clubId == clubId).map((e) => e.stakes.label).toSet();
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(PsSpacing.s4),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(l10n.chooseStake,
+                style: const TextStyle(
+                    color: PsColors.text,
+                    fontSize: PsType.headline,
+                    fontWeight: FontWeight.w700)),
+            const SizedBox(height: PsSpacing.s3),
+            if (stakes.isEmpty)
+              Padding(
+                padding: const EdgeInsets.all(PsSpacing.s4),
+                child: Text(l10n.noStakesYet,
+                    style: TextStyle(color: PsColors.textMuted)),
+              )
+            else
+              for (final s in stakes)
+                ListTile(
+                  key: Key('stake_${s.label}'),
+                  title: Text(s.label, style: const TextStyle(color: PsColors.text)),
+                  trailing: myLabels.contains(s.label)
+                      ? Text(l10n.statusWaiting,
+                          style: const TextStyle(color: PsColors.accentSecondary))
+                      : const Icon(Icons.add, color: PsColors.accentPrimary),
+                  onTap: myLabels.contains(s.label)
+                      ? null
+                      : () async {
+                          final messenger = ScaffoldMessenger.of(context);
+                          final navigator = Navigator.of(context);
+                          final uid = ref.read(authRepositoryProvider).currentUid;
+                          final user = ref.read(currentUserProvider).valueOrNull;
+                          if (uid != null) {
+                            await ref.read(waitlistRepositoryProvider).join(
+                                  clubId: clubId,
+                                  playerUid: uid,
+                                  playerName: user == null
+                                      ? ''
+                                      : '${user.firstName} ${user.lastName}'.trim(),
+                                  stakes: s,
+                                );
+                          }
+                          navigator.pop();
+                          messenger.showSnackBar(
+                            SnackBar(content: Text(l10n.joinedWaitlist)),
+                          );
+                        },
+                ),
+          ],
+        ),
+      ),
     );
   }
 }

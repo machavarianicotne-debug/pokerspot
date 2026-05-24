@@ -80,4 +80,25 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get namesMustDiffer => 'First and last name must be different';
+
+  @override
+  String get clubsListTitle => 'Clubs';
+
+  @override
+  String get noClubsYet => 'No clubs yet';
+
+  @override
+  String get clubAddress => 'Address';
+
+  @override
+  String get clubHours => 'Hours';
+
+  @override
+  String get clubPhone => 'Phone';
+
+  @override
+  String get tablesComingSoon => 'Tables — coming in the next release';
+
+  @override
+  String get backToClubs => 'Back to clubs';
 }

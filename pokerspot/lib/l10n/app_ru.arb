@@ -23,5 +23,12 @@
   "lastName": "Фамилия",
   "lastNameHint": "напр. Беридзе",
   "nameTooShort": "Минимум 2 символа",
-  "namesMustDiffer": "Имя и фамилия должны различаться"
+  "namesMustDiffer": "Имя и фамилия должны различаться",
+  "clubsListTitle": "Клубы",
+  "noClubsYet": "Пока нет клубов",
+  "clubAddress": "Адрес",
+  "clubHours": "Часы работы",
+  "clubPhone": "Телефон",
+  "tablesComingSoon": "Столы — в следующем релизе",
+  "backToClubs": "Назад к клубам"
 }

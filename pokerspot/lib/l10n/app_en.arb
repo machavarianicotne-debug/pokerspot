@@ -23,5 +23,12 @@
   "lastName": "Last name",
   "lastNameHint": "e.g. Beridze",
   "nameTooShort": "Min 2 characters",
-  "namesMustDiffer": "First and last name must be different"
+  "namesMustDiffer": "First and last name must be different",
+  "clubsListTitle": "Clubs",
+  "noClubsYet": "No clubs yet",
+  "clubAddress": "Address",
+  "clubHours": "Hours",
+  "clubPhone": "Phone",
+  "tablesComingSoon": "Tables — coming in the next release",
+  "backToClubs": "Back to clubs"
 }

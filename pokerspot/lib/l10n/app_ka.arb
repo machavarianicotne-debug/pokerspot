@@ -23,5 +23,12 @@
   "lastName": "გვარი",
   "lastNameHint": "მაგ. ბერიძე",
   "nameTooShort": "მინ. 2 სიმბოლო",
-  "namesMustDiffer": "სახელი და გვარი უნდა განსხვავდებოდეს"
+  "namesMustDiffer": "სახელი და გვარი უნდა განსხვავდებოდეს",
+  "clubsListTitle": "კლუბები",
+  "noClubsYet": "კლუბები ჯერ არ არის",
+  "clubAddress": "მისამართი",
+  "clubHours": "სამუშაო საათები",
+  "clubPhone": "ტელეფონი",
+  "tablesComingSoon": "მაგიდები — მომდევნო ვერსიაში",
+  "backToClubs": "კლუბებზე დაბრუნება"
 }

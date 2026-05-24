@@ -242,6 +242,48 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'First and last name must be different'**
   String get namesMustDiffer;
+
+  /// No description provided for @clubsListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Clubs'**
+  String get clubsListTitle;
+
+  /// No description provided for @noClubsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No clubs yet'**
+  String get noClubsYet;
+
+  /// No description provided for @clubAddress.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get clubAddress;
+
+  /// No description provided for @clubHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Hours'**
+  String get clubHours;
+
+  /// No description provided for @clubPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone'**
+  String get clubPhone;
+
+  /// No description provided for @tablesComingSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'Tables — coming in the next release'**
+  String get tablesComingSoon;
+
+  /// No description provided for @backToClubs.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to clubs'**
+  String get backToClubs;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

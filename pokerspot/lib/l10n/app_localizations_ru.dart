@@ -80,4 +80,25 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get namesMustDiffer => 'Имя и фамилия должны различаться';
+
+  @override
+  String get clubsListTitle => 'Клубы';
+
+  @override
+  String get noClubsYet => 'Пока нет клубов';
+
+  @override
+  String get clubAddress => 'Адрес';
+
+  @override
+  String get clubHours => 'Часы работы';
+
+  @override
+  String get clubPhone => 'Телефон';
+
+  @override
+  String get tablesComingSoon => 'Столы — в следующем релизе';
+
+  @override
+  String get backToClubs => 'Назад к клубам';
 }

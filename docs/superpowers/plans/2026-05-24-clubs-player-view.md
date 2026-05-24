@@ -45,9 +45,10 @@
 - `lib/features/home/presentation/player_home.dart`: `PlayerHome` → `ConsumerWidget` Scaffold (AppBar title `clubsListTitle` + sign-out) with body `ClubsListScreen()`. `RoleScaffold` unchanged.
 - **Accept:** smoke test green, analyze clean, all tests green.
 
-## Task 7: l10n keys
+## Task 7: l10n keys  — **front-loaded before Tasks 4–6** (their UI consumes these keys)
 - Add to en/ka/ru ARBs: `clubsListTitle`, `noClubsYet`, `clubAddress`, `clubHours`, `clubPhone`, `tablesComingSoon`, `backToClubs`. `flutter gen-l10n`.
 - **Accept:** analyze clean, tests green.
+- **Note:** executed first (committed before Task 4) because Tasks 4/5/6 reference these getters; otherwise their gate fails to compile.
 
 ## Task 8: README (clubs schema + 4 demo clubs) + deploy
 - README: document `clubs/` schema (field → type) + "add a club via Firestore Console" walkthrough + a paste-ready block for 4 demo clubs:

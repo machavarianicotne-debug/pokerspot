@@ -80,4 +80,25 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get namesMustDiffer => 'სახელი და გვარი უნდა განსხვავდებოდეს';
+
+  @override
+  String get clubsListTitle => 'კლუბები';
+
+  @override
+  String get noClubsYet => 'კლუბები ჯერ არ არის';
+
+  @override
+  String get clubAddress => 'მისამართი';
+
+  @override
+  String get clubHours => 'სამუშაო საათები';
+
+  @override
+  String get clubPhone => 'ტელეფონი';
+
+  @override
+  String get tablesComingSoon => 'მაგიდები — მომდევნო ვერსიაში';
+
+  @override
+  String get backToClubs => 'კლუბებზე დაბრუნება';
 }

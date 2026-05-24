@@ -9,6 +9,7 @@ import 'package:pokerspot/features/floor/domain/poker_table.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
+import 'package:pokerspot/features/chat/presentation/inbox_screen.dart';
 import 'package:pokerspot/features/floor/presentation/tables_screen.dart';
 import 'package:pokerspot/features/home/presentation/player_home.dart' show TabShell;
 import 'package:pokerspot/features/home/presentation/profile_screen.dart';
@@ -62,11 +63,13 @@ class PitBossHome extends ConsumerWidget {
       items: [
         PsTabItem(Icons.grid_view, l10n.tabFloor),
         PsTabItem(Icons.table_bar, l10n.tabTables),
+        PsTabItem(Icons.chat_bubble_outline, l10n.tabInbox),
         PsTabItem(Icons.person, l10n.tabProfile),
       ],
       tabs: const [
         _FloorTab(),
         TablesScreen(),
+        InboxScreen(),
         ProfileScreen(),
       ],
     );

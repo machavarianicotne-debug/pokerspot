@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/admin/domain/audit_entry.dart';
+import 'package:pokerspot/features/admin/presentation/club_analytics_screen.dart';
 import 'package:pokerspot/features/admin/presentation/providers.dart';
 import 'package:pokerspot/features/auth/domain/app_user.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
@@ -41,6 +42,48 @@ class AdminOverviewScreen extends ConsumerWidget {
             Expanded(child: PsMetric(value: '$enabled', label: l10n.activeLabel)),
           ],
         ),
+        const SizedBox(height: PsSpacing.s5),
+        PsOverline(l10n.tabClubs),
+        const SizedBox(height: PsSpacing.s3),
+        for (final c in clubs)
+          Padding(
+            padding: const EdgeInsets.only(bottom: PsSpacing.s2),
+            child: PsCard(
+              key: Key('overviewClub_${c.id}'),
+              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                builder: (_) => ClubAnalyticsScreen(clubId: c.id, clubName: c.name),
+              )),
+              child: Row(
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: c.enabled ? PsColors.accentPrimary : PsColors.statusClosed,
+                    ),
+                  ),
+                  const SizedBox(width: PsSpacing.s3),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(c.name,
+                            style: const TextStyle(
+                                fontSize: PsType.body,
+                                fontWeight: PsType.weightBold,
+                                color: PsColors.text)),
+                        const SizedBox(height: 2),
+                        Text(c.city,
+                            style: TextStyle(fontSize: PsType.caption, color: PsColors.textMuted)),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right, size: 18, color: PsColors.textFaint),
+                ],
+              ),
+            ),
+          ),
         const SizedBox(height: PsSpacing.s5),
         PsOverline(l10n.analyticsTitle),
         const SizedBox(height: PsSpacing.s3),

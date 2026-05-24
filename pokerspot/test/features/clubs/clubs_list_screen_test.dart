@@ -58,7 +58,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('PokerSpot Vake'), findsOneWidget);
     expect(find.text('Batumi Royal'), findsOneWidget);
-    expect(find.text('Batumi'), findsOneWidget);
+    // City renders as an uppercased overline (mockup `.club-loc.ps-overline`).
+    expect(find.text('BATUMI'), findsOneWidget);
     expect(find.byKey(const Key('clubCard_a')), findsOneWidget);
   });
 

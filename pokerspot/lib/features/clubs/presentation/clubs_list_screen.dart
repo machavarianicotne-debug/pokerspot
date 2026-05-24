@@ -6,6 +6,8 @@ import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/centered_pane.dart';
+import 'package:pokerspot/shared/widgets/ps_card.dart';
+import 'package:pokerspot/shared/widgets/ps_overline.dart';
 
 /// The Player's club list, embedded in PlayerHome's body.
 class ClubsListScreen extends ConsumerWidget {
@@ -17,7 +19,9 @@ class ClubsListScreen extends ConsumerWidget {
     final clubsAsync = ref.watch(clubsListProvider);
     return CenteredPane(
       child: clubsAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: PsColors.accentPrimary),
+        ),
         error: (e, _) => Center(
           child: Padding(
             padding: const EdgeInsets.all(PsSpacing.s5),
@@ -36,7 +40,10 @@ class ClubsListScreen extends ConsumerWidget {
           return ListView.builder(
             padding: const EdgeInsets.all(PsSpacing.s4),
             itemCount: clubs.length,
-            itemBuilder: (context, i) => _ClubCard(club: clubs[i]),
+            itemBuilder: (context, i) => Padding(
+              padding: const EdgeInsets.only(bottom: PsSpacing.s4),
+              child: _ClubCard(club: clubs[i]),
+            ),
           );
         },
       ),
@@ -50,44 +57,36 @@ class _ClubCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: PsColors.bg1,
-      margin: const EdgeInsets.only(bottom: PsSpacing.s3),
-      child: ListTile(
-        key: Key('clubCard_${club.id}'),
-        onTap: () => context.go('/home/club/${club.id}'),
-        leading: _Thumb(photoUrl: club.photoUrl),
-        title: Text(club.name,
-            style: const TextStyle(color: PsColors.text, fontWeight: FontWeight.w700)),
-        subtitle: Text(club.city, style: TextStyle(color: PsColors.textMuted)),
-        trailing: Icon(Icons.chevron_right, color: PsColors.textMuted),
+    return PsCard(
+      key: Key('clubCard_${club.id}'),
+      accentRail: PsColors.accentPrimary,
+      onTap: () => context.go('/home/club/${club.id}'),
+      padding: const EdgeInsets.fromLTRB(PsSpacing.s4, 14, PsSpacing.s4, PsSpacing.s4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            club.name,
+            style: const TextStyle(
+              fontSize: PsType.headline,
+              fontWeight: PsType.weightBold,
+              letterSpacing: PsType.trackingSnug,
+              color: PsColors.text,
+            ),
+          ),
+          const SizedBox(height: 2),
+          PsOverline(club.city),
+          const SizedBox(height: PsSpacing.s3),
+          Text(
+            club.hoursText,
+            style: TextStyle(
+              fontSize: PsType.subhead,
+              fontWeight: PsType.weightMedium,
+              color: PsColors.textFaint,
+            ),
+          ),
+        ],
       ),
     );
   }
-}
-
-class _Thumb extends StatelessWidget {
-  const _Thumb({required this.photoUrl});
-  final String? photoUrl;
-
-  @override
-  Widget build(BuildContext context) {
-    final url = photoUrl;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(PsRadii.sm),
-      child: SizedBox(
-        width: 48,
-        height: 48,
-        child: (url != null && url.isNotEmpty)
-            ? Image.network(url,
-                fit: BoxFit.cover, errorBuilder: (_, __, ___) => _fallback())
-            : _fallback(),
-      ),
-    );
-  }
-
-  Widget _fallback() => Container(
-        color: PsColors.bg0,
-        child: const Icon(Icons.casino, color: PsColors.accentPrimary),
-      );
 }

@@ -3,11 +3,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
+import 'package:pokerspot/features/clubs/presentation/clubs_list_screen.dart';
 
-class PlayerHome extends StatelessWidget {
+/// Player home: the clubs list (with sign-out in the app bar).
+class PlayerHome extends ConsumerWidget {
   const PlayerHome({super.key});
   @override
-  Widget build(BuildContext context) => RoleScaffold(title: AppL10n.of(context).playerHome);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+    return Scaffold(
+      backgroundColor: PsColors.bg0,
+      appBar: AppBar(
+        backgroundColor: PsColors.bg1,
+        title: Text(l10n.clubsListTitle,
+            style: const TextStyle(color: PsColors.accentPrimary)),
+        actions: [
+          TextButton(
+            onPressed: () => ref.read(authRepositoryProvider).signOut(),
+            child: Text(l10n.signOut, style: TextStyle(color: PsColors.textMuted)),
+          ),
+        ],
+      ),
+      body: const ClubsListScreen(),
+    );
+  }
 }
 
 /// Placeholder role home — replaced by real features in later plans.

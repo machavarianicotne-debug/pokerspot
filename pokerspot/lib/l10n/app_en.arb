@@ -94,5 +94,10 @@
   "minBuyInLabel": "Min buy-in",
   "avgStackLabel": "Avg stack",
   "tablesToOpenLabel": "Tables to open",
-  "openGameBtn": "Open game"
+  "openGameBtn": "Open game",
+  "reserveSeat": "Reserve a seat",
+  "reserveNow": "Reserve now",
+  "holdInfoText": "Instant hold. If a seat is open we hold it 30 minutes; otherwise you join the waitlist.",
+  "seatHeldTitle": "Seat held for 30 min",
+  "reservedBadge": "Seat held"
 }

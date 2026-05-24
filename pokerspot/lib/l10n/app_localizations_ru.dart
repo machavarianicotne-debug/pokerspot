@@ -294,4 +294,20 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get openGameBtn => 'Открыть игру';
+
+  @override
+  String get reserveSeat => 'Забронировать место';
+
+  @override
+  String get reserveNow => 'Забронировать';
+
+  @override
+  String get holdInfoText =>
+      'Мгновенная бронь. Если место свободно — держим 30 минут; иначе вы встаёте в лист ожидания.';
+
+  @override
+  String get seatHeldTitle => 'Место удержано на 30 мин';
+
+  @override
+  String get reservedBadge => 'Место удержано';
 }

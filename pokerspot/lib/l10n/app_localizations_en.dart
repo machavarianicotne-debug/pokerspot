@@ -294,4 +294,20 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get openGameBtn => 'Open game';
+
+  @override
+  String get reserveSeat => 'Reserve a seat';
+
+  @override
+  String get reserveNow => 'Reserve now';
+
+  @override
+  String get holdInfoText =>
+      'Instant hold. If a seat is open we hold it 30 minutes; otherwise you join the waitlist.';
+
+  @override
+  String get seatHeldTitle => 'Seat held for 30 min';
+
+  @override
+  String get reservedBadge => 'Seat held';
 }

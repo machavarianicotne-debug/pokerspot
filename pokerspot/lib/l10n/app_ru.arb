@@ -94,5 +94,10 @@
   "minBuyInLabel": "Мин. бай-ин",
   "avgStackLabel": "Ср. стек",
   "tablesToOpenLabel": "Открыть столов",
-  "openGameBtn": "Открыть игру"
+  "openGameBtn": "Открыть игру",
+  "reserveSeat": "Забронировать место",
+  "reserveNow": "Забронировать",
+  "holdInfoText": "Мгновенная бронь. Если место свободно — держим 30 минут; иначе вы встаёте в лист ожидания.",
+  "seatHeldTitle": "Место удержано на 30 мин",
+  "reservedBadge": "Место удержано"
 }

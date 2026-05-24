@@ -294,4 +294,20 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get openGameBtn => 'თამაშის გახსნა';
+
+  @override
+  String get reserveSeat => 'ადგილის დაჯავშნა';
+
+  @override
+  String get reserveNow => 'დაჯავშნა ახლა';
+
+  @override
+  String get holdInfoText =>
+      'მყისიერი ჯავშანი. თუ ადგილი თავისუფალია, 30 წუთით დავიკავებთ; თუ არა — რიგში ჩაგაყენებთ.';
+
+  @override
+  String get seatHeldTitle => 'ადგილი დაკავებულია 30 წთ';
+
+  @override
+  String get reservedBadge => 'ადგილი დაკავებულია';
 }

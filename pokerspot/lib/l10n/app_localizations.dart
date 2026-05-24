@@ -668,6 +668,36 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Open game'**
   String get openGameBtn;
+
+  /// No description provided for @reserveSeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve a seat'**
+  String get reserveSeat;
+
+  /// No description provided for @reserveNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Reserve now'**
+  String get reserveNow;
+
+  /// No description provided for @holdInfoText.
+  ///
+  /// In en, this message translates to:
+  /// **'Instant hold. If a seat is open we hold it 30 minutes; otherwise you join the waitlist.'**
+  String get holdInfoText;
+
+  /// No description provided for @seatHeldTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Seat held for 30 min'**
+  String get seatHeldTitle;
+
+  /// No description provided for @reservedBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Seat held'**
+  String get reservedBadge;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

@@ -94,5 +94,10 @@
   "minBuyInLabel": "მინ. შესვლა",
   "avgStackLabel": "საშ. სტეკი",
   "tablesToOpenLabel": "გასახსნელი მაგიდები",
-  "openGameBtn": "თამაშის გახსნა"
+  "openGameBtn": "თამაშის გახსნა",
+  "reserveSeat": "ადგილის დაჯავშნა",
+  "reserveNow": "დაჯავშნა ახლა",
+  "holdInfoText": "მყისიერი ჯავშანი. თუ ადგილი თავისუფალია, 30 წუთით დავიკავებთ; თუ არა — რიგში ჩაგაყენებთ.",
+  "seatHeldTitle": "ადგილი დაკავებულია 30 წთ",
+  "reservedBadge": "ადგილი დაკავებულია"
 }

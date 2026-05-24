@@ -14,6 +14,7 @@ import 'package:pokerspot/features/floor/domain/poker_table.dart';
 import 'package:pokerspot/features/floor/domain/stakes.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
+import 'package:pokerspot/features/floor/presentation/reservation_flow_screen.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
 import 'package:pokerspot/shared/widgets/ps_scaffold.dart';
@@ -127,6 +128,16 @@ class _Details extends StatelessWidget {
           icon: Icons.event_seat,
           onPressed: () => unawaited(
             PsSheet.show<void>(context, child: _StakePickerSheet(clubId: club.id)),
+          ),
+        ),
+        const SizedBox(height: PsSpacing.s3),
+        PsButton(
+          key: const Key('reserveSeatBtn'),
+          label: l10n.reserveSeat,
+          icon: Icons.event_available,
+          variant: PsButtonVariant.secondary,
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => ReservationFlowScreen(clubId: club.id)),
           ),
         ),
       ],

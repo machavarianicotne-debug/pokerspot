@@ -45,11 +45,32 @@ class _PsButtonState extends State<PsButton> {
     }
   }
 
+  BoxDecoration? _decoration(BorderRadius radius) {
+    switch (widget.variant) {
+      case PsButtonVariant.primary:
+        return BoxDecoration(color: PsColors.accentPrimary, borderRadius: radius);
+      case PsButtonVariant.secondary:
+        return BoxDecoration(
+          color: PsColors.glassRegular,
+          borderRadius: radius,
+          border: Border.all(color: PsColors.glassBorder),
+        );
+      case PsButtonVariant.ghost:
+        return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final radius = BorderRadius.circular(PsRadii.md);
-    final content = Padding(
+
+    // Centred + 50px min-height. Fills the width when the parent constrains it
+    // tightly (stretch column) and shrinks to content otherwise (inline in a row).
+    final inner = Container(
+      constraints: const BoxConstraints(minHeight: 50),
+      alignment: Alignment.center,
       padding: const EdgeInsets.symmetric(horizontal: PsSpacing.s5),
+      decoration: _decoration(radius),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
@@ -71,31 +92,12 @@ class _PsButtonState extends State<PsButton> {
       ),
     );
 
-    Widget box;
-    switch (widget.variant) {
-      case PsButtonVariant.primary:
-        box = DecoratedBox(
-          decoration: BoxDecoration(color: PsColors.accentPrimary, borderRadius: radius),
-          child: content,
-        );
-      case PsButtonVariant.ghost:
-        box = content;
-      case PsButtonVariant.secondary:
-        box = ClipRRect(
-          borderRadius: radius,
-          child: BackdropFilter(
-            filter: PsGlass.backdrop(PsGlass.blurThin),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: PsColors.glassRegular,
-                borderRadius: radius,
-                border: Border.all(color: PsColors.glassBorder),
-              ),
-              child: content,
-            ),
-          ),
-        );
-    }
+    final box = widget.variant == PsButtonVariant.secondary
+        ? ClipRRect(
+            borderRadius: radius,
+            child: BackdropFilter(filter: PsGlass.backdrop(PsGlass.blurThin), child: inner),
+          )
+        : inner;
 
     return Semantics(
       button: true,
@@ -110,13 +112,7 @@ class _PsButtonState extends State<PsButton> {
           scale: _pressed ? 0.98 : 1.0,
           duration: PsMotion.fast,
           curve: PsMotion.ease,
-          child: Opacity(
-            opacity: _enabled ? 1.0 : 0.5,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 50),
-              child: Align(alignment: Alignment.center, heightFactor: 1, child: box),
-            ),
-          ),
+          child: Opacity(opacity: _enabled ? 1.0 : 0.5, child: box),
         ),
       ),
     );

@@ -4,7 +4,7 @@ import 'package:pokerspot/core/config/environment.dart';
 void main() {
   test('defaults to dev when no dart-define given', () {
     expect(Environment.current.name, AppEnv.dev);
-    expect(Environment.current.firebaseProjectId, 'pokerspot-dev');
+    expect(Environment.current.firebaseProjectId, 'pokerspot');
   });
 
   test('prod keeps the MVP flags', () {

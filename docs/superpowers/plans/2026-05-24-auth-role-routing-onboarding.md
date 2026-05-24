@@ -16,7 +16,7 @@ These need your Google account and interactive prompts; an agent can't do them. 
 
 1. **Install the Firebase CLI** (if not present): download from https://firebase.google.com/docs/cli (standalone `firebase` binary) or `npm install -g firebase-tools`. Verify: `firebase --version`.
 2. **Log in:** `firebase login` (opens browser).
-3. **Create the project:** in the [Firebase Console](https://console.firebase.google.com) create a project with ID **`pokerspot-dev`** (matches `env-dev.json`). Or CLI: `firebase projects:create pokerspot-dev`.
+3. **Create the project:** in the [Firebase Console](https://console.firebase.google.com) create a project with ID **`pokerspot`** (matches `env-dev.json`). Or CLI: `firebase projects:create pokerspot`.
 4. **Enable services** in the Console:
    - **Authentication → Sign-in method → Phone:** enable it.
    - Under Phone, expand **"Phone numbers for testing"** and add these six (number → code):
@@ -99,7 +99,7 @@ Expect pubspec updated + "Got dependencies!".
 
 Run from `pokerspot/` (requires the manual setup above):
 ```bash
-flutterfire configure --project=pokerspot-dev --platforms=web,android,ios --out=lib/firebase_options.dart --yes
+flutterfire configure --project=pokerspot --platforms=web,android,ios --out=lib/firebase_options.dart --yes
 ```
 Expect `lib/firebase_options.dart` created with `DefaultFirebaseOptions`. This file **is committed** (web Firebase keys are not secret — security is enforced by Firestore Rules).
 
@@ -1418,7 +1418,7 @@ git commit -m "feat: auth redirect + role-based router + role home shells"
 
 - [ ] **Step 2: Create `pokerspot/.firebaserc`:**
 ```json
-{ "projects": { "default": "pokerspot-dev" } }
+{ "projects": { "default": "pokerspot" } }
 ```
 
 - [ ] **Step 3: Build web + deploy** (from `pokerspot/`):
@@ -1426,13 +1426,13 @@ git commit -m "feat: auth redirect + role-based router + role home shells"
 flutter build web --dart-define-from-file=env-dev.json
 firebase deploy --only hosting
 ```
-Expect: "Hosting URL: https://pokerspot-dev.web.app". Open it in Chrome — the login screen loads; signing in with a test number (e.g. +995555111111 / 111111) → onboarding → Player home.
+Expect: "Hosting URL: https://pokerspot.web.app". Open it in Chrome — the login screen loads; signing in with a test number (e.g. +995555111111 / 111111) → onboarding → Player home.
 
 - [ ] **Step 4: README** — append a Plan 2 section to `pokerspot/README.md` (after a Read):
 ```markdown
 ## Auth (web-first, Plan 2)
 - Run locally: `flutter run -d chrome --dart-define-from-file=env-dev.json`
-- Live URL (shareable): https://pokerspot-dev.web.app  (deploy: `flutter build web --dart-define-from-file=env-dev.json && firebase deploy --only hosting`)
+- Live URL (shareable): https://pokerspot.web.app  (deploy: `flutter build web --dart-define-from-file=env-dev.json && firebase deploy --only hosting`)
 - Test phone numbers (Firebase Console → Auth → Phone): 555 11 11 11→111111, …66 66 66→666666.
 - Responsive: works at 375px (Chrome DevTools mobile) and 1280px (centered 440px pane).
 

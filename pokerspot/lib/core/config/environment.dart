@@ -37,7 +37,7 @@ class Environment {
       default:
         return Environment(
           name: AppEnv.dev,
-          firebaseProjectId: projectId.isEmpty ? 'pokerspot-dev' : projectId,
+          firebaseProjectId: projectId.isEmpty ? 'pokerspot' : projectId,
           flags: const FeatureFlags.mvp(),
         );
     }

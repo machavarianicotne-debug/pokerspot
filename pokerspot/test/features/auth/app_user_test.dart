@@ -2,12 +2,26 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pokerspot/features/auth/domain/app_user.dart';
 
 void main() {
-  test('role parses from string, defaults to player', () {
+  test('role parses snake_case (canonical) AND legacy enum-name strings', () {
+    // Canonical snake_case (what Firestore + the Super Admin UI now store).
+    expect(AppRole.fromString('super_admin'), AppRole.superadmin);
+    expect(AppRole.fromString('pit_boss'), AppRole.pitboss);
+    expect(AppRole.fromString('player'), AppRole.player);
+    // Legacy enum-name form still accepted.
     expect(AppRole.fromString('superadmin'), AppRole.superadmin);
     expect(AppRole.fromString('pitboss'), AppRole.pitboss);
-    expect(AppRole.fromString('player'), AppRole.player);
+    // Unknown / null -> player (safe default).
     expect(AppRole.fromString('garbage'), AppRole.player);
     expect(AppRole.fromString(null), AppRole.player);
+  });
+
+  test('asString writes canonical snake_case + round-trips back', () {
+    expect(AppRole.superadmin.asString, 'super_admin');
+    expect(AppRole.pitboss.asString, 'pit_boss');
+    expect(AppRole.player.asString, 'player');
+    for (final r in AppRole.values) {
+      expect(AppRole.fromString(r.asString), r);
+    }
   });
 
   test('fromMap builds an AppUser', () {

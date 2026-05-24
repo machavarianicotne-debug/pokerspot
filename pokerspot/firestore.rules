@@ -19,11 +19,12 @@ service cloud.firestore {
     function isBlocked() {
       return signedIn() && userDoc().get('blocked', false) == true;
     }
+    // Accept snake_case (canonical) + legacy enum-name role strings.
     function isAdmin() {
-      return signedIn() && role() == 'superadmin';
+      return signedIn() && (role() == 'super_admin' || role() == 'superadmin');
     }
     function isPitboss() {
-      return signedIn() && role() == 'pitboss';
+      return signedIn() && (role() == 'pit_boss' || role() == 'pitboss');
     }
     function myClub() {
       return userDoc().get('clubId', '');

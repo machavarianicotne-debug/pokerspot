@@ -5,10 +5,16 @@ enum AppRole {
   pitboss,
   superadmin;
 
+  /// Parse a stored role string. Canonical wire format is snake_case
+  /// (`super_admin` / `pit_boss` / `player`), but we also accept the legacy
+  /// enum-name form (`superadmin` / `pitboss`) so older docs keep working.
+  /// Unknown / null -> player (safe default).
   static AppRole fromString(String? raw) {
     switch (raw) {
+      case 'super_admin':
       case 'superadmin':
         return AppRole.superadmin;
+      case 'pit_boss':
       case 'pitboss':
         return AppRole.pitboss;
       default:
@@ -16,7 +22,18 @@ enum AppRole {
     }
   }
 
-  String get asString => name;
+  /// Canonical snake_case wire format written to Firestore + matched by the
+  /// security rules (`super_admin` / `pit_boss` / `player`).
+  String get asString {
+    switch (this) {
+      case AppRole.superadmin:
+        return 'super_admin';
+      case AppRole.pitboss:
+        return 'pit_boss';
+      case AppRole.player:
+        return 'player';
+    }
+  }
 }
 
 class AppUser {

@@ -48,7 +48,12 @@ void main() {
       currentUserProvider.overrideWith((ref) => Stream.value(_pb())),
     ]));
     await tester.pumpAndSettle();
-    expect(find.text('Accepting players'), findsOneWidget);
+    expect(find.text('Available for chat'), findsOneWidget);
+    expect(find.text('Status'), findsOneWidget);
+    expect(find.text('Online'), findsOneWidget); // availability pill (toggle on)
+    expect(find.text('New chat message'), findsOneWidget); // one of the 5 notif rows
+    await tester.scrollUntilVisible(find.byKey(const Key('signOutBtn')), 300,
+        scrollable: find.byType(Scrollable).first);
     expect(find.byKey(const Key('signOutBtn')), findsOneWidget);
   });
 }

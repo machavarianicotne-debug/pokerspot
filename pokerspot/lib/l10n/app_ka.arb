@@ -128,5 +128,17 @@
   "heldLabel": "დაჭერილია",
   "arrivedAction": "მოვიდა",
   "reservedHint": "ადგილი დაჭერილია · მოთამაშე მოვა 30 წუთში, თორემ თავისუფლდება",
-  "addLabel": "დამატება"
+  "addLabel": "დამატება",
+  "availableForChat": "ხელმისაწვდომი ჩატისთვის",
+  "availableForChatSub": "გამორთვისას მოთამაშეები ხედავენ „Pit Boss მიუწვდომელია“ და ვერ იწყებენ ახალ ჩატს.",
+  "statusLabel": "სტატუსი",
+  "statusOnline": "ონლაინ",
+  "statusUnavailable": "მიუწვდომელი",
+  "notifNewWaitlist": "ახალი რიგში ჩაწერა",
+  "notifNewReservation": "ახალი რეზერვაციის მოთხოვნა",
+  "notifNewChat": "ახალი შეტყობინება",
+  "notifReservationDecision": "რეზერვაცია დადასტურდა / უარყოფილია",
+  "notifDailySummary": "დღიური შეჯამება",
+  "appLanguage": "აპლიკაციის ენა",
+  "languageHeader": "ენა"
 }

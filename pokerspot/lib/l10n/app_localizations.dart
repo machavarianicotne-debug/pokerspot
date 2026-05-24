@@ -872,6 +872,78 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Add'**
   String get addLabel;
+
+  /// No description provided for @availableForChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Available for chat'**
+  String get availableForChat;
+
+  /// No description provided for @availableForChatSub.
+  ///
+  /// In en, this message translates to:
+  /// **'When off, players see \"Pit Boss unavailable\" and can\'t start new chats.'**
+  String get availableForChatSub;
+
+  /// No description provided for @statusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get statusLabel;
+
+  /// No description provided for @statusOnline.
+  ///
+  /// In en, this message translates to:
+  /// **'Online'**
+  String get statusOnline;
+
+  /// No description provided for @statusUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'Unavailable'**
+  String get statusUnavailable;
+
+  /// No description provided for @notifNewWaitlist.
+  ///
+  /// In en, this message translates to:
+  /// **'New waitlist join'**
+  String get notifNewWaitlist;
+
+  /// No description provided for @notifNewReservation.
+  ///
+  /// In en, this message translates to:
+  /// **'New reservation request'**
+  String get notifNewReservation;
+
+  /// No description provided for @notifNewChat.
+  ///
+  /// In en, this message translates to:
+  /// **'New chat message'**
+  String get notifNewChat;
+
+  /// No description provided for @notifReservationDecision.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation accepted / rejected'**
+  String get notifReservationDecision;
+
+  /// No description provided for @notifDailySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily summary'**
+  String get notifDailySummary;
+
+  /// No description provided for @appLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'App language'**
+  String get appLanguage;
+
+  /// No description provided for @languageHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get languageHeader;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

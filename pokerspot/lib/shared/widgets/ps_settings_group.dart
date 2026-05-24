@@ -54,12 +54,16 @@ class PsSettingsRow extends StatelessWidget {
   const PsSettingsRow({
     super.key,
     required this.label,
+    this.sub,
     this.value,
     this.trailing,
     this.onTap,
   });
 
   final String label;
+
+  /// Optional faint sub-text under the label (mockup `.srow .sub`).
+  final String? sub;
   final String? value;
   final Widget? trailing;
   final VoidCallback? onTap;
@@ -91,13 +95,27 @@ class PsSettingsRow extends StatelessWidget {
         child: Row(
           children: [
             Expanded(
-              child: Text(
-                label,
-                style: const TextStyle(
-                  fontSize: PsType.body,
-                  fontWeight: PsType.weightMedium,
-                  color: PsColors.text,
-                ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    label,
+                    style: const TextStyle(
+                      fontSize: PsType.body,
+                      fontWeight: PsType.weightMedium,
+                      color: PsColors.text,
+                    ),
+                  ),
+                  if (sub != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 2, right: PsSpacing.s3),
+                      child: Text(
+                        sub!,
+                        style: TextStyle(fontSize: PsType.caption, color: PsColors.textFaint),
+                      ),
+                    ),
+                ],
               ),
             ),
             end,

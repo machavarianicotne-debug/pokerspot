@@ -128,5 +128,17 @@
   "heldLabel": "удерж.",
   "arrivedAction": "Пришёл",
   "reservedHint": "Место удержано · игрок приходит за 30 мин, иначе освобождается",
-  "addLabel": "Добавить"
+  "addLabel": "Добавить",
+  "availableForChat": "Доступен для чата",
+  "availableForChatSub": "Когда выключено, игроки видят «Pit Boss недоступен» и не могут начать новый чат.",
+  "statusLabel": "Статус",
+  "statusOnline": "Онлайн",
+  "statusUnavailable": "Недоступен",
+  "notifNewWaitlist": "Новая запись в лист ожидания",
+  "notifNewReservation": "Новый запрос на бронь",
+  "notifNewChat": "Новое сообщение",
+  "notifReservationDecision": "Бронь принята / отклонена",
+  "notifDailySummary": "Ежедневная сводка",
+  "appLanguage": "Язык приложения",
+  "languageHeader": "Язык"
 }

@@ -398,4 +398,41 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get addLabel => 'Добавить';
+
+  @override
+  String get availableForChat => 'Доступен для чата';
+
+  @override
+  String get availableForChatSub =>
+      'Когда выключено, игроки видят «Pit Boss недоступен» и не могут начать новый чат.';
+
+  @override
+  String get statusLabel => 'Статус';
+
+  @override
+  String get statusOnline => 'Онлайн';
+
+  @override
+  String get statusUnavailable => 'Недоступен';
+
+  @override
+  String get notifNewWaitlist => 'Новая запись в лист ожидания';
+
+  @override
+  String get notifNewReservation => 'Новый запрос на бронь';
+
+  @override
+  String get notifNewChat => 'Новое сообщение';
+
+  @override
+  String get notifReservationDecision => 'Бронь принята / отклонена';
+
+  @override
+  String get notifDailySummary => 'Ежедневная сводка';
+
+  @override
+  String get appLanguage => 'Язык приложения';
+
+  @override
+  String get languageHeader => 'Язык';
 }

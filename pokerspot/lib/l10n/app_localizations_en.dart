@@ -398,4 +398,41 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get addLabel => 'Add';
+
+  @override
+  String get availableForChat => 'Available for chat';
+
+  @override
+  String get availableForChatSub =>
+      'When off, players see \"Pit Boss unavailable\" and can\'t start new chats.';
+
+  @override
+  String get statusLabel => 'Status';
+
+  @override
+  String get statusOnline => 'Online';
+
+  @override
+  String get statusUnavailable => 'Unavailable';
+
+  @override
+  String get notifNewWaitlist => 'New waitlist join';
+
+  @override
+  String get notifNewReservation => 'New reservation request';
+
+  @override
+  String get notifNewChat => 'New chat message';
+
+  @override
+  String get notifReservationDecision => 'Reservation accepted / rejected';
+
+  @override
+  String get notifDailySummary => 'Daily summary';
+
+  @override
+  String get appLanguage => 'App language';
+
+  @override
+  String get languageHeader => 'Language';
 }

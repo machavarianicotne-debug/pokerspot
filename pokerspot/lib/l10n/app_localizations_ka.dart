@@ -398,4 +398,41 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get addLabel => 'დამატება';
+
+  @override
+  String get availableForChat => 'ხელმისაწვდომი ჩატისთვის';
+
+  @override
+  String get availableForChatSub =>
+      'გამორთვისას მოთამაშეები ხედავენ „Pit Boss მიუწვდომელია“ და ვერ იწყებენ ახალ ჩატს.';
+
+  @override
+  String get statusLabel => 'სტატუსი';
+
+  @override
+  String get statusOnline => 'ონლაინ';
+
+  @override
+  String get statusUnavailable => 'მიუწვდომელი';
+
+  @override
+  String get notifNewWaitlist => 'ახალი რიგში ჩაწერა';
+
+  @override
+  String get notifNewReservation => 'ახალი რეზერვაციის მოთხოვნა';
+
+  @override
+  String get notifNewChat => 'ახალი შეტყობინება';
+
+  @override
+  String get notifReservationDecision => 'რეზერვაცია დადასტურდა / უარყოფილია';
+
+  @override
+  String get notifDailySummary => 'დღიური შეჯამება';
+
+  @override
+  String get appLanguage => 'აპლიკაციის ენა';
+
+  @override
+  String get languageHeader => 'ენა';
 }

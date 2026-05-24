@@ -128,5 +128,17 @@
   "heldLabel": "held",
   "arrivedAction": "Arrived",
   "reservedHint": "Seat held · player arrives within 30 min or it's released",
-  "addLabel": "Add"
+  "addLabel": "Add",
+  "availableForChat": "Available for chat",
+  "availableForChatSub": "When off, players see \"Pit Boss unavailable\" and can't start new chats.",
+  "statusLabel": "Status",
+  "statusOnline": "Online",
+  "statusUnavailable": "Unavailable",
+  "notifNewWaitlist": "New waitlist join",
+  "notifNewReservation": "New reservation request",
+  "notifNewChat": "New chat message",
+  "notifReservationDecision": "Reservation accepted / rejected",
+  "notifDailySummary": "Daily summary",
+  "appLanguage": "App language",
+  "languageHeader": "Language"
 }

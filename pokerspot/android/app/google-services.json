@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "398276701103",
+    "project_id": "pokerspot",
+    "storage_bucket": "pokerspot.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:398276701103:android:8fcb991bed19ffaed71d5a",
+        "android_client_info": {
+          "package_name": "com.pokerspot.pokerspot"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuS6KdgP9q2AeDQp7YLwBoKHsqtRde3R4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

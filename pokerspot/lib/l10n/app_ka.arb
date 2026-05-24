@@ -57,5 +57,20 @@
   "seatNumber": "ადგილის ნომერი",
   "seatedTitle": "დამსხდარი მოთამაშეები",
   "endSession": "დასრულება",
-  "tableLabel": "მაგიდა"
+  "tableLabel": "მაგიდა",
+  "noTablesYet": "მაგიდები ჯერ არ არის",
+  "newTable": "ახალი მაგიდა",
+  "editTable": "მაგიდის რედაქტირება",
+  "deleteTable": "მაგიდის წაშლა",
+  "deleteTableConfirm": "წავშალო ეს მაგიდა?",
+  "tableNumberLabel": "მაგიდის ნომერი",
+  "seatsLabel": "ადგილები",
+  "gameLabel": "თამაში",
+  "smallBlindLabel": "მცირე ბლაინდი",
+  "bigBlindLabel": "დიდი ბლაინდი",
+  "currencyLabel": "ვალუტა",
+  "openLabel": "ღია",
+  "saveLabel": "შენახვა",
+  "walkInLabel": "Walk-in",
+  "seatWhoTitle": "ვინ ჯდება?"
 }

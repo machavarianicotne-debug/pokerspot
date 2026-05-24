@@ -57,5 +57,20 @@
   "seatNumber": "Seat number",
   "seatedTitle": "Seated players",
   "endSession": "End",
-  "tableLabel": "Table"
+  "tableLabel": "Table",
+  "noTablesYet": "No tables yet",
+  "newTable": "New table",
+  "editTable": "Edit table",
+  "deleteTable": "Delete table",
+  "deleteTableConfirm": "Delete this table?",
+  "tableNumberLabel": "Table number",
+  "seatsLabel": "Seats",
+  "gameLabel": "Game",
+  "smallBlindLabel": "Small blind",
+  "bigBlindLabel": "Big blind",
+  "currencyLabel": "Currency",
+  "openLabel": "Open",
+  "saveLabel": "Save",
+  "walkInLabel": "Walk-in",
+  "seatWhoTitle": "Who's sitting?"
 }

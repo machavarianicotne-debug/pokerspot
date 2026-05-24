@@ -446,6 +446,96 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Table'**
   String get tableLabel;
+
+  /// No description provided for @noTablesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No tables yet'**
+  String get noTablesYet;
+
+  /// No description provided for @newTable.
+  ///
+  /// In en, this message translates to:
+  /// **'New table'**
+  String get newTable;
+
+  /// No description provided for @editTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit table'**
+  String get editTable;
+
+  /// No description provided for @deleteTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete table'**
+  String get deleteTable;
+
+  /// No description provided for @deleteTableConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this table?'**
+  String get deleteTableConfirm;
+
+  /// No description provided for @tableNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Table number'**
+  String get tableNumberLabel;
+
+  /// No description provided for @seatsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Seats'**
+  String get seatsLabel;
+
+  /// No description provided for @gameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Game'**
+  String get gameLabel;
+
+  /// No description provided for @smallBlindLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Small blind'**
+  String get smallBlindLabel;
+
+  /// No description provided for @bigBlindLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Big blind'**
+  String get bigBlindLabel;
+
+  /// No description provided for @currencyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Currency'**
+  String get currencyLabel;
+
+  /// No description provided for @openLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get openLabel;
+
+  /// No description provided for @saveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveLabel;
+
+  /// No description provided for @walkInLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Walk-in'**
+  String get walkInLabel;
+
+  /// No description provided for @seatWhoTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Who\'s sitting?'**
+  String get seatWhoTitle;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

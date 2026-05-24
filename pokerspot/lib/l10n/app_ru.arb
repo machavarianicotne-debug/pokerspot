@@ -57,5 +57,20 @@
   "seatNumber": "Номер места",
   "seatedTitle": "Игроки за столами",
   "endSession": "Завершить",
-  "tableLabel": "Стол"
+  "tableLabel": "Стол",
+  "noTablesYet": "Столов пока нет",
+  "newTable": "Новый стол",
+  "editTable": "Редактировать стол",
+  "deleteTable": "Удалить стол",
+  "deleteTableConfirm": "Удалить этот стол?",
+  "tableNumberLabel": "Номер стола",
+  "seatsLabel": "Места",
+  "gameLabel": "Игра",
+  "smallBlindLabel": "Малый блайнд",
+  "bigBlindLabel": "Большой блайнд",
+  "currencyLabel": "Валюта",
+  "openLabel": "Открыт",
+  "saveLabel": "Сохранить",
+  "walkInLabel": "Walk-in",
+  "seatWhoTitle": "Кто садится?"
 }

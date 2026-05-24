@@ -183,4 +183,49 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get tableLabel => 'Стол';
+
+  @override
+  String get noTablesYet => 'Столов пока нет';
+
+  @override
+  String get newTable => 'Новый стол';
+
+  @override
+  String get editTable => 'Редактировать стол';
+
+  @override
+  String get deleteTable => 'Удалить стол';
+
+  @override
+  String get deleteTableConfirm => 'Удалить этот стол?';
+
+  @override
+  String get tableNumberLabel => 'Номер стола';
+
+  @override
+  String get seatsLabel => 'Места';
+
+  @override
+  String get gameLabel => 'Игра';
+
+  @override
+  String get smallBlindLabel => 'Малый блайнд';
+
+  @override
+  String get bigBlindLabel => 'Большой блайнд';
+
+  @override
+  String get currencyLabel => 'Валюта';
+
+  @override
+  String get openLabel => 'Открыт';
+
+  @override
+  String get saveLabel => 'Сохранить';
+
+  @override
+  String get walkInLabel => 'Walk-in';
+
+  @override
+  String get seatWhoTitle => 'Кто садится?';
 }

@@ -9,7 +9,8 @@ import 'package:pokerspot/features/floor/domain/poker_table.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
-import 'package:pokerspot/features/home/presentation/player_home.dart' show TabShell, StubBody;
+import 'package:pokerspot/features/floor/presentation/tables_screen.dart';
+import 'package:pokerspot/features/home/presentation/player_home.dart' show TabShell;
 import 'package:pokerspot/features/home/presentation/profile_screen.dart';
 import 'package:pokerspot/shared/widgets/ps_avatar.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
@@ -63,10 +64,9 @@ class PitBossHome extends ConsumerWidget {
         PsTabItem(Icons.table_bar, l10n.tabTables),
         PsTabItem(Icons.person, l10n.tabProfile),
       ],
-      // Table management (index 1) — Plan 5 builds this.
       tabs: const [
         _FloorTab(),
-        StubBody(text: 'Coming in Plan 5'),
+        TablesScreen(),
         ProfileScreen(),
       ],
     );

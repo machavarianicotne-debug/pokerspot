@@ -183,4 +183,49 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get tableLabel => 'მაგიდა';
+
+  @override
+  String get noTablesYet => 'მაგიდები ჯერ არ არის';
+
+  @override
+  String get newTable => 'ახალი მაგიდა';
+
+  @override
+  String get editTable => 'მაგიდის რედაქტირება';
+
+  @override
+  String get deleteTable => 'მაგიდის წაშლა';
+
+  @override
+  String get deleteTableConfirm => 'წავშალო ეს მაგიდა?';
+
+  @override
+  String get tableNumberLabel => 'მაგიდის ნომერი';
+
+  @override
+  String get seatsLabel => 'ადგილები';
+
+  @override
+  String get gameLabel => 'თამაში';
+
+  @override
+  String get smallBlindLabel => 'მცირე ბლაინდი';
+
+  @override
+  String get bigBlindLabel => 'დიდი ბლაინდი';
+
+  @override
+  String get currencyLabel => 'ვალუტა';
+
+  @override
+  String get openLabel => 'ღია';
+
+  @override
+  String get saveLabel => 'შენახვა';
+
+  @override
+  String get walkInLabel => 'Walk-in';
+
+  @override
+  String get seatWhoTitle => 'ვინ ჯდება?';
 }

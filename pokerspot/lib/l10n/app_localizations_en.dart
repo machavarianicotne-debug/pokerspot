@@ -183,4 +183,49 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get tableLabel => 'Table';
+
+  @override
+  String get noTablesYet => 'No tables yet';
+
+  @override
+  String get newTable => 'New table';
+
+  @override
+  String get editTable => 'Edit table';
+
+  @override
+  String get deleteTable => 'Delete table';
+
+  @override
+  String get deleteTableConfirm => 'Delete this table?';
+
+  @override
+  String get tableNumberLabel => 'Table number';
+
+  @override
+  String get seatsLabel => 'Seats';
+
+  @override
+  String get gameLabel => 'Game';
+
+  @override
+  String get smallBlindLabel => 'Small blind';
+
+  @override
+  String get bigBlindLabel => 'Big blind';
+
+  @override
+  String get currencyLabel => 'Currency';
+
+  @override
+  String get openLabel => 'Open';
+
+  @override
+  String get saveLabel => 'Save';
+
+  @override
+  String get walkInLabel => 'Walk-in';
+
+  @override
+  String get seatWhoTitle => 'Who\'s sitting?';
 }

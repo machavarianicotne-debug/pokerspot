@@ -41,6 +41,34 @@
     For more details:
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
+  <!--
+    MVP / pilot: the service worker is DISABLED so every visit loads the freshly
+    deployed build. Flutter's default SW uses stale-while-revalidate, which made
+    returning users see the *previous* build on first revisit (old onboarding /
+    "Player coming soon"). Cost: ~300ms on repeat loads. Reversible.
+    TODO(Plan 7+): re-enable proper caching with an "update available — refresh" UX.
+  -->
+  <script>
+    (function () {
+      if ('serviceWorker' in navigator) {
+        // 1) Unregister any SW from a previous build (otherwise cached users are
+        //    stuck on the old SW forever).
+        navigator.serviceWorker.getRegistrations()
+          .then(function (regs) { regs.forEach(function (r) { r.unregister(); }); })
+          .catch(function () {});
+        // 2) Drop Flutter's caches.
+        if (window.caches && caches.keys) {
+          caches.keys()
+            .then(function (keys) { keys.forEach(function (k) { caches.delete(k); }); })
+            .catch(function () {});
+        }
+        // 3) Prevent flutter_bootstrap.js from registering a new SW.
+        navigator.serviceWorker.register = function () {
+          return Promise.reject(new Error('Service worker disabled for MVP.'));
+        };
+      }
+    })();
+  </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

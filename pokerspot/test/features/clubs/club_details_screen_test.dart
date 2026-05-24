@@ -38,6 +38,9 @@ void main() {
     expect(find.text('Daily 14:00–04:00'), findsOneWidget);
     expect(find.text('+995 32 200 0000'), findsOneWidget);
     expect(find.byKey(const Key('phoneTile')), findsOneWidget);
+    // Copy-phone fallback button.
+    expect(find.byKey(const Key('copyPhoneBtn')), findsOneWidget);
+    expect(find.byIcon(Icons.copy), findsOneWidget);
   });
 
   testWidgets('shows the "tables coming soon" placeholder', (tester) async {

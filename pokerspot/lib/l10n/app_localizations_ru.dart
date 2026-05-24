@@ -101,4 +101,7 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get backToClubs => 'Назад к клубам';
+
+  @override
+  String get phoneCopied => 'Номер скопирован';
 }

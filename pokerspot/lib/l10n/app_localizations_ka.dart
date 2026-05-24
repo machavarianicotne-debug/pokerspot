@@ -101,4 +101,7 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get backToClubs => 'კლუბებზე დაბრუნება';
+
+  @override
+  String get phoneCopied => 'ნომერი დაკოპირდა';
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -73,8 +74,23 @@ class _Details extends StatelessWidget {
               style: TextStyle(color: PsColors.textMuted, fontSize: PsType.subhead)),
           subtitle: Text(club.phone,
               style: const TextStyle(color: PsColors.text, fontSize: PsType.body)),
-          onTap: () => unawaited(
-            launchUrl(Uri(scheme: 'tel', path: club.phone.replaceAll(RegExp(r'\s'), ''))),
+          // Normalize to digits + a single leading '+' — the tel: URI spec
+          // forbids spaces (the seeded numbers contain them), which made some
+          // browsers ignore the link entirely.
+          onTap: () {
+            final tel = club.phone.replaceAll(RegExp(r'[^\d+]'), '');
+            unawaited(launchUrl(Uri.parse('tel:$tel')));
+          },
+          trailing: IconButton(
+            key: const Key('copyPhoneBtn'),
+            icon: Icon(Icons.copy, color: PsColors.textMuted),
+            onPressed: () {
+              // Copy the display-formatted number (with spaces) — easier to read.
+              unawaited(Clipboard.setData(ClipboardData(text: club.phone)));
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(l10n.phoneCopied)),
+              );
+            },
           ),
         ),
         const SizedBox(height: PsSpacing.s5),

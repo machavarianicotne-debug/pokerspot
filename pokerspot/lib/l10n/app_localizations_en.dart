@@ -101,4 +101,7 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get backToClubs => 'Back to clubs';
+
+  @override
+  String get phoneCopied => 'Phone number copied';
 }

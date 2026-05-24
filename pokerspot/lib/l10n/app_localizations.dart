@@ -284,6 +284,12 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Back to clubs'**
   String get backToClubs;
+
+  /// No description provided for @phoneCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number copied'**
+  String get phoneCopied;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

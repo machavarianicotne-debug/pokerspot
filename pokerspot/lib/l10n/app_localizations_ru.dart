@@ -361,4 +361,22 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get noStatsYet => 'Сессий пока нет';
+
+  @override
+  String get tabPitBosses => 'Pit Boss\'ы';
+
+  @override
+  String get activeAssignmentsHeader => 'Активные назначения';
+
+  @override
+  String get assignPitBossHeader => 'Назначить Pit Boss';
+
+  @override
+  String get removeLabel => 'Снять';
+
+  @override
+  String get assignBtn => 'Назначить';
+
+  @override
+  String get noUserForPhone => 'Нет пользователя с таким номером';
 }

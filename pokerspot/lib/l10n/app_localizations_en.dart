@@ -361,4 +361,22 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get noStatsYet => 'No sessions yet';
+
+  @override
+  String get tabPitBosses => 'Pit Bosses';
+
+  @override
+  String get activeAssignmentsHeader => 'Active assignments';
+
+  @override
+  String get assignPitBossHeader => 'Assign a Pit Boss';
+
+  @override
+  String get removeLabel => 'Remove';
+
+  @override
+  String get assignBtn => 'Assign';
+
+  @override
+  String get noUserForPhone => 'No registered user with that phone';
 }

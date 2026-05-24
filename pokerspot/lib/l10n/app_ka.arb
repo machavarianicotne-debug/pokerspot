@@ -116,5 +116,11 @@
   "registeredLabel": "რეგისტრირებული",
   "availabilityHeader": "ხელმისაწვდომობა",
   "availableLabel": "ვიღებ მოთამაშეებს",
-  "noStatsYet": "სესიები ჯერ არ არის"
+  "noStatsYet": "სესიები ჯერ არ არის",
+  "tabPitBosses": "Pit Boss-ები",
+  "activeAssignmentsHeader": "აქტიური დანიშვნები",
+  "assignPitBossHeader": "Pit Boss-ის დანიშვნა",
+  "removeLabel": "მოხსნა",
+  "assignBtn": "დანიშვნა",
+  "noUserForPhone": "ამ ნომრით რეგისტრირებული მომხმარებელი არ არის"
 }

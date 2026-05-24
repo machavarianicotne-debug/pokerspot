@@ -116,5 +116,11 @@
   "registeredLabel": "Registered",
   "availabilityHeader": "Availability",
   "availableLabel": "Accepting players",
-  "noStatsYet": "No sessions yet"
+  "noStatsYet": "No sessions yet",
+  "tabPitBosses": "Pit Bosses",
+  "activeAssignmentsHeader": "Active assignments",
+  "assignPitBossHeader": "Assign a Pit Boss",
+  "removeLabel": "Remove",
+  "assignBtn": "Assign",
+  "noUserForPhone": "No registered user with that phone"
 }

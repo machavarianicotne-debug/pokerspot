@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
+import 'package:pokerspot/features/admin/presentation/admin_assign_pitboss_screen.dart';
 import 'package:pokerspot/features/admin/presentation/admin_clubs_screen.dart';
 import 'package:pokerspot/features/admin/presentation/admin_overview_screen.dart';
 import 'package:pokerspot/features/admin/presentation/admin_users_screen.dart';
@@ -31,12 +32,14 @@ class SuperAdminHome extends StatelessWidget {
       items: [
         PsTabItem(Icons.dashboard, l10n.tabOverview),
         PsTabItem(Icons.casino, l10n.tabClubs),
+        PsTabItem(Icons.badge, l10n.tabPitBosses),
         PsTabItem(Icons.group, l10n.tabUsers),
-        PsTabItem(Icons.person, l10n.tabProfile),
+        PsTabItem(Icons.settings, l10n.tabSettings),
       ],
       tabs: const [
         AdminOverviewScreen(),
         AdminClubsScreen(),
+        AdminAssignPitBossScreen(),
         AdminUsersScreen(),
         ProfileScreen(),
       ],

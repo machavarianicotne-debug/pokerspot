@@ -361,4 +361,22 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get noStatsYet => 'სესიები ჯერ არ არის';
+
+  @override
+  String get tabPitBosses => 'Pit Boss-ები';
+
+  @override
+  String get activeAssignmentsHeader => 'აქტიური დანიშვნები';
+
+  @override
+  String get assignPitBossHeader => 'Pit Boss-ის დანიშვნა';
+
+  @override
+  String get removeLabel => 'მოხსნა';
+
+  @override
+  String get assignBtn => 'დანიშვნა';
+
+  @override
+  String get noUserForPhone => 'ამ ნომრით რეგისტრირებული მომხმარებელი არ არის';
 }

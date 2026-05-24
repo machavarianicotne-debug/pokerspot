@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/features/admin/domain/audit_entry.dart';
+import 'package:pokerspot/features/admin/presentation/admin_assign_pitboss_screen.dart';
 import 'package:pokerspot/features/admin/presentation/admin_clubs_screen.dart';
 import 'package:pokerspot/features/admin/presentation/admin_overview_screen.dart';
 import 'package:pokerspot/features/admin/presentation/admin_users_screen.dart';
@@ -25,6 +26,9 @@ AppUser _admin() => const AppUser(
 AppUser _player() => const AppUser(
     uid: 'u1', phone: '+995555111111', firstName: 'Nino', lastName: 'K',
     role: AppRole.player, lang: 'en', blocked: false);
+AppUser _pitboss() => const AppUser(
+    uid: 'pb1', phone: '+995555333333', firstName: 'Giorgi', lastName: 'M',
+    role: AppRole.pitboss, lang: 'en', blocked: false, clubId: 'c1');
 
 Widget _wrap(Widget home, List<Override> overrides) => ProviderScope(
       overrides: overrides,
@@ -64,6 +68,18 @@ void main() {
     await tester.enterText(find.byType(TextField), 'zzz');
     await tester.pumpAndSettle();
     expect(find.byKey(const Key('userCard_u1')), findsNothing); // filtered out
+  });
+
+  testWidgets('AdminAssignPitBossScreen lists active assignments + assign form', (tester) async {
+    await tester.pumpWidget(_wrap(const AdminAssignPitBossScreen(), [
+      currentUserProvider.overrideWith((ref) => Stream.value(_admin())),
+      allClubsProvider.overrideWith((ref) => Stream.value(const [_vake, _batumi])),
+      allUsersProvider.overrideWith((ref) => Stream.value([_pitboss(), _player()])),
+    ]));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('pb_pb1')), findsOneWidget); // active assignment
+    expect(find.text('Giorgi M'), findsOneWidget);
+    expect(find.byKey(const Key('assignPbBtn')), findsOneWidget);
   });
 
   testWidgets('AdminOverviewScreen shows aggregate metrics', (tester) async {

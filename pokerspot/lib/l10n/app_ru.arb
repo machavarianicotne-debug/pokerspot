@@ -116,5 +116,11 @@
   "registeredLabel": "Зарегистрированные",
   "availabilityHeader": "Доступность",
   "availableLabel": "Принимаю игроков",
-  "noStatsYet": "Сессий пока нет"
+  "noStatsYet": "Сессий пока нет",
+  "tabPitBosses": "Pit Boss'ы",
+  "activeAssignmentsHeader": "Активные назначения",
+  "assignPitBossHeader": "Назначить Pit Boss",
+  "removeLabel": "Снять",
+  "assignBtn": "Назначить",
+  "noUserForPhone": "Нет пользователя с таким номером"
 }

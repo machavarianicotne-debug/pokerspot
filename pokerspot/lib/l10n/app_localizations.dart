@@ -800,6 +800,42 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'No sessions yet'**
   String get noStatsYet;
+
+  /// No description provided for @tabPitBosses.
+  ///
+  /// In en, this message translates to:
+  /// **'Pit Bosses'**
+  String get tabPitBosses;
+
+  /// No description provided for @activeAssignmentsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Active assignments'**
+  String get activeAssignmentsHeader;
+
+  /// No description provided for @assignPitBossHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign a Pit Boss'**
+  String get assignPitBossHeader;
+
+  /// No description provided for @removeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get removeLabel;
+
+  /// No description provided for @assignBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign'**
+  String get assignBtn;
+
+  /// No description provided for @noUserForPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'No registered user with that phone'**
+  String get noUserForPhone;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

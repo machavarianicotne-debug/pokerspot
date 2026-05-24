@@ -65,6 +65,39 @@ class FakeTablesRepository implements TablesRepository {
   Stream<List<PokerTable>> watchTables(String clubId) => store.watch(() =>
       store.tables.values.where((t) => t.clubId == clubId).toList()
         ..sort((a, b) => a.number.compareTo(b.number)));
+
+  @override
+  Future<String> createTable({
+    required String clubId,
+    required int number,
+    required Stakes stakes,
+    required int seatCount,
+    required bool open,
+  }) async {
+    final id = store.nextId('table');
+    store.tables[id] = PokerTable(
+      id: id,
+      clubId: clubId,
+      number: number,
+      stakes: stakes,
+      seatCount: seatCount,
+      open: open,
+    );
+    store.notify();
+    return id;
+  }
+
+  @override
+  Future<void> updateTable(PokerTable table) async {
+    store.tables[table.id] = table;
+    store.notify();
+  }
+
+  @override
+  Future<void> deleteTable({required String clubId, required String tableId}) async {
+    store.tables.remove(tableId);
+    store.notify();
+  }
 }
 
 class FakeWaitlistRepository implements WaitlistRepository {
@@ -164,6 +197,30 @@ class FakeSessionsRepository implements SessionsRepository {
       store.sessions.values
           .where((s) => s.playerUid == playerUid && s.status == SessionStatus.active)
           .toList());
+
+  @override
+  Future<void> seatWalkIn({
+    required String clubId,
+    required String tableId,
+    required int seatNumber,
+    required Stakes stakes,
+    required String playerName,
+  }) async {
+    final id = store.nextId('session');
+    store.sessions[id] = Session(
+      id: id,
+      clubId: clubId,
+      tableId: tableId,
+      seatNumber: seatNumber,
+      playerUid: 'walk-in:${store.nextId('w')}',
+      playerName: playerName,
+      stakes: stakes,
+      status: SessionStatus.active,
+      startedAt: DateTime.now(),
+      endedAt: null,
+    );
+    store.notify();
+  }
 
   @override
   Future<void> end(String sessionId) async {

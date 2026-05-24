@@ -21,6 +21,38 @@ void main() {
     expect(list.map((t) => t.id), ['t1', 't2']);
   });
 
+  test('tables: create -> update -> delete round-trips through the store', () async {
+    final store = FakeFloorStore();
+    final repo = FakeTablesRepository(store);
+
+    final id = await repo.createTable(
+        clubId: 'c1', number: 3, stakes: _stakes, seatCount: 9, open: true);
+    var list = await repo.watchTables('c1').first;
+    expect(list.length, 1);
+    expect(list.first.number, 3);
+
+    await repo.updateTable(list.first.copyWith(open: false, seatCount: 6));
+    list = await repo.watchTables('c1').first;
+    expect(list.first.open, isFalse);
+    expect(list.first.seatCount, 6);
+
+    await repo.deleteTable(clubId: 'c1', tableId: id);
+    expect(await repo.watchTables('c1').first, isEmpty);
+  });
+
+  test('seatWalkIn: creates an active walk-in session (synthetic uid)', () async {
+    final store = FakeFloorStore();
+    final sessions = FakeSessionsRepository(store);
+
+    await sessions.seatWalkIn(
+        clubId: 'c1', tableId: 't1', seatNumber: 4, stakes: _stakes, playerName: 'Walk-in');
+    final active = await sessions.watchActiveByClub('c1').first;
+    expect(active.length, 1);
+    expect(active.first.seatNumber, 4);
+    expect(active.first.playerUid, startsWith('walk-in:'));
+    expect(active.first.status, SessionStatus.active);
+  });
+
   test('waitlist: join -> call -> cancel; by-club + by-player views', () async {
     final store = FakeFloorStore();
     final wl = FakeWaitlistRepository(store);

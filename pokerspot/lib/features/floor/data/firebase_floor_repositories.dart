@@ -20,14 +20,39 @@ class FirebaseTablesRepository implements TablesRepository {
   FirebaseTablesRepository(this._db);
   final FirebaseFirestore _db;
 
+  CollectionReference<Map<String, dynamic>> _tables(String clubId) =>
+      _db.collection('clubs').doc(clubId).collection('tables');
+
   @override
-  Stream<List<PokerTable>> watchTables(String clubId) => _db
-      .collection('clubs')
-      .doc(clubId)
-      .collection('tables')
+  Stream<List<PokerTable>> watchTables(String clubId) => _tables(clubId)
       .snapshots()
       .map((s) => s.docs.map((d) => PokerTable.fromMap(d.id, clubId, d.data())).toList()
         ..sort((a, b) => a.number.compareTo(b.number)));
+
+  @override
+  Future<String> createTable({
+    required String clubId,
+    required int number,
+    required Stakes stakes,
+    required int seatCount,
+    required bool open,
+  }) async {
+    final doc = await _tables(clubId).add({
+      'number': number,
+      ...stakes.toMap(),
+      'seatCount': seatCount,
+      'open': open,
+    });
+    return doc.id;
+  }
+
+  @override
+  Future<void> updateTable(PokerTable table) =>
+      _tables(table.clubId).doc(table.id).set(table.toMap());
+
+  @override
+  Future<void> deleteTable({required String clubId, required String tableId}) =>
+      _tables(clubId).doc(tableId).delete();
 }
 
 class FirebaseWaitlistRepository implements WaitlistRepository {
@@ -139,6 +164,27 @@ class FirebaseSessionsRepository implements SessionsRepository {
           .map(_session)
           .where((x) => x.status == SessionStatus.active)
           .toList());
+
+  @override
+  Future<void> seatWalkIn({
+    required String clubId,
+    required String tableId,
+    required int seatNumber,
+    required Stakes stakes,
+    required String playerName,
+  }) {
+    return _col.add({
+      'clubId': clubId,
+      'tableId': tableId,
+      'seatNumber': seatNumber,
+      'playerUid': 'walk-in:${DateTime.now().microsecondsSinceEpoch}',
+      'playerName': playerName,
+      ...stakes.toMap(),
+      'status': SessionStatus.active.asString,
+      'startedAt': FieldValue.serverTimestamp(),
+      'endedAt': null,
+    });
+  }
 
   @override
   Future<void> end(String sessionId) => _col.doc(sessionId).update({

@@ -9,6 +9,21 @@ import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 abstract interface class TablesRepository {
   /// Live tables for a club (clubs/{clubId}/tables), ordered by number.
   Stream<List<PokerTable>> watchTables(String clubId);
+
+  /// Create a table; returns the new doc id.
+  Future<String> createTable({
+    required String clubId,
+    required int number,
+    required Stakes stakes,
+    required int seatCount,
+    required bool open,
+  });
+
+  /// Update an existing table's fields (matched by [table.clubId]/[table.id]).
+  Future<void> updateTable(PokerTable table);
+
+  /// Delete a table.
+  Future<void> deleteTable({required String clubId, required String tableId});
 }
 
 abstract interface class WaitlistRepository {
@@ -47,6 +62,16 @@ abstract interface class SessionsRepository {
 
   /// Live active sessions for one player.
   Stream<List<Session>> watchByPlayer(String playerUid);
+
+  /// Seat a walk-in (no waitlist / no auth): creates an active Session with a
+  /// synthetic `walk-in:<rand>` playerUid.
+  Future<void> seatWalkIn({
+    required String clubId,
+    required String tableId,
+    required int seatNumber,
+    required Stakes stakes,
+    required String playerName,
+  });
 
   /// End a session (status -> ended, stamps endedAt).
   Future<void> end(String sessionId);

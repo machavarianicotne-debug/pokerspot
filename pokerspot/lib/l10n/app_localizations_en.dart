@@ -435,4 +435,10 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get languageHeader => 'Language';
+
+  @override
+  String get hoursShort => 'h';
+
+  @override
+  String get minutesShort => 'm';
 }

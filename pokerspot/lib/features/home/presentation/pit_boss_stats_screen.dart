@@ -18,6 +18,15 @@ class _Stat {
   double get hours => minutes / 60;
 }
 
+/// Playtime as hours + minutes (e.g. "2h 15m" / "1h" / "45m") — not a bare
+/// decimal hour. Units are localized (h/m, სთ/წთ, ч/м).
+String _fmtHm(int minutes, AppL10n l10n) {
+  final h = minutes ~/ 60, m = minutes % 60;
+  if (h > 0 && m > 0) return '$h${l10n.hoursShort} $m${l10n.minutesShort}';
+  if (h > 0) return '$h${l10n.hoursShort}';
+  return '$m${l10n.minutesShort}';
+}
+
 /// Pit Boss Stats tab (mockup `pit-boss-stats`): a registered / walk-in
 /// leaderboard aggregated from the club's sessions (count + total hours).
 class PitBossStatsScreen extends ConsumerStatefulWidget {
@@ -104,7 +113,7 @@ class _StatRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final avg = stat.sessions == 0 ? 0.0 : stat.hours / stat.sessions;
+    final avgMin = stat.sessions == 0 ? 0 : (stat.minutes / stat.sessions).round();
     return PsCard(
       child: Row(
         children: [
@@ -128,12 +137,12 @@ class _StatRow extends StatelessWidget {
                     style: const TextStyle(
                         fontSize: PsType.body, fontWeight: PsType.weightBold, color: PsColors.text)),
                 const SizedBox(height: 2),
-                Text('${stat.sessions} ${l10n.sessionsLabel.toLowerCase()} · ${l10n.avgMinLabel} ${avg.toStringAsFixed(1)}h',
+                Text('${stat.sessions} ${l10n.sessionsLabel.toLowerCase()} · ${l10n.avgMinLabel} $avgMin${l10n.minutesShort}',
                     style: TextStyle(fontSize: PsType.caption, color: PsColors.textMuted)),
               ],
             ),
           ),
-          Text('${stat.hours.toStringAsFixed(1)}h',
+          Text(_fmtHm(stat.minutes, l10n),
               style: const TextStyle(
                   fontSize: PsType.headline,
                   fontWeight: PsType.weightBlack,

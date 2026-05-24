@@ -40,7 +40,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Registered'), findsOneWidget); // segment
     expect(find.text('Nino K'), findsOneWidget);
-    expect(find.text('2.0h'), findsOneWidget); // 120 min
+    expect(find.text('2h'), findsOneWidget); // 120 min → hours + minutes
   });
 
   testWidgets('Settings shows availability + notifications + sign-out', (tester) async {

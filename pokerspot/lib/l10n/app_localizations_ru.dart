@@ -435,4 +435,10 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get languageHeader => 'Язык';
+
+  @override
+  String get hoursShort => 'ч';
+
+  @override
+  String get minutesShort => 'м';
 }

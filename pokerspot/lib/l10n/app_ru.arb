@@ -140,5 +140,7 @@
   "notifReservationDecision": "Бронь принята / отклонена",
   "notifDailySummary": "Ежедневная сводка",
   "appLanguage": "Язык приложения",
-  "languageHeader": "Язык"
+  "languageHeader": "Язык",
+  "hoursShort": "ч",
+  "minutesShort": "м"
 }

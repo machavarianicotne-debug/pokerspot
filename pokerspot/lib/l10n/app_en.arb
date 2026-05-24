@@ -140,5 +140,7 @@
   "notifReservationDecision": "Reservation accepted / rejected",
   "notifDailySummary": "Daily summary",
   "appLanguage": "App language",
-  "languageHeader": "Language"
+  "languageHeader": "Language",
+  "hoursShort": "h",
+  "minutesShort": "m"
 }

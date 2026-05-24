@@ -944,6 +944,18 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Language'**
   String get languageHeader;
+
+  /// No description provided for @hoursShort.
+  ///
+  /// In en, this message translates to:
+  /// **'h'**
+  String get hoursShort;
+
+  /// No description provided for @minutesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'m'**
+  String get minutesShort;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

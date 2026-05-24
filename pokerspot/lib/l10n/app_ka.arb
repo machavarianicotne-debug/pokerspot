@@ -140,5 +140,7 @@
   "notifReservationDecision": "რეზერვაცია დადასტურდა / უარყოფილია",
   "notifDailySummary": "დღიური შეჯამება",
   "appLanguage": "აპლიკაციის ენა",
-  "languageHeader": "ენა"
+  "languageHeader": "ენა",
+  "hoursShort": "სთ",
+  "minutesShort": "წთ"
 }

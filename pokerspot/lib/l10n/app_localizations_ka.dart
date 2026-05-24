@@ -435,4 +435,10 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get languageHeader => 'ენა';
+
+  @override
+  String get hoursShort => 'სთ';
+
+  @override
+  String get minutesShort => 'წთ';
 }

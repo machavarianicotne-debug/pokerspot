@@ -5,8 +5,8 @@ import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/ps_avatar.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
-import 'package:pokerspot/shared/widgets/ps_card.dart';
-import 'package:pokerspot/shared/widgets/ps_list_tile.dart';
+import 'package:pokerspot/shared/widgets/ps_settings_group.dart';
+import 'package:pokerspot/shared/widgets/ps_toggle.dart';
 
 const _langNames = <String, String>{'en': 'English', 'ka': 'ქართული', 'ru': 'Русский'};
 
@@ -20,77 +20,81 @@ String _initials(String name) {
   return (parts.first[0] + parts.last[0]).toUpperCase();
 }
 
-/// The Profile tab, shared by all three role homes: the signed-in user's name,
-/// phone and language, plus the sign-out action (moved here from the nav bars).
-class ProfileScreen extends ConsumerWidget {
+/// The Profile tab, shared by all three roles: header (avatar/name/phone), an
+/// Account group, Notifications toggles, and sign-out. Notification prefs are
+/// local UI state for now (no `users.notif` persistence yet — deferred per spec).
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  bool _seatCalled = true;
+  bool _reservation = true;
+  bool _clubNews = false;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     final user = ref.watch(currentUserProvider).valueOrNull;
-
     if (user == null) {
       return const Center(child: CircularProgressIndicator(color: PsColors.accentPrimary));
     }
-
     final name = '${user.firstName} ${user.lastName}'.trim();
     final langLabel = _langNames[user.lang] ?? user.lang;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(PsSpacing.s4, PsSpacing.s4, PsSpacing.s4, 96),
       children: [
-        PsCard(
-          accentRail: PsColors.accentSecondary,
-          child: Row(
-            children: [
-              PsAvatar(initials: _initials(name.isEmpty ? '?' : name), size: 56),
-              const SizedBox(width: PsSpacing.s4),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      name.isEmpty ? l10n.tabProfile : name,
+        Row(
+          children: [
+            PsAvatar(initials: _initials(name.isEmpty ? '?' : name), size: 64),
+            const SizedBox(width: PsSpacing.s4),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name.isEmpty ? l10n.tabProfile : name,
                       style: const TextStyle(
-                        fontSize: PsType.title,
-                        fontWeight: PsType.weightBlack,
-                        letterSpacing: PsType.trackingSnug,
-                        color: PsColors.text,
-                      ),
-                    ),
-                    if (user.phone.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        user.phone,
-                        style: TextStyle(
-                          fontSize: PsType.subhead,
-                          fontWeight: PsType.weightMedium,
-                          color: PsColors.textMuted,
-                        ),
-                      ),
-                    ],
+                          fontSize: PsType.title,
+                          fontWeight: PsType.weightBlack,
+                          letterSpacing: PsType.trackingSnug,
+                          color: PsColors.text)),
+                  if (user.phone.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(user.phone,
+                        style: TextStyle(fontSize: PsType.body, color: PsColors.textMuted)),
                   ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: PsSpacing.s4),
-        PsCard(
-          child: PsListTile(
-            title: l10n.language,
-            trailing: Text(
-              langLabel,
-              style: const TextStyle(
-                fontSize: PsType.body,
-                fontWeight: PsType.weightBold,
-                color: PsColors.accentPrimary,
+                ],
               ),
             ),
-          ),
+          ],
         ),
+        const SizedBox(height: PsSpacing.s6),
+        PsSettingsGroup.header(l10n.accountHeader),
+        PsSettingsGroup(children: [
+          PsSettingsRow(label: l10n.phoneNumber, value: user.phone),
+          PsSettingsRow(label: l10n.language, value: langLabel),
+        ]),
         const SizedBox(height: PsSpacing.s5),
+        PsSettingsGroup.header(l10n.notificationsHeader),
+        PsSettingsGroup(children: [
+          PsSettingsRow(
+            label: l10n.notifSeatCalled,
+            trailing: PsToggle(value: _seatCalled, onChanged: (v) => setState(() => _seatCalled = v)),
+          ),
+          PsSettingsRow(
+            label: l10n.notifReservation,
+            trailing: PsToggle(value: _reservation, onChanged: (v) => setState(() => _reservation = v)),
+          ),
+          PsSettingsRow(
+            label: l10n.notifClubNews,
+            trailing: PsToggle(value: _clubNews, onChanged: (v) => setState(() => _clubNews = v)),
+          ),
+        ]),
+        const SizedBox(height: PsSpacing.s6),
         PsButton(
           key: const Key('signOutBtn'),
           label: l10n.signOut,

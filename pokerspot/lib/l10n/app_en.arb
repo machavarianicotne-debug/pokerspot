@@ -99,5 +99,11 @@
   "reserveNow": "Reserve now",
   "holdInfoText": "Instant hold. If a seat is open we hold it 30 minutes; otherwise you join the waitlist.",
   "seatHeldTitle": "Seat held for 30 min",
-  "reservedBadge": "Seat held"
+  "reservedBadge": "Seat held",
+  "accountHeader": "Account",
+  "notificationsHeader": "Notifications",
+  "sessionHeader": "Session",
+  "notifSeatCalled": "Seat called",
+  "notifReservation": "Reservation updates",
+  "notifClubNews": "Club news"
 }

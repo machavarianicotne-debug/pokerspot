@@ -310,4 +310,22 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get reservedBadge => 'Место удержано';
+
+  @override
+  String get accountHeader => 'Аккаунт';
+
+  @override
+  String get notificationsHeader => 'Уведомления';
+
+  @override
+  String get sessionHeader => 'Сессия';
+
+  @override
+  String get notifSeatCalled => 'Вызов за стол';
+
+  @override
+  String get notifReservation => 'Обновления броней';
+
+  @override
+  String get notifClubNews => 'Новости клуба';
 }

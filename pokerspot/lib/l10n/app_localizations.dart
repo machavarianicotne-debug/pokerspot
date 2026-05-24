@@ -698,6 +698,42 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Seat held'**
   String get reservedBadge;
+
+  /// No description provided for @accountHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get accountHeader;
+
+  /// No description provided for @notificationsHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get notificationsHeader;
+
+  /// No description provided for @sessionHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Session'**
+  String get sessionHeader;
+
+  /// No description provided for @notifSeatCalled.
+  ///
+  /// In en, this message translates to:
+  /// **'Seat called'**
+  String get notifSeatCalled;
+
+  /// No description provided for @notifReservation.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation updates'**
+  String get notifReservation;
+
+  /// No description provided for @notifClubNews.
+  ///
+  /// In en, this message translates to:
+  /// **'Club news'**
+  String get notifClubNews;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

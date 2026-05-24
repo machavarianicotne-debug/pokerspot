@@ -310,4 +310,22 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get reservedBadge => 'ადგილი დაკავებულია';
+
+  @override
+  String get accountHeader => 'ანგარიში';
+
+  @override
+  String get notificationsHeader => 'შეტყობინებები';
+
+  @override
+  String get sessionHeader => 'სესია';
+
+  @override
+  String get notifSeatCalled => 'ადგილზე გამოძახება';
+
+  @override
+  String get notifReservation => 'ჯავშნის განახლებები';
+
+  @override
+  String get notifClubNews => 'კლუბის სიახლეები';
 }

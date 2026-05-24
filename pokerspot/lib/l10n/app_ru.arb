@@ -99,5 +99,11 @@
   "reserveNow": "Забронировать",
   "holdInfoText": "Мгновенная бронь. Если место свободно — держим 30 минут; иначе вы встаёте в лист ожидания.",
   "seatHeldTitle": "Место удержано на 30 мин",
-  "reservedBadge": "Место удержано"
+  "reservedBadge": "Место удержано",
+  "accountHeader": "Аккаунт",
+  "notificationsHeader": "Уведомления",
+  "sessionHeader": "Сессия",
+  "notifSeatCalled": "Вызов за стол",
+  "notifReservation": "Обновления броней",
+  "notifClubNews": "Новости клуба"
 }

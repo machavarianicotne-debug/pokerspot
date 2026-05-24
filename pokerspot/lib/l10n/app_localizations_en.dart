@@ -310,4 +310,22 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get reservedBadge => 'Seat held';
+
+  @override
+  String get accountHeader => 'Account';
+
+  @override
+  String get notificationsHeader => 'Notifications';
+
+  @override
+  String get sessionHeader => 'Session';
+
+  @override
+  String get notifSeatCalled => 'Seat called';
+
+  @override
+  String get notifReservation => 'Reservation updates';
+
+  @override
+  String get notifClubNews => 'Club news';
 }

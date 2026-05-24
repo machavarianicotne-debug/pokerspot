@@ -105,5 +105,10 @@
   "sessionHeader": "Session",
   "notifSeatCalled": "Seat called",
   "notifReservation": "Reservation updates",
-  "notifClubNews": "Club news"
+  "notifClubNews": "Club news",
+  "chatWithPitBoss": "Chat with Pit Boss",
+  "chatEntrySub": "Dress code, parking, VIP — ask the floor",
+  "messageHint": "Message the floor…",
+  "tabInbox": "Inbox",
+  "inboxEmpty": "No conversations yet"
 }

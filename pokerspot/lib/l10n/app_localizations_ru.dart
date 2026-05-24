@@ -328,4 +328,19 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get notifClubNews => 'Новости клуба';
+
+  @override
+  String get chatWithPitBoss => 'Чат с Pit Boss';
+
+  @override
+  String get chatEntrySub => 'Дресс-код, парковка, VIP — спросите зал';
+
+  @override
+  String get messageHint => 'Написать залу…';
+
+  @override
+  String get tabInbox => 'Входящие';
+
+  @override
+  String get inboxEmpty => 'Пока нет переписок';
 }

@@ -105,5 +105,10 @@
   "sessionHeader": "სესია",
   "notifSeatCalled": "ადგილზე გამოძახება",
   "notifReservation": "ჯავშნის განახლებები",
-  "notifClubNews": "კლუბის სიახლეები"
+  "notifClubNews": "კლუბის სიახლეები",
+  "chatWithPitBoss": "მისწერე Pit Boss-ს",
+  "chatEntrySub": "Dress code, პარკინგი, VIP — ჰკითხე დარბაზს",
+  "messageHint": "მისწერე დარბაზს…",
+  "tabInbox": "შემოსული",
+  "inboxEmpty": "საუბრები ჯერ არ არის"
 }

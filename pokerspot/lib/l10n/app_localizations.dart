@@ -734,6 +734,36 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Club news'**
   String get notifClubNews;
+
+  /// No description provided for @chatWithPitBoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat with Pit Boss'**
+  String get chatWithPitBoss;
+
+  /// No description provided for @chatEntrySub.
+  ///
+  /// In en, this message translates to:
+  /// **'Dress code, parking, VIP — ask the floor'**
+  String get chatEntrySub;
+
+  /// No description provided for @messageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Message the floor…'**
+  String get messageHint;
+
+  /// No description provided for @tabInbox.
+  ///
+  /// In en, this message translates to:
+  /// **'Inbox'**
+  String get tabInbox;
+
+  /// No description provided for @inboxEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No conversations yet'**
+  String get inboxEmpty;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

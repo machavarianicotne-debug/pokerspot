@@ -105,5 +105,10 @@
   "sessionHeader": "Сессия",
   "notifSeatCalled": "Вызов за стол",
   "notifReservation": "Обновления броней",
-  "notifClubNews": "Новости клуба"
+  "notifClubNews": "Новости клуба",
+  "chatWithPitBoss": "Чат с Pit Boss",
+  "chatEntrySub": "Дресс-код, парковка, VIP — спросите зал",
+  "messageHint": "Написать залу…",
+  "tabInbox": "Входящие",
+  "inboxEmpty": "Пока нет переписок"
 }

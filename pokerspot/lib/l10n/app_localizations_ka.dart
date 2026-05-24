@@ -328,4 +328,19 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get notifClubNews => 'კლუბის სიახლეები';
+
+  @override
+  String get chatWithPitBoss => 'მისწერე Pit Boss-ს';
+
+  @override
+  String get chatEntrySub => 'Dress code, პარკინგი, VIP — ჰკითხე დარბაზს';
+
+  @override
+  String get messageHint => 'მისწერე დარბაზს…';
+
+  @override
+  String get tabInbox => 'შემოსული';
+
+  @override
+  String get inboxEmpty => 'საუბრები ჯერ არ არის';
 }

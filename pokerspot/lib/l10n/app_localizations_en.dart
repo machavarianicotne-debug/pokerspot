@@ -328,4 +328,19 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get notifClubNews => 'Club news';
+
+  @override
+  String get chatWithPitBoss => 'Chat with Pit Boss';
+
+  @override
+  String get chatEntrySub => 'Dress code, parking, VIP — ask the floor';
+
+  @override
+  String get messageHint => 'Message the floor…';
+
+  @override
+  String get tabInbox => 'Inbox';
+
+  @override
+  String get inboxEmpty => 'No conversations yet';
 }

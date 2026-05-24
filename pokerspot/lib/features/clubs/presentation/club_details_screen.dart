@@ -10,6 +10,7 @@ import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
+import 'package:pokerspot/features/chat/presentation/chat_thread_screen.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
 import 'package:pokerspot/features/floor/domain/stakes.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
@@ -121,6 +122,8 @@ class _Details extends StatelessWidget {
       padding: const EdgeInsets.all(PsSpacing.s5),
       children: [
         _InfoCard(club: club),
+        const SizedBox(height: PsSpacing.s4),
+        _ChatEntry(club: club),
         const SizedBox(height: PsSpacing.s5),
         PsButton(
           key: const Key('joinWaitlistBtn'),
@@ -141,6 +144,69 @@ class _Details extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// "Chat with Pit Boss" entry row → opens the 1-on-1 thread for this player.
+class _ChatEntry extends ConsumerWidget {
+  const _ChatEntry({required this.club});
+  final Club club;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+    return PsCard(
+      key: const Key('chatEntry'),
+      onTap: () {
+        final uid = ref.read(authRepositoryProvider).currentUid;
+        if (uid == null) return;
+        final user = ref.read(currentUserProvider).valueOrNull;
+        final name = user == null ? '' : '${user.firstName} ${user.lastName}'.trim();
+        Navigator.of(context).push(MaterialPageRoute<void>(
+          builder: (_) => ChatThreadScreen(
+            clubId: club.id,
+            playerUid: uid,
+            playerName: name,
+            title: club.name,
+          ),
+        ));
+      },
+      child: Row(
+        children: [
+          Container(
+            width: 42,
+            height: 42,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(PsRadii.md),
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [PsColors.accentPrimary, PsColors.accentSecondary],
+              ),
+            ),
+            child: const Icon(Icons.chat_bubble_outline, size: 20, color: PsColors.onAccent),
+          ),
+          const SizedBox(width: PsSpacing.s3),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.chatWithPitBoss,
+                    style: const TextStyle(
+                        fontSize: PsType.body,
+                        fontWeight: PsType.weightBold,
+                        color: PsColors.text)),
+                const SizedBox(height: 2),
+                Text(l10n.chatEntrySub,
+                    style: TextStyle(fontSize: PsType.caption, color: PsColors.textMuted)),
+              ],
+            ),
+          ),
+          Icon(Icons.chevron_right, size: 18, color: PsColors.textFaint),
+        ],
+      ),
     );
   }
 }

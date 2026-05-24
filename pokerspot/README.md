@@ -55,6 +55,18 @@ Console for now (Super Admin club management is a later plan).
 The Firestore **document id** is the club id (used in the URL `/home/club/<id>`).
 You can let the Console auto-generate the id.
 
+### Quick seed: the 4 demo clubs (recommended)
+Run the one-shot Dart seeder — it writes all 4 demo clubs to Firestore with fixed
+doc ids (`demo-vake`, `demo-saburtalo`, `demo-aragvi`, `demo-batumi-royal`),
+reads them back to verify, and shows a "Done" page with the names:
+```bash
+flutter run -t tools/seed_clubs.dart -d chrome --dart-define-from-file=env-dev.json
+```
+(or double-click `tools/seed_clubs.bat`). It's **idempotent** — re-running just
+overwrites the same docs (the "Re-seed" button does the same). Close the Chrome
+tab / stop `flutter run` when the "Done" page appears. For custom clubs, use the
+manual Console walkthrough below.
+
 ### Add a club via the Firebase Console
 1. Firebase Console → **Firestore Database** → **Start collection** (first time)
    with collection id `clubs`; afterwards use **Add document**.

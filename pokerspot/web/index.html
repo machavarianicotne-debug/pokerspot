@@ -42,31 +42,63 @@
     * https://docs.flutter.dev/platform-integration/web/initialization
   -->
   <!--
-    MVP / pilot: the service worker is DISABLED so every visit loads the freshly
-    deployed build. Flutter's default SW uses stale-while-revalidate, which made
-    returning users see the *previous* build on first revisit (old onboarding /
-    "Player coming soon"). Cost: ~300ms on repeat loads. Reversible.
-    TODO(Plan 7+): re-enable proper caching with an "update available — refresh" UX.
+    Plan 7: the service worker is ENABLED (offline caching + fast repeat loads).
+    flutter_bootstrap.js registers flutter_service_worker.js. To avoid the
+    stale-build trap, we show an "update available" toast when a new worker has
+    installed, tell it to skipWaiting, and reload once it takes control.
+    (Hosting also serves entry files with Cache-Control: no-cache as a backstop.)
   -->
+  <style>
+    #ps-update-toast {
+      position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 99999;
+      max-width: 420px; margin: 0 auto; display: none; align-items: center; gap: 12px;
+      padding: 14px 16px; border-radius: 18px; font-family: -apple-system, "Inter", sans-serif;
+      color: #ECFBFF; background: rgba(8,30,32,0.92); border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 22px 40px -22px rgba(0,0,0,0.85);
+    }
+    #ps-update-toast span { flex: 1; font-size: 14px; font-weight: 600; }
+    #ps-update-toast button {
+      border: 0; cursor: pointer; padding: 9px 15px; border-radius: 999px;
+      font-weight: 800; font-size: 13px; color: #06241A; background: #C6FF3A;
+    }
+  </style>
+  <div id="ps-update-toast" role="alert">
+    <span>New version available</span>
+    <button id="ps-update-reload" type="button">Reload</button>
+  </div>
   <script>
     (function () {
-      if ('serviceWorker' in navigator) {
-        // 1) Unregister any SW from a previous build (otherwise cached users are
-        //    stuck on the old SW forever).
-        navigator.serviceWorker.getRegistrations()
-          .then(function (regs) { regs.forEach(function (r) { r.unregister(); }); })
-          .catch(function () {});
-        // 2) Drop Flutter's caches.
-        if (window.caches && caches.keys) {
-          caches.keys()
-            .then(function (keys) { keys.forEach(function (k) { caches.delete(k); }); })
-            .catch(function () {});
-        }
-        // 3) Prevent flutter_bootstrap.js from registering a new SW.
-        navigator.serviceWorker.register = function () {
-          return Promise.reject(new Error('Service worker disabled for MVP.'));
+      if (!('serviceWorker' in navigator)) return;
+      var reloading = false;
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (reloading) return;
+        reloading = true;
+        window.location.reload();
+      });
+      function showToast(waiting) {
+        var toast = document.getElementById('ps-update-toast');
+        var btn = document.getElementById('ps-update-reload');
+        if (!toast || !btn) return;
+        toast.style.display = 'flex';
+        btn.onclick = function () {
+          // Flutter's generated SW skips waiting on the literal 'skipWaiting' message.
+          if (waiting) waiting.postMessage('skipWaiting');
+          else window.location.reload();
         };
       }
+      // flutter_bootstrap.js registers the SW; hook the registration once active.
+      navigator.serviceWorker.ready.then(function (reg) {
+        if (reg.waiting && navigator.serviceWorker.controller) showToast(reg.waiting);
+        reg.addEventListener('updatefound', function () {
+          var nw = reg.installing;
+          if (!nw) return;
+          nw.addEventListener('statechange', function () {
+            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+              showToast(reg.waiting || nw);
+            }
+          });
+        });
+      }).catch(function () {});
     })();
   </script>
   <script src="flutter_bootstrap.js" async></script>

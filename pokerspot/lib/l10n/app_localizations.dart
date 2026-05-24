@@ -111,6 +111,12 @@ abstract class AppL10n {
   /// **'Welcome to PokerSpot'**
   String get welcomeTitle;
 
+  /// No description provided for @welcomeSub.
+  ///
+  /// In en, this message translates to:
+  /// **'Find live poker across Georgia — see open seats and join waitlists.'**
+  String get welcomeSub;
+
   /// No description provided for @gdprConsent.
   ///
   /// In en, this message translates to:

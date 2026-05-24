@@ -5,6 +5,17 @@ import 'package:pokerspot/core/constants/validation_rules.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/centered_pane.dart';
+import 'package:pokerspot/shared/widgets/ps_button.dart';
+import 'package:pokerspot/shared/widgets/ps_scaffold.dart';
+import 'package:pokerspot/shared/widgets/ps_text_field.dart';
+
+/// (code, label, endonym) for the language picker. Endonyms are intentionally
+/// shown in each language's own script regardless of the app locale.
+const _languages = <(String, String, String)>[
+  ('ka', 'ქა', 'ქართული'),
+  ('en', 'EN', 'English'),
+  ('ru', 'РУ', 'Русский'),
+];
 
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
@@ -57,62 +68,119 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     // currentUserProvider will emit the new profile → router redirects to /home.
   }
 
+  Widget _fieldLabel(String text) => Padding(
+        padding: const EdgeInsets.only(bottom: PsSpacing.s2),
+        child: Text(
+          text.toUpperCase(),
+          style: TextStyle(
+            fontSize: PsType.caption,
+            fontWeight: PsType.weightBlack,
+            letterSpacing: PsType.trackingWide,
+            color: PsColors.textFaint,
+          ),
+        ),
+      );
+
+  /// "Welcome to PokerSpot" with the brand word accented.
+  Widget _title(AppL10n l10n) {
+    const base = TextStyle(
+      fontSize: PsType.display2,
+      fontWeight: PsType.weightBlack,
+      height: 1.05,
+      letterSpacing: PsType.trackingTight,
+      color: PsColors.text,
+    );
+    final title = l10n.welcomeTitle;
+    final brand = l10n.appTitle;
+    final i = title.indexOf(brand);
+    if (i < 0) return Text(title, style: base);
+    return Text.rich(
+      TextSpan(style: base, children: [
+        if (i > 0) TextSpan(text: title.substring(0, i)),
+        TextSpan(text: brand, style: base.copyWith(color: PsColors.accentPrimary)),
+        if (i + brand.length < title.length) TextSpan(text: title.substring(i + brand.length)),
+      ]),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
-    return Scaffold(
-      backgroundColor: PsColors.bg0,
+    return PsScaffold(
       body: CenteredPane(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.all(PsSpacing.s5),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(l10n.welcomeTitle,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      color: PsColors.text, fontSize: PsType.title, fontWeight: FontWeight.w900)),
+              const SizedBox(height: PsSpacing.s8),
+              const _HeroOrb(),
+              const SizedBox(height: PsSpacing.s5),
+              _title(l10n),
+              const SizedBox(height: PsSpacing.s3),
+              Text(
+                l10n.welcomeSub,
+                style: TextStyle(
+                  fontSize: PsType.headline,
+                  fontWeight: PsType.weightMedium,
+                  height: 1.4,
+                  color: PsColors.textMuted,
+                ),
+              ),
               const SizedBox(height: PsSpacing.s6),
-              TextField(
+              _fieldLabel(l10n.firstName),
+              PsTextField(
                 key: const Key('firstNameField'),
                 controller: _first,
+                hintText: l10n.firstNameHint,
+                errorText: _firstError(l10n),
                 onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(
-                    labelText: l10n.firstName,
-                    hintText: l10n.firstNameHint,
-                    errorText: _firstError(l10n)),
               ),
               const SizedBox(height: PsSpacing.s4),
-              TextField(
+              _fieldLabel(l10n.lastName),
+              PsTextField(
                 key: const Key('lastNameField'),
                 controller: _last,
+                hintText: l10n.lastNameHint,
+                errorText: _lastError(l10n),
                 onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(
-                    labelText: l10n.lastName,
-                    hintText: l10n.lastNameHint,
-                    errorText: _lastError(l10n)),
               ),
-              const SizedBox(height: PsSpacing.s4),
-              SegmentedButton<String>(
-                segments: const [
-                  ButtonSegment(value: 'ka', label: Text('ქა')),
-                  ButtonSegment(value: 'en', label: Text('EN')),
-                  ButtonSegment(value: 'ru', label: Text('РУ')),
+              const SizedBox(height: PsSpacing.s5),
+              _fieldLabel(l10n.language),
+              Row(
+                children: [
+                  for (var i = 0; i < _languages.length; i++) ...[
+                    if (i > 0) const SizedBox(width: PsSpacing.s2),
+                    Expanded(
+                      child: _LangOption(
+                        code: _languages[i].$2,
+                        name: _languages[i].$3,
+                        selected: _lang == _languages[i].$1,
+                        onTap: () => setState(() => _lang = _languages[i].$1),
+                      ),
+                    ),
+                  ],
                 ],
-                selected: {_lang},
-                onSelectionChanged: (s) => setState(() => _lang = s.first),
               ),
               const SizedBox(height: PsSpacing.s6),
-              FilledButton(
-                key: const Key('getStartedBtn'),
-                onPressed: (_canSubmit && !_busy) ? _submit : null,
-                child: Text(l10n.getStarted),
+              SizedBox(
+                width: double.infinity,
+                child: PsButton(
+                  key: const Key('getStartedBtn'),
+                  label: l10n.getStarted,
+                  onPressed: (_canSubmit && !_busy) ? _submit : null,
+                ),
               ),
               const SizedBox(height: PsSpacing.s3),
-              Text(l10n.gdprConsent,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: PsColors.textFaint, fontSize: PsType.caption)),
+              Text(
+                l10n.gdprConsent,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: PsType.caption,
+                  height: 1.4,
+                  color: PsColors.textFaint,
+                ),
+              ),
             ],
           ),
         ),
@@ -125,5 +193,100 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     _first.dispose();
     _last.dispose();
     super.dispose();
+  }
+}
+
+/// The 84px gradient hero orb with the spade glyph (mockup `.hero-orb`).
+class _HeroOrb extends StatelessWidget {
+  const _HeroOrb();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 84,
+      height: 84,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(PsRadii.xl),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [PsColors.accentPrimary, PsColors.accentSecondary],
+        ),
+        boxShadow: [
+          ...PsElevation.e3,
+          const BoxShadow(color: PsColors.accentPrimary, blurRadius: 40, spreadRadius: -6),
+        ],
+      ),
+      child: const Text(
+        '♠',
+        style: TextStyle(fontSize: 44, fontWeight: PsType.weightBlack, color: PsColors.onAccent),
+      ),
+    );
+  }
+}
+
+/// One language tile in the picker (mockup `.lang-opt`).
+class _LangOption extends StatefulWidget {
+  const _LangOption({
+    required this.code,
+    required this.name,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String code;
+  final String name;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  State<_LangOption> createState() => _LangOptionState();
+}
+
+class _LangOptionState extends State<_LangOption> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final sel = widget.selected;
+    final fg = sel ? PsColors.accentPrimary : PsColors.text;
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      onTap: widget.onTap,
+      child: AnimatedScale(
+        scale: _pressed ? 0.97 : 1.0,
+        duration: PsMotion.fast,
+        curve: PsMotion.ease,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+          decoration: BoxDecoration(
+            color: sel ? PsColors.accentPrimary.withValues(alpha: 0.12) : PsColors.glassThin,
+            borderRadius: BorderRadius.circular(PsRadii.md),
+            border: Border.all(color: sel ? PsColors.accentPrimary : PsColors.glassBorder),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                widget.code,
+                style: TextStyle(fontSize: PsType.body, fontWeight: PsType.weightBold, color: fg),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                widget.name,
+                style: TextStyle(
+                  fontSize: PsType.micro,
+                  fontWeight: PsType.weightMedium,
+                  color: sel ? PsColors.accentPrimary : PsColors.textFaint,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

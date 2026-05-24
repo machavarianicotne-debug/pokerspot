@@ -15,6 +15,10 @@ class AppL10nRu extends AppL10n {
   String get welcomeTitle => 'Добро пожаловать в PokerSpot';
 
   @override
+  String get welcomeSub =>
+      'Найдите живой покер по всей Грузии — смотрите свободные места и вставайте в лист ожидания.';
+
+  @override
   String get gdprConsent =>
       'PokerSpot отслеживает ваши игровые сессии для личной статистики и отчётов клубов. Продолжая, вы соглашаетесь.';
 

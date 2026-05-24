@@ -15,6 +15,10 @@ class AppL10nKa extends AppL10n {
   String get welcomeTitle => 'მოგესალმებით PokerSpot-ში';
 
   @override
+  String get welcomeSub =>
+      'იპოვე ცოცხალი პოკერი საქართველოში — ნახე თავისუფალი ადგილები და ჩაეწერე რიგში.';
+
+  @override
   String get gdprConsent =>
       'PokerSpot ინახავს თქვენი თამაშის სესიებს პირადი სტატისტიკისა და კლუბის ანგარიშებისთვის. გაგრძელებით თანხმობას აცხადებთ.';
 

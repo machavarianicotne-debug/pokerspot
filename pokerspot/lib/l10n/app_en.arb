@@ -2,6 +2,7 @@
   "@@locale": "en",
   "appTitle": "PokerSpot",
   "welcomeTitle": "Welcome to PokerSpot",
+  "welcomeSub": "Find live poker across Georgia — see open seats and join waitlists.",
   "gdprConsent": "PokerSpot tracks your play sessions for personal stats and club reports. By continuing you consent.",
   "phoneNumber": "Phone number",
   "phoneHint": "+995 5XX XX XX XX",

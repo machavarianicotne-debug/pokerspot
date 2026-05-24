@@ -15,6 +15,10 @@ class AppL10nEn extends AppL10n {
   String get welcomeTitle => 'Welcome to PokerSpot';
 
   @override
+  String get welcomeSub =>
+      'Find live poker across Georgia — see open seats and join waitlists.';
+
+  @override
   String get gdprConsent =>
       'PokerSpot tracks your play sessions for personal stats and club reports. By continuing you consent.';
 

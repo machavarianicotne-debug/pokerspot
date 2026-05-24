@@ -6,6 +6,7 @@ import 'package:pokerspot/features/auth/data/fake_auth_repository.dart';
 import 'package:pokerspot/features/auth/data/fake_users_repository.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:pokerspot/shared/widgets/ps_button.dart';
 
 Widget _wrap(FakeAuthRepository auth, FakeUsersRepository users) => ProviderScope(
       overrides: [
@@ -20,7 +21,7 @@ Widget _wrap(FakeAuthRepository auth, FakeUsersRepository users) => ProviderScop
     );
 
 bool _enabled(WidgetTester t) =>
-    t.widget<FilledButton>(find.byKey(const Key('getStartedBtn'))).onPressed != null;
+    t.widget<PsButton>(find.byKey(const Key('getStartedBtn'))).onPressed != null;
 
 Future<void> _signedIn(FakeAuthRepository auth) async {
   final s = await auth.sendOtp('+995555222222');
@@ -56,6 +57,7 @@ void main() {
     await tester.pump();
     expect(_enabled(tester), isTrue);
 
+    await tester.ensureVisible(find.byKey(const Key('getStartedBtn')));
     await tester.tap(find.byKey(const Key('getStartedBtn')));
     await tester.pumpAndSettle();
 

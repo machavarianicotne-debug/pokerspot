@@ -72,5 +72,20 @@
   "openLabel": "Open",
   "saveLabel": "Save",
   "walkInLabel": "Walk-in",
-  "seatWhoTitle": "Who's sitting?"
+  "seatWhoTitle": "Who's sitting?",
+  "tabUsers": "Users",
+  "newClub": "New club",
+  "editClub": "Edit club",
+  "clubNameLabel": "Club name",
+  "cityLabel": "City",
+  "enabledLabel": "Enabled",
+  "searchUsersHint": "Search name or phone",
+  "roleLabel": "Role",
+  "blockLabel": "Blocked",
+  "assignClubLabel": "Club",
+  "noneLabel": "None",
+  "analyticsTitle": "Analytics",
+  "activeLabel": "Active",
+  "sessionsLabel": "Sessions",
+  "avgMinLabel": "Avg min"
 }

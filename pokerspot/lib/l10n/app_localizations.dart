@@ -536,6 +536,96 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Who\'s sitting?'**
   String get seatWhoTitle;
+
+  /// No description provided for @tabUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get tabUsers;
+
+  /// No description provided for @newClub.
+  ///
+  /// In en, this message translates to:
+  /// **'New club'**
+  String get newClub;
+
+  /// No description provided for @editClub.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit club'**
+  String get editClub;
+
+  /// No description provided for @clubNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Club name'**
+  String get clubNameLabel;
+
+  /// No description provided for @cityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'City'**
+  String get cityLabel;
+
+  /// No description provided for @enabledLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Enabled'**
+  String get enabledLabel;
+
+  /// No description provided for @searchUsersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search name or phone'**
+  String get searchUsersHint;
+
+  /// No description provided for @roleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Role'**
+  String get roleLabel;
+
+  /// No description provided for @blockLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Blocked'**
+  String get blockLabel;
+
+  /// No description provided for @assignClubLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Club'**
+  String get assignClubLabel;
+
+  /// No description provided for @noneLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get noneLabel;
+
+  /// No description provided for @analyticsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Analytics'**
+  String get analyticsTitle;
+
+  /// No description provided for @activeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get activeLabel;
+
+  /// No description provided for @sessionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Sessions'**
+  String get sessionsLabel;
+
+  /// No description provided for @avgMinLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg min'**
+  String get avgMinLabel;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

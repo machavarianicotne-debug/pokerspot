@@ -228,4 +228,49 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get seatWhoTitle => 'Who\'s sitting?';
+
+  @override
+  String get tabUsers => 'Users';
+
+  @override
+  String get newClub => 'New club';
+
+  @override
+  String get editClub => 'Edit club';
+
+  @override
+  String get clubNameLabel => 'Club name';
+
+  @override
+  String get cityLabel => 'City';
+
+  @override
+  String get enabledLabel => 'Enabled';
+
+  @override
+  String get searchUsersHint => 'Search name or phone';
+
+  @override
+  String get roleLabel => 'Role';
+
+  @override
+  String get blockLabel => 'Blocked';
+
+  @override
+  String get assignClubLabel => 'Club';
+
+  @override
+  String get noneLabel => 'None';
+
+  @override
+  String get analyticsTitle => 'Analytics';
+
+  @override
+  String get activeLabel => 'Active';
+
+  @override
+  String get sessionsLabel => 'Sessions';
+
+  @override
+  String get avgMinLabel => 'Avg min';
 }

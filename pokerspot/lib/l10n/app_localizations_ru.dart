@@ -228,4 +228,49 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get seatWhoTitle => 'Кто садится?';
+
+  @override
+  String get tabUsers => 'Пользователи';
+
+  @override
+  String get newClub => 'Новый клуб';
+
+  @override
+  String get editClub => 'Редактировать клуб';
+
+  @override
+  String get clubNameLabel => 'Название клуба';
+
+  @override
+  String get cityLabel => 'Город';
+
+  @override
+  String get enabledLabel => 'Включён';
+
+  @override
+  String get searchUsersHint => 'Поиск по имени или номеру';
+
+  @override
+  String get roleLabel => 'Роль';
+
+  @override
+  String get blockLabel => 'Заблокирован';
+
+  @override
+  String get assignClubLabel => 'Клуб';
+
+  @override
+  String get noneLabel => 'Нет';
+
+  @override
+  String get analyticsTitle => 'Аналитика';
+
+  @override
+  String get activeLabel => 'Активные';
+
+  @override
+  String get sessionsLabel => 'Сессии';
+
+  @override
+  String get avgMinLabel => 'Ср. мин';
 }

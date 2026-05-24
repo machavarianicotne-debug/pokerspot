@@ -228,4 +228,49 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get seatWhoTitle => 'ვინ ჯდება?';
+
+  @override
+  String get tabUsers => 'მომხმარებლები';
+
+  @override
+  String get newClub => 'ახალი კლუბი';
+
+  @override
+  String get editClub => 'კლუბის რედაქტირება';
+
+  @override
+  String get clubNameLabel => 'კლუბის სახელი';
+
+  @override
+  String get cityLabel => 'ქალაქი';
+
+  @override
+  String get enabledLabel => 'ჩართული';
+
+  @override
+  String get searchUsersHint => 'ძებნა სახელით ან ნომრით';
+
+  @override
+  String get roleLabel => 'როლი';
+
+  @override
+  String get blockLabel => 'დაბლოკილი';
+
+  @override
+  String get assignClubLabel => 'კლუბი';
+
+  @override
+  String get noneLabel => 'არცერთი';
+
+  @override
+  String get analyticsTitle => 'ანალიტიკა';
+
+  @override
+  String get activeLabel => 'აქტიური';
+
+  @override
+  String get sessionsLabel => 'სესიები';
+
+  @override
+  String get avgMinLabel => 'საშ. წთ';
 }

@@ -72,5 +72,20 @@
   "openLabel": "Открыт",
   "saveLabel": "Сохранить",
   "walkInLabel": "Walk-in",
-  "seatWhoTitle": "Кто садится?"
+  "seatWhoTitle": "Кто садится?",
+  "tabUsers": "Пользователи",
+  "newClub": "Новый клуб",
+  "editClub": "Редактировать клуб",
+  "clubNameLabel": "Название клуба",
+  "cityLabel": "Город",
+  "enabledLabel": "Включён",
+  "searchUsersHint": "Поиск по имени или номеру",
+  "roleLabel": "Роль",
+  "blockLabel": "Заблокирован",
+  "assignClubLabel": "Клуб",
+  "noneLabel": "Нет",
+  "analyticsTitle": "Аналитика",
+  "activeLabel": "Активные",
+  "sessionsLabel": "Сессии",
+  "avgMinLabel": "Ср. мин"
 }

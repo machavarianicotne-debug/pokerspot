@@ -52,7 +52,11 @@ void main() {
         home: RoleHome(),
       ),
     ));
-    await tester.pumpAndSettle();
+    // PlayerHome's "N LIVE" nav pill pulses forever (PsLiveDot) — pump finitely
+    // (auth -> profile -> role -> clubs stream chain needs a few turns).
+    for (var i = 0; i < 6; i++) {
+      await tester.pump(const Duration(milliseconds: 50));
+    }
 
     // Player role -> PlayerHome -> ClubsListScreen.
     expect(find.byType(PsBrand), findsOneWidget); // PlayerHome brand nav

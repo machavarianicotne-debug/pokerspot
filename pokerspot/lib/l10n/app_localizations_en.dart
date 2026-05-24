@@ -441,4 +441,31 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get minutesShort => 'm';
+
+  @override
+  String get liveLabel => 'Live';
+
+  @override
+  String get closedLabel => 'Closed';
+
+  @override
+  String get openSeatsLabel => 'Open seats';
+
+  @override
+  String get stakesLabel => 'Stakes';
+
+  @override
+  String get noSeatsLabel => 'No seats';
+
+  @override
+  String get fullLabel => 'FULL';
+
+  @override
+  String get floorOpenEmpty => 'Floor open — no games running yet tonight.';
+
+  @override
+  String get allCitiesFilter => 'All cities';
+
+  @override
+  String get liveCountLabel => 'LIVE';
 }

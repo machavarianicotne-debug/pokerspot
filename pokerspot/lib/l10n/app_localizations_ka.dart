@@ -441,4 +441,31 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get minutesShort => 'წთ';
+
+  @override
+  String get liveLabel => 'ცოცხალი';
+
+  @override
+  String get closedLabel => 'დაკეტილია';
+
+  @override
+  String get openSeatsLabel => 'თავისუფალი ადგილები';
+
+  @override
+  String get stakesLabel => 'სტეიკები';
+
+  @override
+  String get noSeatsLabel => 'ადგილი არ არის';
+
+  @override
+  String get fullLabel => 'სავსე';
+
+  @override
+  String get floorOpenEmpty => 'დარბაზი ღიაა — თამაში ჯერ არ დაწყებულა.';
+
+  @override
+  String get allCitiesFilter => 'ყველა ქალაქი';
+
+  @override
+  String get liveCountLabel => 'ცოცხალი';
 }

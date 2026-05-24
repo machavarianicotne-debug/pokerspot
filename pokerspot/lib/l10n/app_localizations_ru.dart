@@ -441,4 +441,31 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get minutesShort => 'м';
+
+  @override
+  String get liveLabel => 'Live';
+
+  @override
+  String get closedLabel => 'Закрыто';
+
+  @override
+  String get openSeatsLabel => 'Свободные места';
+
+  @override
+  String get stakesLabel => 'Ставки';
+
+  @override
+  String get noSeatsLabel => 'Нет мест';
+
+  @override
+  String get fullLabel => 'ПОЛНО';
+
+  @override
+  String get floorOpenEmpty => 'Зал открыт — игр пока нет.';
+
+  @override
+  String get allCitiesFilter => 'Все города';
+
+  @override
+  String get liveCountLabel => 'LIVE';
 }

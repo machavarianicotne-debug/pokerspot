@@ -46,7 +46,10 @@ Future<void> _pumpForRole(WidgetTester tester, String roleString) async {
       home: RoleHome(),
     ),
   ));
-  await tester.pumpAndSettle();
+  // PlayerHome's "N LIVE" nav pill pulses forever (PsLiveDot) — pump finitely
+  // instead of pumpAndSettle, which would never settle.
+  await tester.pump();
+  await tester.pump(const Duration(milliseconds: 50));
 }
 
 void main() {

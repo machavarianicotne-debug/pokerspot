@@ -956,6 +956,60 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'m'**
   String get minutesShort;
+
+  /// No description provided for @liveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Live'**
+  String get liveLabel;
+
+  /// No description provided for @closedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed'**
+  String get closedLabel;
+
+  /// No description provided for @openSeatsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Open seats'**
+  String get openSeatsLabel;
+
+  /// No description provided for @stakesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Stakes'**
+  String get stakesLabel;
+
+  /// No description provided for @noSeatsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'No seats'**
+  String get noSeatsLabel;
+
+  /// No description provided for @fullLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'FULL'**
+  String get fullLabel;
+
+  /// No description provided for @floorOpenEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Floor open — no games running yet tonight.'**
+  String get floorOpenEmpty;
+
+  /// No description provided for @allCitiesFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'All cities'**
+  String get allCitiesFilter;
+
+  /// No description provided for @liveCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'LIVE'**
+  String get liveCountLabel;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

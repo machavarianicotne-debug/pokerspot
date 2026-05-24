@@ -142,5 +142,14 @@
   "appLanguage": "აპლიკაციის ენა",
   "languageHeader": "ენა",
   "hoursShort": "სთ",
-  "minutesShort": "წთ"
+  "minutesShort": "წთ",
+  "liveLabel": "ცოცხალი",
+  "closedLabel": "დაკეტილია",
+  "openSeatsLabel": "თავისუფალი ადგილები",
+  "stakesLabel": "სტეიკები",
+  "noSeatsLabel": "ადგილი არ არის",
+  "fullLabel": "სავსე",
+  "floorOpenEmpty": "დარბაზი ღიაა — თამაში ჯერ არ დაწყებულა.",
+  "allCitiesFilter": "ყველა ქალაქი",
+  "liveCountLabel": "ცოცხალი"
 }

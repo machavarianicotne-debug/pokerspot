@@ -836,6 +836,42 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'No registered user with that phone'**
   String get noUserForPhone;
+
+  /// No description provided for @seatedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Seated'**
+  String get seatedLabel;
+
+  /// No description provided for @reservationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservations'**
+  String get reservationsTitle;
+
+  /// No description provided for @heldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'held'**
+  String get heldLabel;
+
+  /// No description provided for @arrivedAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Arrived'**
+  String get arrivedAction;
+
+  /// No description provided for @reservedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Seat held · player arrives within 30 min or it\'s released'**
+  String get reservedHint;
+
+  /// No description provided for @addLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get addLabel;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

@@ -379,4 +379,23 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get noUserForPhone => 'No registered user with that phone';
+
+  @override
+  String get seatedLabel => 'Seated';
+
+  @override
+  String get reservationsTitle => 'Reservations';
+
+  @override
+  String get heldLabel => 'held';
+
+  @override
+  String get arrivedAction => 'Arrived';
+
+  @override
+  String get reservedHint =>
+      'Seat held · player arrives within 30 min or it\'s released';
+
+  @override
+  String get addLabel => 'Add';
 }

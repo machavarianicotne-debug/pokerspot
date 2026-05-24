@@ -122,5 +122,11 @@
   "assignPitBossHeader": "Assign a Pit Boss",
   "removeLabel": "Remove",
   "assignBtn": "Assign",
-  "noUserForPhone": "No registered user with that phone"
+  "noUserForPhone": "No registered user with that phone",
+  "seatedLabel": "Seated",
+  "reservationsTitle": "Reservations",
+  "heldLabel": "held",
+  "arrivedAction": "Arrived",
+  "reservedHint": "Seat held · player arrives within 30 min or it's released",
+  "addLabel": "Add"
 }

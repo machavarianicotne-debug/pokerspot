@@ -5,17 +5,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
+import 'package:pokerspot/features/floor/domain/reservation.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
+import 'package:pokerspot/shared/widgets/ps_countdown.dart';
 import 'package:pokerspot/shared/widgets/ps_list_tile.dart';
 import 'package:pokerspot/shared/widgets/ps_overline.dart';
 import 'package:pokerspot/shared/widgets/ps_scaffold.dart';
 import 'package:pokerspot/shared/widgets/ps_seat_map.dart';
 import 'package:pokerspot/shared/widgets/ps_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_text_field.dart';
+
+/// A called/reservation hold lasts 30 minutes (mirrors the mockup).
+const _holdWindow = Duration(minutes: 30);
 
 const _sessionWarn = Duration(hours: 8);
 
@@ -37,6 +42,10 @@ class GameDetailScreen extends ConsumerWidget {
     final waitlist = (ref.watch(clubWaitlistProvider(clubId)).valueOrNull ?? const <WaitlistEntry>[])
         .where((e) => e.stakes.label == stakeLabel)
         .toList();
+    final reservations =
+        (ref.watch(clubReservationsProvider(clubId)).valueOrNull ?? const <Reservation>[])
+            .where((r) => r.stakes.label == stakeLabel && r.status == ReservationStatus.held)
+            .toList();
 
     return PsScaffold(
       body: SafeArea(
@@ -56,12 +65,35 @@ class GameDetailScreen extends ConsumerWidget {
                         child: _tableCard(context, ref, tables, i, sessions),
                       ),
                     const SizedBox(height: PsSpacing.s2),
-                    Align(
-                      alignment: Alignment.centerLeft,
-                      child: PsOverline('${l10n.waitlistTitle} · ${waitlist.length}'),
+                    Row(
+                      children: [
+                        PsOverline('${l10n.waitlistTitle} · ${waitlist.length}'),
+                        const Spacer(),
+                        GestureDetector(
+                          key: const Key('addWaitlistBtn'),
+                          behavior: HitTestBehavior.opaque,
+                          onTap: tables.isEmpty ? null : () => _addToWaitlist(context, ref, tables.first),
+                          child: Text('+ ${l10n.addLabel}'.toUpperCase(),
+                              style: const TextStyle(
+                                  fontSize: PsType.caption,
+                                  fontWeight: PsType.weightBlack,
+                                  letterSpacing: PsType.trackingWide,
+                                  color: PsColors.accentPrimary)),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: PsSpacing.s3),
                     ..._waitlistRows(context, ref, tables, waitlist, sessions),
+                    if (reservations.isNotEmpty) ...[
+                      const SizedBox(height: PsSpacing.s4),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: PsOverline(
+                            '${l10n.reservationsTitle} · ${reservations.length} ${l10n.heldLabel}'),
+                      ),
+                      const SizedBox(height: PsSpacing.s3),
+                      for (final r in reservations) _reservationRow(context, ref, tables, r),
+                    ],
                     const SizedBox(height: PsSpacing.s4),
                     PsButton(
                       key: const Key('addTableBtn'),
@@ -131,6 +163,16 @@ class GameDetailScreen extends ConsumerWidget {
               }
             },
           ),
+          if (bySeat.isNotEmpty) ...[
+            const SizedBox(height: PsSpacing.s3),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: PsOverline('${l10n.seatedLabel} · ${bySeat.length}'),
+            ),
+            const SizedBox(height: PsSpacing.s1),
+            for (final seat in (bySeat.keys.toList()..sort()))
+              _seatedItem(context, ref, seat, bySeat[seat]!),
+          ],
           const SizedBox(height: PsSpacing.s3),
           _metaRow(context, ref, tables, l10n.blindsLabel, '${_fmt(t.stakes.smallBlind)}/${_fmt(t.stakes.bigBlind)}',
               (v) => _editBlinds(ref, tables, v)),
@@ -199,32 +241,229 @@ class GameDetailScreen extends ConsumerWidget {
     }
     final l10n = AppL10n.of(context);
     return [
-      for (final e in waitlist)
+      for (var i = 0; i < waitlist.length; i++)
         Padding(
           padding: const EdgeInsets.only(bottom: PsSpacing.s2),
           child: PsCard(
-            key: Key('wlRow_${e.id}'),
-            child: PsListTile(
-              title: e.playerName.isEmpty ? '—' : e.playerName,
-              subtitle: e.status == WaitlistStatus.called ? l10n.statusCalled : l10n.statusWaiting,
-              trailing: e.status == WaitlistStatus.called
-                  ? PsButton(
-                      key: Key('seatBtn_${e.id}'),
-                      label: l10n.seatAction,
-                      onPressed: firstFree == null
-                          ? null
-                          : () => unawaited(ref.read(waitlistRepositoryProvider).seat(
-                                entry: e, tableId: firstFree!.tableId, seatNumber: firstFree.seat)),
-                    )
-                  : PsButton(
-                      key: Key('callBtn_${e.id}'),
-                      label: l10n.callAction,
-                      onPressed: () => unawaited(ref.read(waitlistRepositoryProvider).call(e.id)),
-                    ),
+            key: Key('wlRow_${waitlist[i].id}'),
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                  child: Text('${i + 1}',
+                      style: const TextStyle(
+                          fontSize: PsType.body,
+                          fontWeight: PsType.weightBlack,
+                          color: PsColors.accentPrimary)),
+                ),
+                const SizedBox(width: PsSpacing.s2),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(waitlist[i].playerName.isEmpty ? '—' : waitlist[i].playerName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                              fontSize: PsType.body,
+                              fontWeight: PsType.weightBold,
+                              color: PsColors.text)),
+                      if (waitlist[i].status == WaitlistStatus.called)
+                        Row(
+                          children: [
+                            Text('${l10n.statusCalled} · ',
+                                style: const TextStyle(
+                                    fontSize: PsType.caption,
+                                    fontWeight: PsType.weightBlack,
+                                    color: PsColors.statusLive)),
+                            if (waitlist[i].calledAt != null)
+                              PsCountdown(
+                                deadline: waitlist[i].calledAt!.add(_holdWindow),
+                                style: const TextStyle(
+                                    fontSize: PsType.caption, fontWeight: PsType.weightBlack),
+                              ),
+                          ],
+                        ),
+                    ],
+                  ),
+                ),
+                _miniBtn(
+                    key: Key('callBtn_${waitlist[i].id}'),
+                    label: l10n.callAction,
+                    primary: true,
+                    onTap: () =>
+                        unawaited(ref.read(waitlistRepositoryProvider).call(waitlist[i].id))),
+                _miniBtn(
+                    key: Key('seatBtn_${waitlist[i].id}'),
+                    label: l10n.seatAction,
+                    onTap: firstFree == null
+                        ? null
+                        : () => unawaited(ref.read(waitlistRepositoryProvider).seat(
+                            entry: waitlist[i],
+                            tableId: firstFree!.tableId,
+                            seatNumber: firstFree.seat))),
+                _miniBtn(
+                    key: Key('removeWlBtn_${waitlist[i].id}'),
+                    label: '✕',
+                    danger: true,
+                    onTap: () =>
+                        unawaited(ref.read(waitlistRepositoryProvider).cancel(waitlist[i].id))),
+              ],
             ),
           ),
         ),
     ];
+  }
+
+  /// Compact uppercase action chip (mockup `.wl-act button` / `.res-act button`).
+  Widget _miniBtn({
+    Key? key,
+    required String label,
+    VoidCallback? onTap,
+    bool primary = false,
+    bool danger = false,
+  }) {
+    final disabled = onTap == null;
+    final fg = disabled
+        ? PsColors.textFaint
+        : danger
+            ? PsColors.statusLive
+            : primary
+                ? PsColors.onAccent
+                : PsColors.text;
+    return GestureDetector(
+      key: key,
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(left: PsSpacing.s1),
+        padding: const EdgeInsets.symmetric(horizontal: PsSpacing.s2, vertical: 6),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(PsRadii.sm),
+          color: primary && !disabled ? PsColors.accentPrimary : PsColors.glassRegular,
+          border: Border.all(color: PsColors.glassBorder),
+        ),
+        child: Text(label.toUpperCase(),
+            style: TextStyle(
+                fontSize: PsType.micro, fontWeight: PsType.weightBlack, color: fg)),
+      ),
+    );
+  }
+
+  /// One seated player (mockup `.seated-item`): seat badge + name (+ walk-in tag)
+  /// + a live count-up session timer. Tap to end the session.
+  Widget _seatedItem(BuildContext context, WidgetRef ref, int seat, Session s) {
+    final l10n = AppL10n.of(context);
+    final walkIn = s.playerUid.startsWith('walk-in:');
+    return GestureDetector(
+      key: Key('seated_${s.id}'),
+      behavior: HitTestBehavior.opaque,
+      onTap: () => _endSession(context, ref, s),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 7),
+        decoration: BoxDecoration(border: Border(top: BorderSide(color: PsColors.glassBorder))),
+        child: Row(
+          children: [
+            Container(
+              width: 22,
+              height: 22,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                color: PsColors.glassRegular,
+                border: Border.all(color: PsColors.glassBorder),
+              ),
+              child: Text('$seat',
+                  style: const TextStyle(
+                      fontSize: PsType.micro, fontWeight: PsType.weightBlack, color: PsColors.text)),
+            ),
+            const SizedBox(width: PsSpacing.s3),
+            Expanded(
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Text(s.playerName.isEmpty ? '—' : s.playerName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                            fontSize: PsType.subhead,
+                            fontWeight: PsType.weightBold,
+                            color: PsColors.text)),
+                  ),
+                  if (walkIn)
+                    Padding(
+                      padding: const EdgeInsets.only(left: PsSpacing.s2),
+                      child: Text(l10n.walkInLabel,
+                          style: TextStyle(fontSize: PsType.micro, color: PsColors.textFaint)),
+                    ),
+                ],
+              ),
+            ),
+            if (s.startedAt != null) _ElapsedTimer(start: s.startedAt!),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// One held reservation (mockup `.res-item`): name + live 30-min countdown +
+  /// Arrived (marks arrived and adds the holder to the waitlist) / reject.
+  Widget _reservationRow(
+      BuildContext context, WidgetRef ref, List<PokerTable> tables, Reservation r) {
+    final l10n = AppL10n.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: PsSpacing.s2),
+      child: PsCard(
+        key: Key('resRow_${r.id}'),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(r.playerName.isEmpty ? '—' : r.playerName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          fontSize: PsType.body,
+                          fontWeight: PsType.weightBold,
+                          color: PsColors.text)),
+                ),
+                if (r.heldUntil != null) PsCountdown(deadline: r.heldUntil!),
+              ],
+            ),
+            const SizedBox(height: PsSpacing.s2),
+            Row(
+              children: [
+                _miniBtn(
+                    key: Key('arrivedBtn_${r.id}'),
+                    label: l10n.arrivedAction,
+                    primary: true,
+                    onTap: () {
+                      unawaited(ref.read(reservationsRepositoryProvider).markArrived(r.id));
+                      unawaited(ref.read(waitlistRepositoryProvider).join(
+                          clubId: r.clubId,
+                          playerUid: r.playerUid,
+                          playerName: r.playerName,
+                          stakes: r.stakes));
+                    }),
+                _miniBtn(
+                    key: Key('rejectResBtn_${r.id}'),
+                    label: '✕',
+                    danger: true,
+                    onTap: () => unawaited(ref.read(reservationsRepositoryProvider).cancel(r.id))),
+              ],
+            ),
+            const SizedBox(height: PsSpacing.s2),
+            Text(l10n.reservedHint,
+                style: TextStyle(
+                    fontSize: PsType.caption,
+                    fontStyle: FontStyle.italic,
+                    color: PsColors.textFaint)),
+          ],
+        ),
+      ),
+    );
   }
 
   // ---- actions ------------------------------------------------------------
@@ -291,6 +530,45 @@ class GameDetailScreen extends ConsumerWidget {
 
   void _seatPicker(BuildContext context, WidgetRef ref, List<PokerTable> tables, PokerTable t, int seat) {
     PsSheet.show<void>(context, child: _SeatPickerSheet(clubId: clubId, table: t, seat: seat));
+  }
+
+  /// Add a walk-in to the shared waitlist by typed name (mockup `+ Add`).
+  /// Registered-user search is out of scope: rules forbid Pit Bosses reading
+  /// the full users collection.
+  void _addToWaitlist(BuildContext context, WidgetRef ref, PokerTable t) {
+    final c = TextEditingController();
+    final l10n = AppL10n.of(context);
+    PsSheet.show<void>(
+      context,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.waitlistTitle,
+              style: const TextStyle(
+                  fontSize: PsType.headline, fontWeight: PsType.weightBold, color: PsColors.text)),
+          const SizedBox(height: PsSpacing.s3),
+          PsTextField(controller: c, hintText: l10n.searchUsersHint, autofocus: true),
+          const SizedBox(height: PsSpacing.s4),
+          PsButton(
+            key: const Key('addWaitlistSaveBtn'),
+            label: '+ ${l10n.addLabel}',
+            onPressed: () {
+              final name = c.text.trim();
+              if (name.isEmpty) return;
+              final nav = Navigator.of(context);
+              unawaited(ref.read(waitlistRepositoryProvider).join(
+                    clubId: clubId,
+                    playerUid: 'walk-in:${DateTime.now().microsecondsSinceEpoch}',
+                    playerName: name,
+                    stakes: t.stakes,
+                  ));
+              nav.pop();
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   void _endSession(BuildContext context, WidgetRef ref, Session s) {
@@ -370,6 +648,50 @@ class GameDetailScreen extends ConsumerWidget {
   }
 
   static String _fmt(num n) => n == n.truncate() ? n.toInt().toString() : '$n';
+}
+
+/// Live count-up session timer (mockup `.seated-item .tm`): ticks every second
+/// showing `h:mm:ss` since [start], in accent-secondary, turning status-open
+/// once the session passes the 8-hour warning window.
+class _ElapsedTimer extends StatefulWidget {
+  const _ElapsedTimer({required this.start});
+  final DateTime start;
+
+  @override
+  State<_ElapsedTimer> createState() => _ElapsedTimerState();
+}
+
+class _ElapsedTimerState extends State<_ElapsedTimer> {
+  Timer? _ticker;
+
+  @override
+  void initState() {
+    super.initState();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (_) {
+      if (mounted) setState(() {});
+    });
+  }
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final d = DateTime.now().difference(widget.start);
+    final warn = d > _sessionWarn;
+    final h = d.inHours, m = d.inMinutes % 60, s = d.inSeconds % 60;
+    return Text(
+      '$h:${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}',
+      style: TextStyle(
+        fontWeight: PsType.weightBlack,
+        color: warn ? PsColors.statusOpen : PsColors.accentSecondary,
+        fontFeatures: const [FontFeature.tabularFigures()],
+      ),
+    );
+  }
 }
 
 /// Seat-a-player sheet (mockup smart search). Searches the club's waiting list

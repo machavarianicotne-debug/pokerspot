@@ -122,5 +122,11 @@
   "assignPitBossHeader": "Назначить Pit Boss",
   "removeLabel": "Снять",
   "assignBtn": "Назначить",
-  "noUserForPhone": "Нет пользователя с таким номером"
+  "noUserForPhone": "Нет пользователя с таким номером",
+  "seatedLabel": "За столом",
+  "reservationsTitle": "Брони",
+  "heldLabel": "удерж.",
+  "arrivedAction": "Пришёл",
+  "reservedHint": "Место удержано · игрок приходит за 30 мин, иначе освобождается",
+  "addLabel": "Добавить"
 }

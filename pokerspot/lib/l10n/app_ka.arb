@@ -122,5 +122,11 @@
   "assignPitBossHeader": "Pit Boss-ის დანიშვნა",
   "removeLabel": "მოხსნა",
   "assignBtn": "დანიშვნა",
-  "noUserForPhone": "ამ ნომრით რეგისტრირებული მომხმარებელი არ არის"
+  "noUserForPhone": "ამ ნომრით რეგისტრირებული მომხმარებელი არ არის",
+  "seatedLabel": "დასხდნენ",
+  "reservationsTitle": "რეზერვაციები",
+  "heldLabel": "დაჭერილია",
+  "arrivedAction": "მოვიდა",
+  "reservedHint": "ადგილი დაჭერილია · მოთამაშე მოვა 30 წუთში, თორემ თავისუფლდება",
+  "addLabel": "დამატება"
 }

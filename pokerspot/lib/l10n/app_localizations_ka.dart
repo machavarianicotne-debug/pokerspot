@@ -379,4 +379,23 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get noUserForPhone => 'ამ ნომრით რეგისტრირებული მომხმარებელი არ არის';
+
+  @override
+  String get seatedLabel => 'დასხდნენ';
+
+  @override
+  String get reservationsTitle => 'რეზერვაციები';
+
+  @override
+  String get heldLabel => 'დაჭერილია';
+
+  @override
+  String get arrivedAction => 'მოვიდა';
+
+  @override
+  String get reservedHint =>
+      'ადგილი დაჭერილია · მოთამაშე მოვა 30 წუთში, თორემ თავისუფლდება';
+
+  @override
+  String get addLabel => 'დამატება';
 }

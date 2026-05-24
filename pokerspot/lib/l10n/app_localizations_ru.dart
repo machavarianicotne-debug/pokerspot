@@ -379,4 +379,23 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get noUserForPhone => 'Нет пользователя с таким номером';
+
+  @override
+  String get seatedLabel => 'За столом';
+
+  @override
+  String get reservationsTitle => 'Брони';
+
+  @override
+  String get heldLabel => 'удерж.';
+
+  @override
+  String get arrivedAction => 'Пришёл';
+
+  @override
+  String get reservedHint =>
+      'Место удержано · игрок приходит за 30 мин, иначе освобождается';
+
+  @override
+  String get addLabel => 'Добавить';
 }

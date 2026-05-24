@@ -5,6 +5,7 @@ import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/features/auth/domain/app_user.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
+import 'package:pokerspot/features/floor/domain/reservation.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/stakes.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
@@ -81,7 +82,7 @@ void main() {
     expect(find.text('No tables yet'), findsOneWidget);
   });
 
-  testWidgets('GameDetailScreen (game-centric) shows the table seat map', (tester) async {
+  testWidgets('GameDetailScreen (game-centric) shows the table seat map + seated timer', (tester) async {
     await tester.pumpWidget(_wrap(
       const GameDetailScreen(clubId: 'vake', stakeLabel: 'NLH 1/2 GEL'),
       [
@@ -89,13 +90,64 @@ void main() {
         tablesProvider('vake').overrideWith((ref) => Stream.value(const [_table])),
         clubSessionsProvider('vake').overrideWith((ref) => Stream.value([_session(1)])),
         clubWaitlistProvider('vake').overrideWith((ref) => Stream.value(const <WaitlistEntry>[])),
+        clubReservationsProvider('vake').overrideWith((ref) => Stream.value(const <Reservation>[])),
       ],
     ));
-    await tester.pumpAndSettle();
+    // Live timers (Timer.periodic) never settle — pump instead of pumpAndSettle.
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
 
     expect(find.byKey(const Key('tableCard_t1')), findsOneWidget);
     expect(find.byType(PsSeatMap), findsOneWidget);
     expect(find.text('8/9'), findsOneWidget); // 9 seats, 1 occupied
+    expect(find.byKey(const Key('seated_s1')), findsOneWidget); // seated list row
+    expect(find.text('Nino K'), findsOneWidget); // seated player name
+  });
+
+  testWidgets('GameDetailScreen waitlist row has Call + Seat + remove actions', (tester) async {
+    final entry = WaitlistEntry(
+        id: 'e1', clubId: 'vake', playerUid: 'u', playerName: 'Nino K', stakes: _stakes,
+        status: WaitlistStatus.waiting, createdAt: DateTime.now(), calledAt: null);
+    await tester.pumpWidget(_wrap(
+      const GameDetailScreen(clubId: 'vake', stakeLabel: 'NLH 1/2 GEL'),
+      [
+        currentUserProvider.overrideWith((ref) => Stream.value(_pb())),
+        tablesProvider('vake').overrideWith((ref) => Stream.value(const [_table])),
+        clubSessionsProvider('vake').overrideWith((ref) => Stream.value(const <Session>[])),
+        clubWaitlistProvider('vake').overrideWith((ref) => Stream.value([entry])),
+        clubReservationsProvider('vake').overrideWith((ref) => Stream.value(const <Reservation>[])),
+      ],
+    ));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.byKey(const Key('wlRow_e1')), 200,
+        scrollable: find.byType(Scrollable).first);
+    expect(find.byKey(const Key('callBtn_e1')), findsOneWidget);
+    expect(find.byKey(const Key('seatBtn_e1')), findsOneWidget);
+    expect(find.byKey(const Key('removeWlBtn_e1')), findsOneWidget);
+  });
+
+  testWidgets('GameDetailScreen shows a held reservation with Arrived + reject', (tester) async {
+    final res = Reservation(
+        id: 'r1', clubId: 'vake', playerUid: 'u9', playerName: 'Levan', stakes: _stakes,
+        status: ReservationStatus.held,
+        heldUntil: DateTime.now().add(const Duration(minutes: 30)), createdAt: DateTime.now());
+    await tester.pumpWidget(_wrap(
+      const GameDetailScreen(clubId: 'vake', stakeLabel: 'NLH 1/2 GEL'),
+      [
+        currentUserProvider.overrideWith((ref) => Stream.value(_pb())),
+        tablesProvider('vake').overrideWith((ref) => Stream.value(const [_table])),
+        clubSessionsProvider('vake').overrideWith((ref) => Stream.value(const <Session>[])),
+        clubWaitlistProvider('vake').overrideWith((ref) => Stream.value(const <WaitlistEntry>[])),
+        clubReservationsProvider('vake').overrideWith((ref) => Stream.value([res])),
+      ],
+    ));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.scrollUntilVisible(find.byKey(const Key('resRow_r1')), 200,
+        scrollable: find.byType(Scrollable).first);
+    expect(find.byKey(const Key('arrivedBtn_r1')), findsOneWidget);
+    expect(find.byKey(const Key('rejectResBtn_r1')), findsOneWidget);
+    expect(find.text('Levan'), findsOneWidget);
   });
 
   testWidgets('GameDetailScreen shows the shared waitlist with a Call action', (tester) async {

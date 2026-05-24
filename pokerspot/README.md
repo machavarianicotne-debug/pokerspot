@@ -35,5 +35,47 @@ This machine has the Flutter SDK but **no Android SDK yet**. Install it once:
 2. Firebase Console → Firestore → `users/<your-uid>` → set `role` = `superadmin`.
 3. Reload the app — you now land on the Super Admin home.
 
-Clubs, reservations, and the rest land in subsequent plans
+## Clubs (Plan 3) — Firestore `clubs/` collection
+
+A signed-in Player sees enabled clubs on the home screen and can open a club's
+details. Clubs are read-only for players; seed them manually in the Firebase
+Console for now (Super Admin club management is a later plan).
+
+### Schema — collection `clubs`, one document per club
+| Field | Type | Notes |
+|---|---|---|
+| `name` | string | Club name (shown in list + details) |
+| `city` | string | e.g. `Tbilisi`, `Batumi` |
+| `address` | string | Street address |
+| `photoUrl` | string \| null | Image URL; leave empty/omit for the icon fallback (no upload yet) |
+| `hoursText` | string | Free text, e.g. `Daily 14:00–04:00` |
+| `phone` | string | Tappable (`tel:`) in details |
+| `enabled` | boolean | **Only `true` clubs appear to players** |
+
+The Firestore **document id** is the club id (used in the URL `/home/club/<id>`).
+You can let the Console auto-generate the id.
+
+### Add a club via the Firebase Console
+1. Firebase Console → **Firestore Database** → **Start collection** (first time)
+   with collection id `clubs`; afterwards use **Add document**.
+2. **Auto-ID** the document.
+3. Add the fields from the table above (set `enabled` as type **boolean** = `true`;
+   set `photoUrl` to a string or just omit it).
+4. Save. Reload the app — the club shows up in the Players' list immediately
+   (live via Firestore snapshots).
+
+### Demo clubs to seed (paste field-by-field)
+Create one `clubs` document per block below (all `enabled: true`, `photoUrl` omitted):
+```jsonc
+// doc 1
+{ "name": "PokerSpot Vake",      "city": "Tbilisi", "address": "Chavchavadze Ave 47",     "hoursText": "Daily 14:00–04:00", "phone": "+995 32 200 0001", "enabled": true }
+// doc 2
+{ "name": "PokerSpot Saburtalo", "city": "Tbilisi", "address": "Vazha-Pshavela Ave 76",   "hoursText": "Daily 14:00–04:00", "phone": "+995 32 200 0002", "enabled": true }
+// doc 3
+{ "name": "Aragvi Club",         "city": "Tbilisi", "address": "Rustaveli Ave 12",        "hoursText": "Daily 14:00–04:00", "phone": "+995 32 200 0003", "enabled": true }
+// doc 4
+{ "name": "Batumi Royal",        "city": "Batumi",  "address": "Memed Abashidze Ave 25",  "hoursText": "Daily 14:00–04:00", "phone": "+995 32 200 0004", "enabled": true }
+```
+
+Reservations, waitlist, and sessions land in subsequent plans
 (`docs/superpowers/plans/`).

@@ -4,6 +4,7 @@ import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/clubs/presentation/clubs_list_screen.dart';
+import 'package:pokerspot/features/floor/presentation/my_waitlist_banner.dart';
 
 /// Player home: the clubs list (with sign-out in the app bar).
 class PlayerHome extends ConsumerWidget {
@@ -24,7 +25,12 @@ class PlayerHome extends ConsumerWidget {
           ),
         ],
       ),
-      body: const ClubsListScreen(),
+      body: const Column(
+        children: [
+          MyWaitlistBanner(),
+          Expanded(child: ClubsListScreen()),
+        ],
+      ),
     );
   }
 }

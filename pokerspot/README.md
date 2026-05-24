@@ -139,4 +139,17 @@ phone-write change) is **skipped** — onboard it, then re-run. Note:
 re-onboarding overwrites the user doc back to `role: player`, so re-run this
 tool after any re-onboarding.
 
+### Clean up legacy user docs (one-time)
+Onboardings from before the phone backfill left `users` docs with `phone == ""`,
+which the setup tool can't match. To clear them so their owners re-onboard fresh:
+```bash
+flutter run -t tools/cleanup_legacy_users.dart -d chrome --dart-define-from-file=env-dev.json
+```
+(or `tools/cleanup_legacy_users.bat`). It scans for `phone == ""` docs, lists
+them (uid + name + role), and deletes them **only when you click "Delete all"**.
+It never touches docs that have a phone, and never touches Firebase Auth users —
+the auth UID stays valid, so signing in again triggers a fresh onboarding that
+recreates the doc with the phone. Idempotent (finds 0 once cleaned). Reversible
+only by the user signing in again, which is exactly the intent.
+
 Reservations land in a later mini-plan.

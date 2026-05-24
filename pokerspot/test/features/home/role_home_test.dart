@@ -9,6 +9,7 @@ import 'package:pokerspot/features/clubs/data/fake_clubs_repository.dart';
 import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
 import 'package:pokerspot/features/home/presentation/role_home.dart';
+import 'package:pokerspot/shared/widgets/ps_brand.dart';
 
 const _demo = Club(
   id: 'demo',
@@ -45,7 +46,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // Player role -> PlayerHome -> ClubsListScreen.
-    expect(find.text('Clubs'), findsOneWidget); // PlayerHome app bar title
+    expect(find.byType(PsBrand), findsOneWidget); // PlayerHome brand nav
     expect(find.text('Demo Club'), findsOneWidget); // the seeded club card
   });
 }

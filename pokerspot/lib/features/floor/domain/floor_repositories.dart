@@ -2,6 +2,7 @@
 // Concrete Fake / Firebase implementations live in features/floor/data.
 
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
+import 'package:pokerspot/features/floor/domain/reservation.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/stakes.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
@@ -78,4 +79,26 @@ abstract interface class SessionsRepository {
 
   /// End a session (status -> ended, stamps endedAt).
   Future<void> end(String sessionId);
+}
+
+abstract interface class ReservationsRepository {
+  /// A player's active (held) reservations.
+  Stream<List<Reservation>> watchByPlayer(String playerUid);
+
+  /// A club's active (held) reservations (Pit Boss view).
+  Stream<List<Reservation>> watchByClub(String clubId);
+
+  /// Player reserves a seat — instant 30-minute hold.
+  Future<void> reserve({
+    required String clubId,
+    required String playerUid,
+    required String playerName,
+    required Stakes stakes,
+  });
+
+  /// Player cancels (status -> cancelled).
+  Future<void> cancel(String reservationId);
+
+  /// Pit Boss marks the player arrived (status -> arrived).
+  Future<void> markArrived(String reservationId);
 }

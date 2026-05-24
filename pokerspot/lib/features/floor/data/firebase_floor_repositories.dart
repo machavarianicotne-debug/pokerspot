@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pokerspot/features/floor/domain/floor_repositories.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
+import 'package:pokerspot/features/floor/domain/reservation.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/stakes.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
@@ -197,4 +198,59 @@ class FirebaseSessionsRepository implements SessionsRepository {
         'status': SessionStatus.ended.asString,
         'endedAt': FieldValue.serverTimestamp(),
       });
+}
+
+class FirebaseReservationsRepository implements ReservationsRepository {
+  FirebaseReservationsRepository(this._db);
+  final FirebaseFirestore _db;
+
+  CollectionReference<Map<String, dynamic>> get _col => _db.collection('reservations');
+
+  Reservation _res(DocumentSnapshot<Map<String, dynamic>> d) {
+    final m = Map<String, dynamic>.from(d.data()!);
+    m['heldUntil'] = _toMillis(m['heldUntil']);
+    m['createdAt'] = _toMillis(m['createdAt']);
+    return Reservation.fromMap(d.id, m);
+  }
+
+  bool _held(Reservation r) => r.status == ReservationStatus.held;
+
+  @override
+  Stream<List<Reservation>> watchByPlayer(String playerUid) => _col
+      .where('playerUid', isEqualTo: playerUid)
+      .snapshots()
+      .map((s) => s.docs.map(_res).where(_held).toList());
+
+  @override
+  Stream<List<Reservation>> watchByClub(String clubId) => _col
+      .where('clubId', isEqualTo: clubId)
+      .snapshots()
+      .map((s) => s.docs.map(_res).where(_held).toList());
+
+  @override
+  Future<void> reserve({
+    required String clubId,
+    required String playerUid,
+    required String playerName,
+    required Stakes stakes,
+  }) {
+    return _col.add({
+      'clubId': clubId,
+      'playerUid': playerUid,
+      'playerName': playerName,
+      ...stakes.toMap(),
+      'status': ReservationStatus.held.asString,
+      // 30-minute hold; a Cloud Function expires it (Wave 6).
+      'heldUntil': Timestamp.fromDate(DateTime.now().add(const Duration(minutes: 30))),
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  @override
+  Future<void> cancel(String reservationId) =>
+      _col.doc(reservationId).update({'status': ReservationStatus.cancelled.asString});
+
+  @override
+  Future<void> markArrived(String reservationId) =>
+      _col.doc(reservationId).update({'status': ReservationStatus.arrived.asString});
 }

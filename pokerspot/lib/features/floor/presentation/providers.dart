@@ -4,6 +4,7 @@ import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/floor/data/firebase_floor_repositories.dart';
 import 'package:pokerspot/features/floor/domain/floor_repositories.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
+import 'package:pokerspot/features/floor/domain/reservation.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 
@@ -15,6 +16,9 @@ final waitlistRepositoryProvider = Provider<WaitlistRepository>(
 
 final sessionsRepositoryProvider = Provider<SessionsRepository>(
     (ref) => FirebaseSessionsRepository(FirebaseFirestore.instance));
+
+final reservationsRepositoryProvider = Provider<ReservationsRepository>(
+    (ref) => FirebaseReservationsRepository(FirebaseFirestore.instance));
 
 /// Tables for a club (ordered by number).
 final tablesProvider = StreamProvider.family<List<PokerTable>, String>(
@@ -44,4 +48,15 @@ final mySessionProvider = StreamProvider<List<Session>>((ref) {
   final uid = ref.watch(uidProvider).valueOrNull;
   if (uid == null) return Stream.value(const <Session>[]);
   return ref.watch(sessionsRepositoryProvider).watchByPlayer(uid);
+});
+
+/// A club's active (held) reservations (Pit Boss view).
+final clubReservationsProvider = StreamProvider.family<List<Reservation>, String>(
+    (ref, clubId) => ref.watch(reservationsRepositoryProvider).watchByClub(clubId));
+
+/// The signed-in player's active (held) reservations (null uid -> empty).
+final myReservationsProvider = StreamProvider<List<Reservation>>((ref) {
+  final uid = ref.watch(uidProvider).valueOrNull;
+  if (uid == null) return Stream.value(const <Reservation>[]);
+  return ref.watch(reservationsRepositoryProvider).watchByPlayer(uid);
 });

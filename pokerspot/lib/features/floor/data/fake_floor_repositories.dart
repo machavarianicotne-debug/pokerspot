@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:pokerspot/features/floor/domain/floor_repositories.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
+import 'package:pokerspot/features/floor/domain/reservation.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/stakes.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
@@ -30,6 +31,7 @@ class FakeFloorStore {
   final tables = <String, PokerTable>{};
   final waitlist = <String, WaitlistEntry>{};
   final sessions = <String, Session>{};
+  final reservations = <String, Reservation>{};
   final _changes = StreamController<void>.broadcast();
   int _seq = 0;
 
@@ -179,6 +181,64 @@ class FakeWaitlistRepository implements WaitlistRepository {
       endedAt: null,
     );
     store.notify();
+  }
+}
+
+bool _heldRes(Reservation r) => r.status == ReservationStatus.held;
+
+class FakeReservationsRepository implements ReservationsRepository {
+  FakeReservationsRepository(this.store);
+  final FakeFloorStore store;
+
+  @override
+  Stream<List<Reservation>> watchByPlayer(String playerUid) => store.watch(() => store
+      .reservations.values
+      .where((r) => r.playerUid == playerUid && _heldRes(r))
+      .toList());
+
+  @override
+  Stream<List<Reservation>> watchByClub(String clubId) => store.watch(() => store
+      .reservations.values
+      .where((r) => r.clubId == clubId && _heldRes(r))
+      .toList());
+
+  @override
+  Future<void> reserve({
+    required String clubId,
+    required String playerUid,
+    required String playerName,
+    required Stakes stakes,
+  }) async {
+    final id = store.nextId('res');
+    store.reservations[id] = Reservation(
+      id: id,
+      clubId: clubId,
+      playerUid: playerUid,
+      playerName: playerName,
+      stakes: stakes,
+      status: ReservationStatus.held,
+      heldUntil: DateTime.now().add(const Duration(minutes: 30)),
+      createdAt: DateTime.now(),
+    );
+    store.notify();
+  }
+
+  @override
+  Future<void> cancel(String reservationId) async {
+    final r = store.reservations[reservationId];
+    if (r != null) {
+      store.reservations[reservationId] = r.copyWith(status: ReservationStatus.cancelled);
+      store.notify();
+    }
+  }
+
+  @override
+  Future<void> markArrived(String reservationId) async {
+    final r = store.reservations[reservationId];
+    if (r != null) {
+      store.reservations[reservationId] = r.copyWith(status: ReservationStatus.arrived);
+      store.notify();
+    }
   }
 }
 

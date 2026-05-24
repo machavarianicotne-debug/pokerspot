@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pokerspot/features/floor/data/fake_floor_repositories.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
+import 'package:pokerspot/features/floor/domain/reservation.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/stakes.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
@@ -92,6 +93,27 @@ void main() {
     expect(secs.first.seatNumber, 5);
     expect(secs.first.playerUid, 'u1');
     expect(secs.first.status, SessionStatus.active);
+  });
+
+  test('reservations: reserve -> by-player + by-club; cancel/arrive drop it', () async {
+    final store = FakeFloorStore();
+    final res = FakeReservationsRepository(store);
+
+    await res.reserve(clubId: 'c1', playerUid: 'u1', playerName: 'Nino', stakes: _stakes);
+    var mine = await res.watchByPlayer('u1').first;
+    expect(mine.length, 1);
+    expect(mine.first.status, ReservationStatus.held);
+    expect(mine.first.heldUntil, isNotNull);
+    expect((await res.watchByClub('c1').first).length, 1);
+
+    final id = mine.first.id;
+    await res.cancel(id);
+    expect(await res.watchByPlayer('u1').first, isEmpty); // cancelled -> off the held list
+
+    await res.reserve(clubId: 'c1', playerUid: 'u1', playerName: 'Nino', stakes: _stakes);
+    final id2 = (await res.watchByClub('c1').first).first.id;
+    await res.markArrived(id2);
+    expect(await res.watchByClub('c1').first, isEmpty); // arrived -> off the held list
   });
 
   test('sessions: end drops it from active (club + player views)', () async {

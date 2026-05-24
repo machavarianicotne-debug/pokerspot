@@ -79,6 +79,20 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // ---- Reservations (instant 30-min hold) --------------------------------
+    match /reservations/{id} {
+      allow read: if isAdmin()
+        || (isPitboss() && resource.data.clubId == myClub())
+        || (signedIn() && resource.data.playerUid == request.auth.uid);
+      allow create: if signedIn() && !isBlocked()
+        && request.resource.data.playerUid == request.auth.uid;
+      // Player cancels own; Pit Boss/Admin mark arrived for their club.
+      allow update: if isAdmin()
+        || (isPitboss() && resource.data.clubId == myClub())
+        || (signedIn() && resource.data.playerUid == request.auth.uid && !isBlocked());
+      allow delete: if isAdmin();
+    }
+
     // ---- Admin audit log ---------------------------------------------------
     match /admin_audit_log/{id} {
       allow read: if isAdmin();

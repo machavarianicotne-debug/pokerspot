@@ -637,6 +637,35 @@ void main() {
     expect(u.role, AppRole.player);
     expect(u.lang, 'ka');
   });
+
+  test('getUser returns null before, the profile after createProfile', () async {
+    final repo = FakeUsersRepository();
+    expect(await repo.getUser('u2'), isNull);
+
+    await repo.createProfile(uid: 'u2', phone: '+995555333333', displayName: 'Lika', lang: 'ru');
+    final u = await repo.getUser('u2');
+    expect(u, isNotNull);
+    expect(u!.uid, 'u2');
+    expect(u.phone, '+995555333333');
+    expect(u.role, AppRole.player);
+    expect(u.lang, 'ru');
+    expect(u.blocked, isFalse);
+  });
+
+  test('watchUser pushes the new profile to an existing subscriber', () async {
+    final repo = FakeUsersRepository();
+    final seen = <AppUser?>[];
+    final sub = repo.watchUser('u3').listen(seen.add);
+    // Let the stream emit its initial (null) value and subscribe to the source.
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+
+    await repo.createProfile(uid: 'u3', phone: '+995555444444', displayName: 'Dato', lang: 'en');
+    await Future<void>.delayed(const Duration(milliseconds: 10));
+    await sub.cancel();
+
+    expect(seen.first, isNull);
+    expect(seen.last?.displayName, 'Dato');
+  });
 }
 ```
 
@@ -666,9 +695,13 @@ abstract interface class UsersRepository {
 - [ ] **Step 4: Implement the fake** `lib/features/auth/data/fake_users_repository.dart`:
 ```dart
 import 'dart:async';
+
 import 'package:pokerspot/features/auth/domain/app_user.dart';
 import 'package:pokerspot/features/auth/domain/users_repository.dart';
 
+/// In-memory [UsersRepository] for tests + offline UI work. Backed by a
+/// `Map<String, AppUser>` keyed by uid, with one broadcast controller per uid
+/// for [watchUser]. No Firebase imports.
 class FakeUsersRepository implements UsersRepository {
   final _store = <String, AppUser>{};
   final _controllers = <String, StreamController<AppUser?>>{};
@@ -693,8 +726,12 @@ class FakeUsersRepository implements UsersRepository {
     required String lang,
   }) async {
     final user = AppUser(
-      uid: uid, phone: phone, displayName: displayName,
-      role: AppRole.player, lang: lang, blocked: false,
+      uid: uid,
+      phone: phone,
+      displayName: displayName,
+      role: AppRole.player,
+      lang: lang,
+      blocked: false,
     );
     _store[uid] = user;
     _ctrl(uid).add(user);
@@ -708,15 +745,19 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:pokerspot/features/auth/domain/app_user.dart';
 import 'package:pokerspot/features/auth/domain/users_repository.dart';
 
+/// Firestore-backed [UsersRepository]. Profiles live in the `users` collection,
+/// one doc per uid. (De)serialized via [AppUser.fromMap] / [AppUser.toMap].
 class FirebaseUsersRepository implements UsersRepository {
-  FirebaseUsersRepository(this._db);
-  final FirebaseFirestore _db;
+  FirebaseUsersRepository(this._firestore);
+  final FirebaseFirestore _firestore;
 
-  DocumentReference<Map<String, dynamic>> _doc(String uid) => _db.collection('users').doc(uid);
+  DocumentReference<Map<String, dynamic>> _doc(String uid) =>
+      _firestore.collection('users').doc(uid);
 
   @override
-  Stream<AppUser?> watchUser(String uid) =>
-      _doc(uid).snapshots().map((s) => s.exists ? AppUser.fromMap(uid, s.data()!) : null);
+  Stream<AppUser?> watchUser(String uid) => _doc(uid).snapshots().map(
+        (s) => s.exists ? AppUser.fromMap(uid, s.data()!) : null,
+      );
 
   @override
   Future<AppUser?> getUser(String uid) async {

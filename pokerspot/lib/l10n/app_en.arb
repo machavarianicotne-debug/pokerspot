@@ -17,5 +17,11 @@
   "signOut": "Sign out",
   "playerHome": "Player",
   "pitBossHome": "Pit Boss",
-  "superAdminHome": "Super Admin"
+  "superAdminHome": "Super Admin",
+  "firstName": "First name",
+  "firstNameHint": "e.g. Giorgi",
+  "lastName": "Last name",
+  "lastNameHint": "e.g. Beridze",
+  "nameTooShort": "Min 2 characters",
+  "namesMustDiffer": "First and last name must be different"
 }

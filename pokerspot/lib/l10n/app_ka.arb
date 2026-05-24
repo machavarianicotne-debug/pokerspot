@@ -17,5 +17,11 @@
   "signOut": "გასვლა",
   "playerHome": "მოთამაშე",
   "pitBossHome": "Pit Boss",
-  "superAdminHome": "Super Admin"
+  "superAdminHome": "Super Admin",
+  "firstName": "სახელი",
+  "firstNameHint": "მაგ. გიორგი",
+  "lastName": "გვარი",
+  "lastNameHint": "მაგ. ბერიძე",
+  "nameTooShort": "მინ. 2 სიმბოლო",
+  "namesMustDiffer": "სახელი და გვარი უნდა განსხვავდებოდეს"
 }

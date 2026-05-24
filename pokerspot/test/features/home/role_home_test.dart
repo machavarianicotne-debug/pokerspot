@@ -13,11 +13,13 @@ void main() {
     final users = FakeUsersRepository();
     final s = await auth.sendOtp('+995555111111');
     await auth.confirmOtp(s, '111111');
-    await users.createProfile(uid: auth.currentUid!, phone: '', displayName: 'Sandro', lang: 'en');
+    await users.createProfile(
+        uid: auth.currentUid!, phone: '', firstName: 'Sandro', lastName: 'Beridze', lang: 'en');
     // simulate the seed: promote to superadmin via a second profile write is out of
     // scope; instead inject a users repo pre-seeded with superadmin:
     final seeded = FakeUsersRepository();
-    await seeded.createProfile(uid: auth.currentUid!, phone: '', displayName: 'Sandro', lang: 'en');
+    await seeded.createProfile(
+        uid: auth.currentUid!, phone: '', firstName: 'Sandro', lastName: 'Beridze', lang: 'en');
 
     await tester.pumpWidget(ProviderScope(
       overrides: [

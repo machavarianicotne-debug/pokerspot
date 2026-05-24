@@ -17,5 +17,11 @@
   "signOut": "Выйти",
   "playerHome": "Игрок",
   "pitBossHome": "Pit Boss",
-  "superAdminHome": "Super Admin"
+  "superAdminHome": "Super Admin",
+  "firstName": "Имя",
+  "firstNameHint": "напр. Гиорги",
+  "lastName": "Фамилия",
+  "lastNameHint": "напр. Беридзе",
+  "nameTooShort": "Минимум 2 символа",
+  "namesMustDiffer": "Имя и фамилия должны различаться"
 }

@@ -19,27 +19,75 @@ Widget _wrap(FakeAuthRepository auth, FakeUsersRepository users) => ProviderScop
       ),
     );
 
+bool _enabled(WidgetTester t) =>
+    t.widget<FilledButton>(find.byKey(const Key('getStartedBtn'))).onPressed != null;
+
+Future<void> _signedIn(FakeAuthRepository auth) async {
+  final s = await auth.sendOtp('+995555222222');
+  await auth.confirmOtp(s, '222222');
+}
+
 void main() {
-  testWidgets('Get Started disabled until name; then creates profile', (tester) async {
+  testWidgets('both required, min-length enforced per field, distinct names submit',
+      (tester) async {
     final auth = FakeAuthRepository();
     final users = FakeUsersRepository();
-    final s = await auth.sendOtp('+995555222222');
-    await auth.confirmOtp(s, '222222');
-
+    await _signedIn(auth);
     await tester.pumpWidget(_wrap(auth, users));
 
-    final btn = find.byKey(const Key('getStartedBtn'));
-    expect(tester.widget<FilledButton>(btn).onPressed, isNull); // disabled
+    // pristine: both empty -> disabled
+    expect(_enabled(tester), isFalse);
 
-    await tester.enterText(find.byKey(const Key('nameField')), 'Nino');
+    // first name too short -> inline error + disabled
+    await tester.enterText(find.byKey(const Key('firstNameField')), 'a');
     await tester.pump();
-    expect(tester.widget<FilledButton>(btn).onPressed, isNotNull); // enabled
+    expect(find.text('Min 2 characters'), findsOneWidget);
+    expect(_enabled(tester), isFalse);
 
-    await tester.tap(btn);
+    // valid first, last too short -> error under last + disabled
+    await tester.enterText(find.byKey(const Key('firstNameField')), 'Giorgi');
+    await tester.enterText(find.byKey(const Key('lastNameField')), 'b');
+    await tester.pump();
+    expect(find.text('Min 2 characters'), findsOneWidget);
+    expect(_enabled(tester), isFalse);
+
+    // valid + distinct -> enabled, submit creates profile
+    await tester.enterText(find.byKey(const Key('lastNameField')), 'Beridze');
+    await tester.pump();
+    expect(_enabled(tester), isTrue);
+
+    await tester.tap(find.byKey(const Key('getStartedBtn')));
     await tester.pumpAndSettle();
 
     final created = await users.getUser(auth.currentUid!);
-    expect(created?.displayName, 'Nino');
+    expect(created?.firstName, 'Giorgi');
+    expect(created?.lastName, 'Beridze');
+  });
+
+  testWidgets('identical names block submission and show must-differ error', (tester) async {
+    final auth = FakeAuthRepository();
+    await _signedIn(auth);
+    await tester.pumpWidget(_wrap(auth, FakeUsersRepository()));
+
+    await tester.enterText(find.byKey(const Key('firstNameField')), 'Giorgi');
+    await tester.enterText(find.byKey(const Key('lastNameField')), 'Giorgi');
+    await tester.pump();
+
+    expect(find.text('First and last name must be different'), findsOneWidget);
+    expect(_enabled(tester), isFalse);
+  });
+
+  testWidgets('case-insensitive match also blocks (john vs JOHN)', (tester) async {
+    final auth = FakeAuthRepository();
+    await _signedIn(auth);
+    await tester.pumpWidget(_wrap(auth, FakeUsersRepository()));
+
+    await tester.enterText(find.byKey(const Key('firstNameField')), 'john');
+    await tester.enterText(find.byKey(const Key('lastNameField')), 'JOHN');
+    await tester.pump();
+
+    expect(find.text('First and last name must be different'), findsOneWidget);
+    expect(_enabled(tester), isFalse);
   });
 
   testWidgets('desktop width (1280): content is capped by the 440px pane', (tester) async {
@@ -51,7 +99,7 @@ void main() {
     await tester.pumpWidget(_wrap(FakeAuthRepository(), FakeUsersRepository()));
     await tester.pumpAndSettle();
 
-    final w = tester.getSize(find.byKey(const Key('nameField'))).width;
+    final w = tester.getSize(find.byKey(const Key('firstNameField'))).width;
     expect(w, lessThanOrEqualTo(440));
     expect(w, greaterThan(300));
   });
@@ -65,7 +113,7 @@ void main() {
     await tester.pumpWidget(_wrap(FakeAuthRepository(), FakeUsersRepository()));
     await tester.pumpAndSettle();
 
-    final w = tester.getSize(find.byKey(const Key('nameField'))).width;
+    final w = tester.getSize(find.byKey(const Key('firstNameField'))).width;
     expect(w, lessThan(375));
     expect(w, greaterThan(300));
   });

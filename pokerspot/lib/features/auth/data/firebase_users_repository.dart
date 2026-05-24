@@ -26,12 +26,14 @@ class FirebaseUsersRepository implements UsersRepository {
   Future<void> createProfile({
     required String uid,
     required String phone,
-    required String displayName,
+    required String firstName,
+    required String lastName,
     required String lang,
   }) {
     return _doc(uid).set({
       'phone': phone,
-      'displayName': displayName,
+      'firstName': firstName,
+      'lastName': lastName,
       'role': AppRole.player.asString,
       'lang': lang,
       'blocked': false,

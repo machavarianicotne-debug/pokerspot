@@ -62,4 +62,22 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get superAdminHome => 'Super Admin';
+
+  @override
+  String get firstName => 'Имя';
+
+  @override
+  String get firstNameHint => 'напр. Гиорги';
+
+  @override
+  String get lastName => 'Фамилия';
+
+  @override
+  String get lastNameHint => 'напр. Беридзе';
+
+  @override
+  String get nameTooShort => 'Минимум 2 символа';
+
+  @override
+  String get namesMustDiffer => 'Имя и фамилия должны различаться';
 }

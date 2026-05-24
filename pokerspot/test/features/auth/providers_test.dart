@@ -32,7 +32,8 @@ void main() {
     expect(container.read(currentUserProvider).valueOrNull, isNull);
 
     // create profile
-    await users.createProfile(uid: uid, phone: '+995555222222', displayName: 'Nino', lang: 'en');
+    await users.createProfile(
+        uid: uid, phone: '+995555222222', firstName: 'Nino', lastName: 'Kapanadze', lang: 'en');
     await Future<void>.delayed(const Duration(milliseconds: 30));
     expect(container.read(currentUserProvider).valueOrNull?.role, AppRole.player);
   });

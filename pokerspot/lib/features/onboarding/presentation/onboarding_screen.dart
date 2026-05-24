@@ -13,20 +13,43 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
-  final _name = TextEditingController();
+  final _first = TextEditingController();
+  final _last = TextEditingController();
   String _lang = 'en';
   bool _busy = false;
 
-  bool get _valid => ValidationRules.isValidName(_name.text);
+  bool get _canSubmit =>
+      ValidationRules.isValidFirstName(_first.text) &&
+      ValidationRules.isValidLastName(_last.text) &&
+      ValidationRules.firstAndLastNamesDiffer(_first.text, _last.text);
+
+  /// Inline error for the first-name field (only once the user has typed).
+  String? _firstError(AppL10n l10n) {
+    if (_first.text.trim().isEmpty) return null;
+    return ValidationRules.isValidFirstName(_first.text) ? null : l10n.nameTooShort;
+  }
+
+  /// Inline error for the last-name field: too-short takes precedence; once both
+  /// names are valid, surface the "must differ" message here.
+  String? _lastError(AppL10n l10n) {
+    if (_last.text.trim().isEmpty) return null;
+    if (!ValidationRules.isValidLastName(_last.text)) return l10n.nameTooShort;
+    if (ValidationRules.isValidFirstName(_first.text) &&
+        !ValidationRules.firstAndLastNamesDiffer(_first.text, _last.text)) {
+      return l10n.namesMustDiffer;
+    }
+    return null;
+  }
 
   Future<void> _submit() async {
     final uid = ref.read(authRepositoryProvider).currentUid;
-    if (uid == null || !_valid) return;
+    if (uid == null || !_canSubmit) return;
     setState(() => _busy = true);
     await ref.read(usersRepositoryProvider).createProfile(
           uid: uid,
           phone: '', // backfilled from auth in Plan 7; not needed for routing
-          displayName: _name.text.trim(),
+          firstName: _first.text.trim(),
+          lastName: _last.text.trim(),
           lang: _lang,
         );
     // currentUserProvider will emit the new profile → router redirects to /home.
@@ -50,10 +73,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       color: PsColors.text, fontSize: PsType.title, fontWeight: FontWeight.w900)),
               const SizedBox(height: PsSpacing.s6),
               TextField(
-                key: const Key('nameField'),
-                controller: _name,
+                key: const Key('firstNameField'),
+                controller: _first,
                 onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(labelText: l10n.yourName, hintText: l10n.nameHint),
+                decoration: InputDecoration(
+                    labelText: l10n.firstName,
+                    hintText: l10n.firstNameHint,
+                    errorText: _firstError(l10n)),
+              ),
+              const SizedBox(height: PsSpacing.s4),
+              TextField(
+                key: const Key('lastNameField'),
+                controller: _last,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                    labelText: l10n.lastName,
+                    hintText: l10n.lastNameHint,
+                    errorText: _lastError(l10n)),
               ),
               const SizedBox(height: PsSpacing.s4),
               SegmentedButton<String>(
@@ -68,7 +104,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               const SizedBox(height: PsSpacing.s6),
               FilledButton(
                 key: const Key('getStartedBtn'),
-                onPressed: (_valid && !_busy) ? _submit : null,
+                onPressed: (_canSubmit && !_busy) ? _submit : null,
                 child: Text(l10n.getStarted),
               ),
               const SizedBox(height: PsSpacing.s3),
@@ -84,7 +120,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   void dispose() {
-    _name.dispose();
+    _first.dispose();
+    _last.dispose();
     super.dispose();
   }
 }

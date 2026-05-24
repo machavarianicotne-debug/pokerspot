@@ -10,6 +10,22 @@
 
 ---
 
+## 🔧 Refinement (post-Plan-2): `displayName` → `firstName` + `lastName`
+
+A later refinement split the single `displayName` into **`firstName`** + **`lastName`**
+(both required, min 2 trimmed chars, and they must differ — trimmed + case-insensitive).
+This touched: `AppUser` (Task 2), `ValidationRules` (added `isValidFirstName`,
+`isValidLastName`, `firstAndLastNamesDiffer`), `UsersRepository.createProfile`
+(Task 4 — `displayName` param replaced by `firstName` + `lastName`), the
+`OnboardingScreen` (Task 7 — two fields with per-field errors), and l10n
+(`firstName`, `firstNameHint`, `lastName`, `lastNameHint`, `nameTooShort`,
+`namesMustDiffer`). The canonical code blocks below have been updated to match;
+any remaining inline `displayName` / `yourName` / `nameField` in the **test**
+snippets predates this refinement (the actual test files were updated). Legacy
+Firestore docs keep empty `firstName`/`lastName` until the user re-onboards.
+
+---
+
 ## ⚠️ DO THIS FIRST — manual setup (human, one-time, before subagent execution)
 
 These need your Google account and interactive prompts; an agent can't do them. Run from `C:\Users\user\Desktop\np\pokerspot`.
@@ -273,10 +289,14 @@ enum AppRole {
   String get asString => name;
 }
 
+// NOTE (refinement): `displayName` was later split into `firstName` + `lastName`
+// (both required, min 2 chars, must differ — see the refinement banner near the
+// top of this doc). The current model is shown below.
 class AppUser {
   final String uid;
   final String phone;
-  final String displayName;
+  final String firstName;
+  final String lastName;
   final AppRole role;
   final String lang; // ka | en | ru
   final bool blocked;
@@ -284,7 +304,8 @@ class AppUser {
   const AppUser({
     required this.uid,
     required this.phone,
-    required this.displayName,
+    required this.firstName,
+    required this.lastName,
     required this.role,
     required this.lang,
     required this.blocked,
@@ -293,7 +314,9 @@ class AppUser {
   factory AppUser.fromMap(String uid, Map<String, dynamic> m) => AppUser(
         uid: uid,
         phone: (m['phone'] ?? '') as String,
-        displayName: (m['displayName'] ?? '') as String,
+        // Default to '' for legacy docs written before the name split.
+        firstName: (m['firstName'] ?? '') as String,
+        lastName: (m['lastName'] ?? '') as String,
         role: AppRole.fromString(m['role'] as String?),
         lang: (m['lang'] ?? 'en') as String,
         blocked: (m['blocked'] ?? false) as bool,
@@ -301,7 +324,8 @@ class AppUser {
 
   Map<String, dynamic> toMap() => {
         'phone': phone,
-        'displayName': displayName,
+        'firstName': firstName,
+        'lastName': lastName,
         'role': role.asString,
         'lang': lang,
         'blocked': blocked,
@@ -310,7 +334,8 @@ class AppUser {
   AppUser copyWith({
     String? uid,
     String? phone,
-    String? displayName,
+    String? firstName,
+    String? lastName,
     AppRole? role,
     String? lang,
     bool? blocked,
@@ -318,7 +343,8 @@ class AppUser {
       AppUser(
         uid: uid ?? this.uid,
         phone: phone ?? this.phone,
-        displayName: displayName ?? this.displayName,
+        firstName: firstName ?? this.firstName,
+        lastName: lastName ?? this.lastName,
         role: role ?? this.role,
         lang: lang ?? this.lang,
         blocked: blocked ?? this.blocked,
@@ -331,13 +357,15 @@ class AppUser {
           runtimeType == other.runtimeType &&
           uid == other.uid &&
           phone == other.phone &&
-          displayName == other.displayName &&
+          firstName == other.firstName &&
+          lastName == other.lastName &&
           role == other.role &&
           lang == other.lang &&
           blocked == other.blocked;
 
   @override
-  int get hashCode => Object.hash(uid, phone, displayName, role, lang, blocked);
+  int get hashCode =>
+      Object.hash(uid, phone, firstName, lastName, role, lang, blocked);
 }
 ```
 
@@ -686,7 +714,8 @@ abstract interface class UsersRepository {
   Future<void> createProfile({
     required String uid,
     required String phone,
-    required String displayName,
+    required String firstName,
+    required String lastName,
     required String lang,
   });
 }
@@ -722,13 +751,15 @@ class FakeUsersRepository implements UsersRepository {
   Future<void> createProfile({
     required String uid,
     required String phone,
-    required String displayName,
+    required String firstName,
+    required String lastName,
     required String lang,
   }) async {
     final user = AppUser(
       uid: uid,
       phone: phone,
-      displayName: displayName,
+      firstName: firstName,
+      lastName: lastName,
       role: AppRole.player,
       lang: lang,
       blocked: false,
@@ -769,12 +800,14 @@ class FirebaseUsersRepository implements UsersRepository {
   Future<void> createProfile({
     required String uid,
     required String phone,
-    required String displayName,
+    required String firstName,
+    required String lastName,
     required String lang,
   }) {
     return _doc(uid).set({
       'phone': phone,
-      'displayName': displayName,
+      'firstName': firstName,
+      'lastName': lastName,
       'role': AppRole.player.asString,
       'lang': lang,
       'blocked': false,
@@ -919,7 +952,13 @@ Add these keys to `app_en.arb`:
 "signOut": "Sign out",
 "playerHome": "Player",
 "pitBossHome": "Pit Boss",
-"superAdminHome": "Super Admin"
+"superAdminHome": "Super Admin",
+"firstName": "First name",
+"firstNameHint": "e.g. Giorgi",
+"lastName": "Last name",
+"lastNameHint": "e.g. Beridze",
+"nameTooShort": "Min 2 characters",
+"namesMustDiffer": "First and last name must be different"
 ```
 Same keys in `app_ka.arb`:
 ```json
@@ -937,7 +976,13 @@ Same keys in `app_ka.arb`:
 "signOut": "გასვლა",
 "playerHome": "მოთამაშე",
 "pitBossHome": "Pit Boss",
-"superAdminHome": "Super Admin"
+"superAdminHome": "Super Admin",
+"firstName": "სახელი",
+"firstNameHint": "მაგ. გიორგი",
+"lastName": "გვარი",
+"lastNameHint": "მაგ. ბერიძე",
+"nameTooShort": "მინ. 2 სიმბოლო",
+"namesMustDiffer": "სახელი და გვარი უნდა განსხვავდებოდეს"
 ```
 Same keys in `app_ru.arb`:
 ```json
@@ -955,7 +1000,13 @@ Same keys in `app_ru.arb`:
 "signOut": "Выйти",
 "playerHome": "Игрок",
 "pitBossHome": "Pit Boss",
-"superAdminHome": "Super Admin"
+"superAdminHome": "Super Admin",
+"firstName": "Имя",
+"firstNameHint": "напр. Гиорги",
+"lastName": "Фамилия",
+"lastNameHint": "напр. Беридзе",
+"nameTooShort": "Минимум 2 символа",
+"namesMustDiffer": "Имя и фамилия должны различаться"
 ```
 Run `flutter gen-l10n`, then `flutter analyze` (expect clean).
 
@@ -1308,20 +1359,40 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
-  final _name = TextEditingController();
+  final _first = TextEditingController();
+  final _last = TextEditingController();
   String _lang = 'en';
   bool _busy = false;
 
-  bool get _valid => ValidationRules.isValidName(_name.text);
+  bool get _canSubmit =>
+      ValidationRules.isValidFirstName(_first.text) &&
+      ValidationRules.isValidLastName(_last.text) &&
+      ValidationRules.firstAndLastNamesDiffer(_first.text, _last.text);
+
+  String? _firstError(AppL10n l10n) {
+    if (_first.text.trim().isEmpty) return null;
+    return ValidationRules.isValidFirstName(_first.text) ? null : l10n.nameTooShort;
+  }
+
+  String? _lastError(AppL10n l10n) {
+    if (_last.text.trim().isEmpty) return null;
+    if (!ValidationRules.isValidLastName(_last.text)) return l10n.nameTooShort;
+    if (ValidationRules.isValidFirstName(_first.text) &&
+        !ValidationRules.firstAndLastNamesDiffer(_first.text, _last.text)) {
+      return l10n.namesMustDiffer;
+    }
+    return null;
+  }
 
   Future<void> _submit() async {
     final uid = ref.read(authRepositoryProvider).currentUid;
-    if (uid == null || !_valid) return;
+    if (uid == null || !_canSubmit) return;
     setState(() => _busy = true);
     await ref.read(usersRepositoryProvider).createProfile(
           uid: uid,
           phone: '', // backfilled from auth in Plan 7; not needed for routing
-          displayName: _name.text.trim(),
+          firstName: _first.text.trim(),
+          lastName: _last.text.trim(),
           lang: _lang,
         );
     // currentUserProvider will emit the new profile → router redirects to /home.
@@ -1345,10 +1416,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       color: PsColors.text, fontSize: PsType.title, fontWeight: FontWeight.w900)),
               const SizedBox(height: PsSpacing.s6),
               TextField(
-                key: const Key('nameField'),
-                controller: _name,
+                key: const Key('firstNameField'),
+                controller: _first,
                 onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(labelText: l10n.yourName, hintText: l10n.nameHint),
+                decoration: InputDecoration(
+                    labelText: l10n.firstName,
+                    hintText: l10n.firstNameHint,
+                    errorText: _firstError(l10n)),
+              ),
+              const SizedBox(height: PsSpacing.s4),
+              TextField(
+                key: const Key('lastNameField'),
+                controller: _last,
+                onChanged: (_) => setState(() {}),
+                decoration: InputDecoration(
+                    labelText: l10n.lastName,
+                    hintText: l10n.lastNameHint,
+                    errorText: _lastError(l10n)),
               ),
               const SizedBox(height: PsSpacing.s4),
               SegmentedButton<String>(
@@ -1363,7 +1447,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               const SizedBox(height: PsSpacing.s6),
               FilledButton(
                 key: const Key('getStartedBtn'),
-                onPressed: (_valid && !_busy) ? _submit : null,
+                onPressed: (_canSubmit && !_busy) ? _submit : null,
                 child: Text(l10n.getStarted),
               ),
               const SizedBox(height: PsSpacing.s3),
@@ -1379,7 +1463,8 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   void dispose() {
-    _name.dispose();
+    _first.dispose();
+    _last.dispose();
     super.dispose();
   }
 }
@@ -1742,6 +1827,6 @@ git commit -m "feat: Firebase Hosting deploy config + Plan 2 README"
 
 - **Spec coverage:** §6 onboarding (name+lang+GDPR) → Task 7; phone OTP auth → Tasks 2-3,6; role from `users` doc (phased per approved decision a) → Tasks 2,4,5,8; role-based shell → Task 8; i18n keys → Task 6; web-first + Hosting → Tasks 1,9. Custom claims + security rules deferred to Plan 7 (documented).
 - **Placeholders:** none — full code + exact commands per step.
-- **Type consistency:** `AppRole`/`AppUser`, `AuthRepository`/`OtpSession`/`AuthException`, `UsersRepository.createProfile(uid,phone,displayName,lang)`, `authRepositoryProvider`/`usersRepositoryProvider`/`uidProvider`/`currentUserProvider`, `authRedirect(uid,hasProfile,location)`, `RoleScaffold`/`RoleHome`, `CenteredPane`, l10n class `AppL10n`, import `package:pokerspot/l10n/app_localizations.dart` (verified in Plan 1) — all used consistently.
+- **Type consistency:** `AppRole`/`AppUser`, `AuthRepository`/`OtpSession`/`AuthException`, `UsersRepository.createProfile(uid,phone,firstName,lastName,lang)`, `authRepositoryProvider`/`usersRepositoryProvider`/`uidProvider`/`currentUserProvider`, `authRedirect(uid,hasProfile,location)`, `RoleScaffold`/`RoleHome`, `CenteredPane`, l10n class `AppL10n`, import `package:pokerspot/l10n/app_localizations.dart` (verified in Plan 1) — all used consistently.
 - **Known assumptions:** `signInWithPhoneNumber` is the web path (native uses `verifyPhoneNumber`, added in the native-builds plan). `phone` is stored empty at onboarding and backfilled from the auth token in Plan 7. The `role_home_test.dart` asserts the default Player path; full role switching is exercised by `RoleHome`'s switch + later plans.
 ```

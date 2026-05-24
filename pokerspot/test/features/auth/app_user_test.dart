@@ -13,22 +13,25 @@ void main() {
   test('fromMap builds an AppUser', () {
     final u = AppUser.fromMap('uid1', {
       'phone': '+995555111111',
-      'displayName': 'Sandro',
+      'firstName': 'Sandro',
+      'lastName': 'Beridze',
       'role': 'superadmin',
       'lang': 'ka',
       'blocked': false,
     });
     expect(u.uid, 'uid1');
-    expect(u.displayName, 'Sandro');
+    expect(u.firstName, 'Sandro');
+    expect(u.lastName, 'Beridze');
     expect(u.role, AppRole.superadmin);
     expect(u.lang, 'ka');
     expect(u.blocked, isFalse);
   });
 
-  test('fromMap applies defaults for missing fields', () {
+  test('fromMap defaults missing fields (incl. legacy docs without names)', () {
     final u = AppUser.fromMap('uid2', const {});
     expect(u.phone, '');
-    expect(u.displayName, '');
+    expect(u.firstName, '');
+    expect(u.lastName, '');
     expect(u.role, AppRole.player);
     expect(u.lang, 'en');
     expect(u.blocked, isFalse);
@@ -38,12 +41,14 @@ void main() {
     const u = AppUser(
         uid: 'x',
         phone: '+995555222222',
-        displayName: 'Nino',
+        firstName: 'Nino',
+        lastName: 'Kapanadze',
         role: AppRole.player,
         lang: 'en',
         blocked: false);
     final back = AppUser.fromMap('x', u.toMap());
-    expect(back.displayName, 'Nino');
+    expect(back.firstName, 'Nino');
+    expect(back.lastName, 'Kapanadze');
     expect(back.role, AppRole.player);
   });
 
@@ -51,14 +56,16 @@ void main() {
     const a = AppUser(
         uid: 'u',
         phone: '+9955551',
-        displayName: 'A',
+        firstName: 'A',
+        lastName: 'B',
         role: AppRole.pitboss,
         lang: 'ru',
         blocked: false);
     const b = AppUser(
         uid: 'u',
         phone: '+9955551',
-        displayName: 'A',
+        firstName: 'A',
+        lastName: 'B',
         role: AppRole.pitboss,
         lang: 'ru',
         blocked: false);
@@ -70,13 +77,15 @@ void main() {
     const base = AppUser(
         uid: 'u',
         phone: '+9955551',
-        displayName: 'A',
+        firstName: 'A',
+        lastName: 'B',
         role: AppRole.player,
         lang: 'en',
         blocked: false);
     expect(base == base.copyWith(uid: 'other'), isFalse);
     expect(base == base.copyWith(phone: '+9955559'), isFalse);
-    expect(base == base.copyWith(displayName: 'B'), isFalse);
+    expect(base == base.copyWith(firstName: 'X'), isFalse);
+    expect(base == base.copyWith(lastName: 'Y'), isFalse);
     expect(base == base.copyWith(role: AppRole.superadmin), isFalse);
     expect(base == base.copyWith(lang: 'ka'), isFalse);
     expect(base == base.copyWith(blocked: true), isFalse);
@@ -86,12 +95,14 @@ void main() {
     const base = AppUser(
         uid: 'u',
         phone: '+9955551',
-        displayName: 'A',
+        firstName: 'A',
+        lastName: 'B',
         role: AppRole.player,
         lang: 'en',
         blocked: false);
-    final changed = base.copyWith(displayName: 'B', role: AppRole.superadmin);
-    expect(changed.displayName, 'B');
+    final changed = base.copyWith(firstName: 'X', role: AppRole.superadmin);
+    expect(changed.firstName, 'X');
+    expect(changed.lastName, 'B');
     expect(changed.role, AppRole.superadmin);
     expect(changed.uid, 'u');
     expect(changed.phone, '+9955551');

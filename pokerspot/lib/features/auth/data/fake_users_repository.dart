@@ -26,13 +26,15 @@ class FakeUsersRepository implements UsersRepository {
   Future<void> createProfile({
     required String uid,
     required String phone,
-    required String displayName,
+    required String firstName,
+    required String lastName,
     required String lang,
   }) async {
     final user = AppUser(
       uid: uid,
       phone: phone,
-      displayName: displayName,
+      firstName: firstName,
+      lastName: lastName,
       role: AppRole.player,
       lang: lang,
       blocked: false,

@@ -7,4 +7,12 @@ abstract final class ValidationRules {
       _e164.hasMatch(raw.replaceAll(RegExp(r'\s'), ''));
 
   static bool isValidName(String raw) => raw.trim().length >= minNameLength;
+
+  static bool isValidFirstName(String raw) => raw.trim().length >= minNameLength;
+
+  static bool isValidLastName(String raw) => raw.trim().length >= minNameLength;
+
+  /// True when the two names are distinct (trimmed, case-insensitive).
+  static bool firstAndLastNamesDiffer(String first, String last) =>
+      first.trim().toLowerCase() != last.trim().toLowerCase();
 }

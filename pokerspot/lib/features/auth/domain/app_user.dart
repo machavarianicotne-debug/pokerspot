@@ -22,7 +22,8 @@ enum AppRole {
 class AppUser {
   final String uid;
   final String phone;
-  final String displayName;
+  final String firstName;
+  final String lastName;
   final AppRole role;
 
   /// BCP-47 UI language code. Allowed values: 'ka' | 'en' | 'ru'.
@@ -34,7 +35,8 @@ class AppUser {
   const AppUser({
     required this.uid,
     required this.phone,
-    required this.displayName,
+    required this.firstName,
+    required this.lastName,
     required this.role,
     required this.lang,
     required this.blocked,
@@ -43,7 +45,10 @@ class AppUser {
   factory AppUser.fromMap(String uid, Map<String, dynamic> m) => AppUser(
         uid: uid,
         phone: (m['phone'] ?? '') as String,
-        displayName: (m['displayName'] ?? '') as String,
+        // Default missing fields to '' for legacy docs written before the
+        // displayName -> firstName/lastName split.
+        firstName: (m['firstName'] ?? '') as String,
+        lastName: (m['lastName'] ?? '') as String,
         role: AppRole.fromString(m['role'] as String?),
         lang: (m['lang'] ?? 'en') as String,
         blocked: (m['blocked'] ?? false) as bool,
@@ -51,7 +56,8 @@ class AppUser {
 
   Map<String, dynamic> toMap() => {
         'phone': phone,
-        'displayName': displayName,
+        'firstName': firstName,
+        'lastName': lastName,
         'role': role.asString,
         'lang': lang,
         'blocked': blocked,
@@ -60,7 +66,8 @@ class AppUser {
   AppUser copyWith({
     String? uid,
     String? phone,
-    String? displayName,
+    String? firstName,
+    String? lastName,
     AppRole? role,
     String? lang,
     bool? blocked,
@@ -68,7 +75,8 @@ class AppUser {
       AppUser(
         uid: uid ?? this.uid,
         phone: phone ?? this.phone,
-        displayName: displayName ?? this.displayName,
+        firstName: firstName ?? this.firstName,
+        lastName: lastName ?? this.lastName,
         role: role ?? this.role,
         lang: lang ?? this.lang,
         blocked: blocked ?? this.blocked,
@@ -81,11 +89,13 @@ class AppUser {
           runtimeType == other.runtimeType &&
           uid == other.uid &&
           phone == other.phone &&
-          displayName == other.displayName &&
+          firstName == other.firstName &&
+          lastName == other.lastName &&
           role == other.role &&
           lang == other.lang &&
           blocked == other.blocked;
 
   @override
-  int get hashCode => Object.hash(uid, phone, displayName, role, lang, blocked);
+  int get hashCode =>
+      Object.hash(uid, phone, firstName, lastName, role, lang, blocked);
 }

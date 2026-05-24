@@ -11,7 +11,8 @@ abstract interface class UsersRepository {
   Future<void> createProfile({
     required String uid,
     required String phone,
-    required String displayName,
+    required String firstName,
+    required String lastName,
     required String lang,
   });
 }

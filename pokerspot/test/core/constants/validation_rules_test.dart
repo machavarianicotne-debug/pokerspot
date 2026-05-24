@@ -14,4 +14,27 @@ void main() {
     expect(ValidationRules.isValidName(' A '), isFalse);
     expect(ValidationRules.isValidName(''), isFalse);
   });
+
+  test('first/last name need >= 2 trimmed chars', () {
+    expect(ValidationRules.isValidFirstName('Gio'), isTrue);
+    expect(ValidationRules.isValidFirstName('Be'), isTrue);
+    expect(ValidationRules.isValidFirstName(' a '), isFalse); // 1 trimmed char
+    expect(ValidationRules.isValidFirstName(''), isFalse);
+
+    expect(ValidationRules.isValidLastName('Beridze'), isTrue);
+    expect(ValidationRules.isValidLastName(' b '), isFalse);
+    expect(ValidationRules.isValidLastName(''), isFalse);
+  });
+
+  test('first and last names must differ (trimmed, case-insensitive)', () {
+    expect(ValidationRules.firstAndLastNamesDiffer('Giorgi', 'Beridze'), isTrue);
+    // identical
+    expect(ValidationRules.firstAndLastNamesDiffer('Giorgi', 'Giorgi'), isFalse);
+    // case-insensitive equality
+    expect(ValidationRules.firstAndLastNamesDiffer('john', 'JOHN'), isFalse);
+    // trimmed equality
+    expect(ValidationRules.firstAndLastNamesDiffer('  Nino ', 'nino'), isFalse);
+    // differ after trimming/lowercasing
+    expect(ValidationRules.firstAndLastNamesDiffer(' Nino ', 'Nina'), isTrue);
+  });
 }

@@ -62,4 +62,22 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get superAdminHome => 'Super Admin';
+
+  @override
+  String get firstName => 'სახელი';
+
+  @override
+  String get firstNameHint => 'მაგ. გიორგი';
+
+  @override
+  String get lastName => 'გვარი';
+
+  @override
+  String get lastNameHint => 'მაგ. ბერიძე';
+
+  @override
+  String get nameTooShort => 'მინ. 2 სიმბოლო';
+
+  @override
+  String get namesMustDiffer => 'სახელი და გვარი უნდა განსხვავდებოდეს';
 }

@@ -206,6 +206,42 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Super Admin'**
   String get superAdminHome;
+
+  /// No description provided for @firstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get firstName;
+
+  /// No description provided for @firstNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Giorgi'**
+  String get firstNameHint;
+
+  /// No description provided for @lastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get lastName;
+
+  /// No description provided for @lastNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Beridze'**
+  String get lastNameHint;
+
+  /// No description provided for @nameTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Min 2 characters'**
+  String get nameTooShort;
+
+  /// No description provided for @namesMustDiffer.
+  ///
+  /// In en, this message translates to:
+  /// **'First and last name must be different'**
+  String get namesMustDiffer;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

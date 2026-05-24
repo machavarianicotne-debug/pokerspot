@@ -62,4 +62,22 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get superAdminHome => 'Super Admin';
+
+  @override
+  String get firstName => 'First name';
+
+  @override
+  String get firstNameHint => 'e.g. Giorgi';
+
+  @override
+  String get lastName => 'Last name';
+
+  @override
+  String get lastNameHint => 'e.g. Beridze';
+
+  @override
+  String get nameTooShort => 'Min 2 characters';
+
+  @override
+  String get namesMustDiffer => 'First and last name must be different';
 }

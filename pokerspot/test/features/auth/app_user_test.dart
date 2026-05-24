@@ -18,6 +18,7 @@ void main() {
       'role': 'superadmin',
       'lang': 'ka',
       'blocked': false,
+      'clubId': 'club-vake',
     });
     expect(u.uid, 'uid1');
     expect(u.firstName, 'Sandro');
@@ -25,6 +26,7 @@ void main() {
     expect(u.role, AppRole.superadmin);
     expect(u.lang, 'ka');
     expect(u.blocked, isFalse);
+    expect(u.clubId, 'club-vake');
   });
 
   test('fromMap defaults missing fields (incl. legacy docs without names)', () {
@@ -35,6 +37,7 @@ void main() {
     expect(u.role, AppRole.player);
     expect(u.lang, 'en');
     expect(u.blocked, isFalse);
+    expect(u.clubId, isNull); // legacy users have no club assignment
   });
 
   test('toMap round-trips', () {
@@ -89,6 +92,7 @@ void main() {
     expect(base == base.copyWith(role: AppRole.superadmin), isFalse);
     expect(base == base.copyWith(lang: 'ka'), isFalse);
     expect(base == base.copyWith(blocked: true), isFalse);
+    expect(base == base.copyWith(clubId: 'club-1'), isFalse);
   });
 
   test('copyWith overrides only the given fields', () {

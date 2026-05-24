@@ -24,6 +24,15 @@ any remaining inline `displayName` / `yourName` / `nameField` in the **test**
 snippets predates this refinement (the actual test files were updated). Legacy
 Firestore docs keep empty `firstName`/`lastName` until the user re-onboards.
 
+## 🔧 Refinement (Plan 4): `AppUser` gains a nullable `clubId`
+
+`AppUser` gained a nullable **`clubId`** (the club a Pit Boss staffs; null for
+players / unassigned). `fromMap` defaults missing → null (legacy users), and
+`toMap`/`==`/`hashCode`/`copyWith` include it. The Pit Boss waitlist screen
+(Plan 4) reads `currentUser.clubId`; it's set manually in the Firestore Console
+for now (Super Admin staff management is a later plan). The Task 2 `AppUser`
+code block below predates this field.
+
 ---
 
 ## ⚠️ DO THIS FIRST — manual setup (human, one-time, before subagent execution)

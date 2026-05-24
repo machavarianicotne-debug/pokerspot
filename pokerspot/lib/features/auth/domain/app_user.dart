@@ -32,6 +32,11 @@ class AppUser {
   final String lang;
   final bool blocked;
 
+  /// Club this user staffs as Pit Boss (null for players / unassigned).
+  /// The Pit Boss waitlist screen uses this; set it in the Firestore Console
+  /// for now (Super Admin staff management is a later plan).
+  final String? clubId;
+
   const AppUser({
     required this.uid,
     required this.phone,
@@ -40,6 +45,7 @@ class AppUser {
     required this.role,
     required this.lang,
     required this.blocked,
+    this.clubId,
   });
 
   factory AppUser.fromMap(String uid, Map<String, dynamic> m) => AppUser(
@@ -52,6 +58,8 @@ class AppUser {
         role: AppRole.fromString(m['role'] as String?),
         lang: (m['lang'] ?? 'en') as String,
         blocked: (m['blocked'] ?? false) as bool,
+        // Null for legacy users without a club assignment.
+        clubId: m['clubId'] as String?,
       );
 
   Map<String, dynamic> toMap() => {
@@ -61,6 +69,7 @@ class AppUser {
         'role': role.asString,
         'lang': lang,
         'blocked': blocked,
+        'clubId': clubId,
       };
 
   AppUser copyWith({
@@ -71,6 +80,7 @@ class AppUser {
     AppRole? role,
     String? lang,
     bool? blocked,
+    String? clubId,
   }) =>
       AppUser(
         uid: uid ?? this.uid,
@@ -80,6 +90,7 @@ class AppUser {
         role: role ?? this.role,
         lang: lang ?? this.lang,
         blocked: blocked ?? this.blocked,
+        clubId: clubId ?? this.clubId,
       );
 
   @override
@@ -93,9 +104,10 @@ class AppUser {
           lastName == other.lastName &&
           role == other.role &&
           lang == other.lang &&
-          blocked == other.blocked;
+          blocked == other.blocked &&
+          clubId == other.clubId;
 
   @override
   int get hashCode =>
-      Object.hash(uid, phone, firstName, lastName, role, lang, blocked);
+      Object.hash(uid, phone, firstName, lastName, role, lang, blocked, clubId);
 }

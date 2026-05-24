@@ -6,6 +6,10 @@ import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/auth/domain/auth_repository.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/centered_pane.dart';
+import 'package:pokerspot/shared/widgets/ps_brand.dart';
+import 'package:pokerspot/shared/widgets/ps_button.dart';
+import 'package:pokerspot/shared/widgets/ps_scaffold.dart';
+import 'package:pokerspot/shared/widgets/ps_text_field.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -54,8 +58,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     final sent = _session != null;
-    return Scaffold(
-      backgroundColor: PsColors.bg0,
+    return PsScaffold(
       body: CenteredPane(
         child: Padding(
           padding: const EdgeInsets.all(PsSpacing.s5),
@@ -63,48 +66,54 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(l10n.appTitle,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                      color: PsColors.accentPrimary,
-                      fontSize: PsType.display1,
-                      fontWeight: FontWeight.w900,
-                      fontStyle: FontStyle.italic)),
+              Center(child: PsBrand(l10n.appTitle, accent: 'Spot', fontSize: PsType.display1)),
               const SizedBox(height: PsSpacing.s8),
               if (!sent) ...[
-                TextField(
+                PsTextField(
                   key: const Key('phoneField'),
                   controller: _phone,
                   keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                      labelText: l10n.phoneNumber, hintText: l10n.phoneHint),
+                  hintText: l10n.phoneHint,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) {
+                    if (!_busy) _send();
+                  },
                 ),
                 const SizedBox(height: PsSpacing.s4),
-                FilledButton(
+                PsButton(
                   key: const Key('sendCodeBtn'),
+                  label: l10n.sendCode,
                   onPressed: _busy ? null : _send,
-                  child: Text(l10n.sendCode),
                 ),
               ] else ...[
-                TextField(
+                PsTextField(
                   key: const Key('codeField'),
                   controller: _code,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                      labelText: l10n.smsCode, hintText: l10n.smsHint),
+                  hintText: l10n.smsHint,
+                  textInputAction: TextInputAction.done,
+                  onSubmitted: (_) {
+                    if (!_busy) _verify();
+                  },
                 ),
                 const SizedBox(height: PsSpacing.s4),
-                FilledButton(
+                PsButton(
                   key: const Key('verifyBtn'),
+                  label: l10n.verify,
                   onPressed: _busy ? null : _verify,
-                  child: Text(l10n.verify),
                 ),
               ],
               if (_error != null) ...[
                 const SizedBox(height: PsSpacing.s3),
-                Text(_error!,
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: PsColors.statusLive)),
+                Text(
+                  _error!,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: PsColors.statusLive,
+                    fontSize: PsType.subhead,
+                    fontWeight: PsType.weightMedium,
+                  ),
+                ),
               ],
             ],
           ),

@@ -213,6 +213,48 @@ abstract class AppL10n {
   /// **'Super Admin'**
   String get superAdminHome;
 
+  /// No description provided for @tabClubs.
+  ///
+  /// In en, this message translates to:
+  /// **'Clubs'**
+  String get tabClubs;
+
+  /// No description provided for @tabActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get tabActivity;
+
+  /// No description provided for @tabProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile'**
+  String get tabProfile;
+
+  /// No description provided for @tabFloor.
+  ///
+  /// In en, this message translates to:
+  /// **'Floor'**
+  String get tabFloor;
+
+  /// No description provided for @tabTables.
+  ///
+  /// In en, this message translates to:
+  /// **'Tables'**
+  String get tabTables;
+
+  /// No description provided for @tabOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get tabOverview;
+
+  /// No description provided for @noActivityYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on your list yet'**
+  String get noActivityYet;
+
   /// No description provided for @firstName.
   ///
   /// In en, this message translates to:

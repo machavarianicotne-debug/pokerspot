@@ -38,7 +38,7 @@ class ClubsListScreen extends ConsumerWidget {
             );
           }
           return ListView.builder(
-            padding: const EdgeInsets.all(PsSpacing.s4),
+            padding: const EdgeInsets.fromLTRB(PsSpacing.s4, PsSpacing.s4, PsSpacing.s4, 96),
             itemCount: clubs.length,
             itemBuilder: (context, i) => Padding(
               padding: const EdgeInsets.only(bottom: PsSpacing.s4),

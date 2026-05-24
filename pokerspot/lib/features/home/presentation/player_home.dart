@@ -2,51 +2,53 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
-import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/clubs/presentation/clubs_list_screen.dart';
-import 'package:pokerspot/features/floor/presentation/my_waitlist_banner.dart';
+import 'package:pokerspot/features/home/presentation/activity_screen.dart';
+import 'package:pokerspot/features/home/presentation/profile_screen.dart';
 import 'package:pokerspot/shared/widgets/ps_brand.dart';
 import 'package:pokerspot/shared/widgets/ps_glass_nav.dart';
 import 'package:pokerspot/shared/widgets/ps_scaffold.dart';
+import 'package:pokerspot/shared/widgets/ps_tab_bar.dart';
 
-/// A round glass sign-out affordance for the nav action slot.
-class _SignOutAction extends ConsumerWidget {
-  const _SignOutAction();
+/// Wraps a nav + tabbed body: [nav] on top, [tabs] in an IndexedStack (state
+/// preserved across switches), and a floating [PsTabBar] over the bottom.
+/// Shared by all three role homes.
+class TabShell extends StatefulWidget {
+  const TabShell({super.key, required this.nav, required this.items, required this.tabs});
+
+  final Widget nav;
+  final List<PsTabItem> items;
+  final List<Widget> tabs;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppL10n.of(context);
-    return Semantics(
-      button: true,
-      label: l10n.signOut,
-      child: GestureDetector(
-        onTap: () => ref.read(authRepositoryProvider).signOut(),
-        behavior: HitTestBehavior.opaque,
-        child: Padding(
-          padding: const EdgeInsets.all(PsSpacing.s1),
-          child: Icon(Icons.logout, size: 22, color: PsColors.textMuted),
-        ),
-      ),
-    );
-  }
+  State<TabShell> createState() => _TabShellState();
 }
 
-/// Player home: the brand nav, the player's waitlist banner, and the clubs list.
-class PlayerHome extends ConsumerWidget {
-  const PlayerHome({super.key});
+class _TabShellState extends State<TabShell> {
+  int _tab = 0;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppL10n.of(context);
+  Widget build(BuildContext context) {
     return PsScaffold(
       body: SafeArea(
-        child: Column(
+        child: Stack(
           children: [
-            PsGlassNav(
-              leading: PsBrand(l10n.appTitle, accent: 'Spot'),
-              actions: const [_SignOutAction()],
+            Column(
+              children: [
+                widget.nav,
+                Expanded(child: IndexedStack(index: _tab, children: widget.tabs)),
+              ],
             ),
-            const MyWaitlistBanner(),
-            const Expanded(child: ClubsListScreen()),
+            Positioned(
+              left: PsSpacing.s4,
+              right: PsSpacing.s4,
+              bottom: 12,
+              child: PsTabBar(
+                items: widget.items,
+                currentIndex: _tab,
+                onTap: (i) => setState(() => _tab = i),
+              ),
+            ),
           ],
         ),
       ),
@@ -54,36 +56,76 @@ class PlayerHome extends ConsumerWidget {
   }
 }
 
-/// Placeholder role home — replaced by real features in later plans.
+/// Player home: Clubs / Activity / Profile tabs under the brand nav.
+class PlayerHome extends ConsumerWidget {
+  const PlayerHome({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+    return TabShell(
+      nav: PsGlassNav(leading: PsBrand(l10n.appTitle, accent: 'Spot')),
+      items: [
+        PsTabItem(Icons.casino, l10n.tabClubs),
+        PsTabItem(Icons.show_chart, l10n.tabActivity),
+        PsTabItem(Icons.person, l10n.tabProfile),
+      ],
+      tabs: const [ClubsListScreen(), ActivityScreen(), ProfileScreen()],
+    );
+  }
+}
+
+/// Placeholder role home (Super Admin): Overview / Clubs / Profile tabs.
+/// Overview + Clubs are stubs that later plans fill in.
 class RoleScaffold extends ConsumerWidget {
   const RoleScaffold({super.key, required this.title});
   final String title;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return PsScaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            PsGlassNav(
-              leading: Text(
-                title,
-                style: const TextStyle(
-                  fontSize: PsType.title,
-                  fontWeight: PsType.weightBlack,
-                  color: PsColors.accentPrimary,
-                ),
-              ),
-              actions: const [_SignOutAction()],
-            ),
-            Expanded(
-              child: Center(
-                child: Text(
-                  '$title — coming soon',
-                  style: const TextStyle(color: PsColors.text, fontSize: PsType.headline),
-                ),
-              ),
-            ),
-          ],
+    final l10n = AppL10n.of(context);
+    return TabShell(
+      nav: PsGlassNav(
+        leading: Text(
+          title,
+          style: const TextStyle(
+            fontSize: PsType.title,
+            fontWeight: PsType.weightBlack,
+            letterSpacing: PsType.trackingSnug,
+            color: PsColors.accentPrimary,
+          ),
+        ),
+      ),
+      items: [
+        PsTabItem(Icons.dashboard, l10n.tabOverview),
+        PsTabItem(Icons.casino, l10n.tabClubs),
+        PsTabItem(Icons.person, l10n.tabProfile),
+      ],
+      tabs: [
+        // Overview — Plan 6 fills this in.
+        StubBody(text: '$title — coming soon'),
+        // Clubs management — Plan 6.
+        const StubBody(text: 'Coming in Plan 6'),
+        const ProfileScreen(),
+      ],
+    );
+  }
+}
+
+/// A centered placeholder body for not-yet-built tabs.
+class StubBody extends StatelessWidget {
+  const StubBody({super.key, required this.text});
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(PsSpacing.s5),
+        child: Text(
+          text,
+          textAlign: TextAlign.center,
+          style: const TextStyle(color: PsColors.text, fontSize: PsType.headline),
         ),
       ),
     );

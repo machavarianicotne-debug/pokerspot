@@ -68,6 +68,27 @@ class AppL10nKa extends AppL10n {
   String get superAdminHome => 'Super Admin';
 
   @override
+  String get tabClubs => 'კლუბები';
+
+  @override
+  String get tabActivity => 'აქტივობა';
+
+  @override
+  String get tabProfile => 'პროფილი';
+
+  @override
+  String get tabFloor => 'დარბაზი';
+
+  @override
+  String get tabTables => 'მაგიდები';
+
+  @override
+  String get tabOverview => 'მიმოხილვა';
+
+  @override
+  String get noActivityYet => 'ჯერ არაფერია შენს სიაში';
+
+  @override
   String get firstName => 'სახელი';
 
   @override

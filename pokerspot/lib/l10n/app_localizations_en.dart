@@ -68,6 +68,27 @@ class AppL10nEn extends AppL10n {
   String get superAdminHome => 'Super Admin';
 
   @override
+  String get tabClubs => 'Clubs';
+
+  @override
+  String get tabActivity => 'Activity';
+
+  @override
+  String get tabProfile => 'Profile';
+
+  @override
+  String get tabFloor => 'Floor';
+
+  @override
+  String get tabTables => 'Tables';
+
+  @override
+  String get tabOverview => 'Overview';
+
+  @override
+  String get noActivityYet => 'Nothing on your list yet';
+
+  @override
   String get firstName => 'First name';
 
   @override

@@ -68,6 +68,27 @@ class AppL10nRu extends AppL10n {
   String get superAdminHome => 'Super Admin';
 
   @override
+  String get tabClubs => 'Клубы';
+
+  @override
+  String get tabActivity => 'Активность';
+
+  @override
+  String get tabProfile => 'Профиль';
+
+  @override
+  String get tabFloor => 'Зал';
+
+  @override
+  String get tabTables => 'Столы';
+
+  @override
+  String get tabOverview => 'Обзор';
+
+  @override
+  String get noActivityYet => 'Пока ничего нет';
+
+  @override
   String get firstName => 'Имя';
 
   @override

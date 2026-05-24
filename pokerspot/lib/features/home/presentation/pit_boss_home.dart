@@ -9,14 +9,16 @@ import 'package:pokerspot/features/floor/domain/poker_table.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
+import 'package:pokerspot/features/home/presentation/player_home.dart' show TabShell, StubBody;
+import 'package:pokerspot/features/home/presentation/profile_screen.dart';
 import 'package:pokerspot/shared/widgets/ps_avatar.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
 import 'package:pokerspot/shared/widgets/ps_glass_nav.dart';
 import 'package:pokerspot/shared/widgets/ps_list_tile.dart';
 import 'package:pokerspot/shared/widgets/ps_overline.dart';
-import 'package:pokerspot/shared/widgets/ps_scaffold.dart';
 import 'package:pokerspot/shared/widgets/ps_sheet.dart';
+import 'package:pokerspot/shared/widgets/ps_tab_bar.dart';
 
 String _initials(String name) {
   final parts = name.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
@@ -28,90 +30,80 @@ String _initials(String name) {
   return (parts.first[0] + parts.last[0]).toUpperCase();
 }
 
-/// A round glass sign-out affordance for the nav action slot.
-class _SignOutAction extends ConsumerWidget {
-  const _SignOutAction();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppL10n.of(context);
-    return Semantics(
-      button: true,
-      label: l10n.signOut,
-      child: GestureDetector(
-        onTap: () => ref.read(authRepositoryProvider).signOut(),
-        behavior: HitTestBehavior.opaque,
-        child: Padding(
-          padding: const EdgeInsets.all(PsSpacing.s1),
-          child: Icon(Icons.logout, size: 22, color: PsColors.textMuted),
-        ),
-      ),
-    );
-  }
-}
-
-/// Pit Boss home: the live waitlist for the staff member's club
-/// (`currentUser.clubId`) on top, the seated sessions below. Call moves an
-/// entry waiting -> called; Seat creates a Session and frees the entry.
+/// Pit Boss home: Floor / Tables / Profile tabs. Floor is the live waitlist +
+/// seated sessions; Tables is a Plan 5 stub; Profile is the shared screen.
 class PitBossHome extends ConsumerWidget {
   const PitBossHome({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppL10n.of(context);
-    final clubId = ref.watch(currentUserProvider).valueOrNull?.clubId;
-    return PsScaffold(
-      body: SafeArea(
-        child: Column(
+    return TabShell(
+      nav: PsGlassNav(
+        leading: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PsGlassNav(
-              leading: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  PsOverline(l10n.pitBossHome),
-                  const SizedBox(height: 2),
-                  Text(
-                    l10n.waitlistTitle,
-                    style: const TextStyle(
-                      fontSize: PsType.title,
-                      fontWeight: PsType.weightBlack,
-                      letterSpacing: PsType.trackingSnug,
-                      color: PsColors.text,
-                    ),
-                  ),
-                ],
+            PsOverline(l10n.pitBossHome),
+            const SizedBox(height: 2),
+            Text(
+              l10n.waitlistTitle,
+              style: const TextStyle(
+                fontSize: PsType.title,
+                fontWeight: PsType.weightBlack,
+                letterSpacing: PsType.trackingSnug,
+                color: PsColors.text,
               ),
-              actions: const [_SignOutAction()],
-            ),
-            Expanded(
-              child: clubId == null
-                  ? Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(PsSpacing.s5),
-                        child: Text(l10n.noClubAssigned,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: PsColors.textMuted, fontSize: PsType.body)),
-                      ),
-                    )
-                  : Column(
-                      children: [
-                        Expanded(child: _PitBossWaitlist(clubId: clubId)),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(
-                              PsSpacing.s5, PsSpacing.s2, PsSpacing.s5, PsSpacing.s1),
-                          child: Align(
-                            alignment: Alignment.centerLeft,
-                            child: PsOverline(l10n.seatedTitle),
-                          ),
-                        ),
-                        Expanded(child: _SessionsList(clubId: clubId)),
-                      ],
-                    ),
             ),
           ],
         ),
       ),
+      items: [
+        PsTabItem(Icons.grid_view, l10n.tabFloor),
+        PsTabItem(Icons.table_bar, l10n.tabTables),
+        PsTabItem(Icons.person, l10n.tabProfile),
+      ],
+      // Table management (index 1) — Plan 5 builds this.
+      tabs: const [
+        _FloorTab(),
+        StubBody(text: 'Coming in Plan 5'),
+        ProfileScreen(),
+      ],
+    );
+  }
+}
+
+/// The Floor tab: the staff member's club waitlist over its seated sessions.
+class _FloorTab extends ConsumerWidget {
+  const _FloorTab();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+    final clubId = ref.watch(currentUserProvider).valueOrNull?.clubId;
+    if (clubId == null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(PsSpacing.s5),
+          child: Text(l10n.noClubAssigned,
+              textAlign: TextAlign.center,
+              style: TextStyle(color: PsColors.textMuted, fontSize: PsType.body)),
+        ),
+      );
+    }
+    return Column(
+      children: [
+        Expanded(child: _PitBossWaitlist(clubId: clubId)),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+              PsSpacing.s5, PsSpacing.s2, PsSpacing.s5, PsSpacing.s1),
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: PsOverline(l10n.seatedTitle),
+          ),
+        ),
+        Expanded(child: _SessionsList(clubId: clubId)),
+      ],
     );
   }
 }
@@ -293,7 +285,7 @@ class _SessionsList extends ConsumerWidget {
     final sessions = ref.watch(clubSessionsProvider(clubId)).valueOrNull ?? const <Session>[];
     if (sessions.isEmpty) return const SizedBox.shrink();
     return ListView.builder(
-      padding: const EdgeInsets.all(PsSpacing.s4),
+      padding: const EdgeInsets.fromLTRB(PsSpacing.s4, PsSpacing.s4, PsSpacing.s4, 96),
       itemCount: sessions.length,
       itemBuilder: (_, i) => Padding(
         padding: const EdgeInsets.only(bottom: PsSpacing.s3),

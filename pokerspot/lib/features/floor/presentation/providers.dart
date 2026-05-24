@@ -34,3 +34,10 @@ final myWaitlistProvider = StreamProvider<List<WaitlistEntry>>((ref) {
 /// A club's live active sessions (Pit Boss view).
 final clubSessionsProvider = StreamProvider.family<List<Session>, String>(
     (ref, clubId) => ref.watch(sessionsRepositoryProvider).watchActiveByClub(clubId));
+
+/// The signed-in player's own active sessions (Activity tab; null uid -> empty).
+final mySessionProvider = StreamProvider<List<Session>>((ref) {
+  final uid = ref.watch(uidProvider).valueOrNull;
+  if (uid == null) return Stream.value(const <Session>[]);
+  return ref.watch(sessionsRepositoryProvider).watchByPlayer(uid);
+});

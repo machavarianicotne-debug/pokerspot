@@ -183,12 +183,30 @@ class FirebaseSessionsRepository implements SessionsRepository {
     required int seatNumber,
     required Stakes stakes,
     required String playerName,
+  }) =>
+      seatPlayer(
+        clubId: clubId,
+        tableId: tableId,
+        seatNumber: seatNumber,
+        stakes: stakes,
+        playerUid: 'walk-in:${DateTime.now().microsecondsSinceEpoch}',
+        playerName: playerName,
+      );
+
+  @override
+  Future<void> seatPlayer({
+    required String clubId,
+    required String tableId,
+    required int seatNumber,
+    required Stakes stakes,
+    required String playerUid,
+    required String playerName,
   }) {
     return _col.add({
       'clubId': clubId,
       'tableId': tableId,
       'seatNumber': seatNumber,
-      'playerUid': 'walk-in:${DateTime.now().microsecondsSinceEpoch}',
+      'playerUid': playerUid,
       'playerName': playerName,
       ...stakes.toMap(),
       'status': SessionStatus.active.asString,

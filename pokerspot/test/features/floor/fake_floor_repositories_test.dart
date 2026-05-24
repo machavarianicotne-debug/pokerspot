@@ -54,6 +54,21 @@ void main() {
     expect(active.first.status, SessionStatus.active);
   });
 
+  test('seatPlayer: seats a registered player keeping their real uid', () async {
+    final store = FakeFloorStore();
+    final sessions = FakeSessionsRepository(store);
+
+    await sessions.seatPlayer(
+        clubId: 'c1', tableId: 't1', seatNumber: 2, stakes: _stakes,
+        playerUid: 'giorgi-uid', playerName: 'Giorgi M');
+    // The seated player can see the session under their own uid (rules + activity).
+    final mine = await sessions.watchByPlayer('giorgi-uid').first;
+    expect(mine.length, 1);
+    expect(mine.first.playerUid, 'giorgi-uid');
+    expect(mine.first.playerName, 'Giorgi M');
+    expect(mine.first.seatNumber, 2);
+  });
+
   test('waitlist: join -> call -> cancel; by-club + by-player views', () async {
     final store = FakeFloorStore();
     final wl = FakeWaitlistRepository(store);

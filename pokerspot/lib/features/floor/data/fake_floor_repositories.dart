@@ -273,6 +273,24 @@ class FakeSessionsRepository implements SessionsRepository {
     required int seatNumber,
     required Stakes stakes,
     required String playerName,
+  }) =>
+      seatPlayer(
+        clubId: clubId,
+        tableId: tableId,
+        seatNumber: seatNumber,
+        stakes: stakes,
+        playerUid: 'walk-in:${store.nextId('w')}',
+        playerName: playerName,
+      );
+
+  @override
+  Future<void> seatPlayer({
+    required String clubId,
+    required String tableId,
+    required int seatNumber,
+    required Stakes stakes,
+    required String playerUid,
+    required String playerName,
   }) async {
     final id = store.nextId('session');
     store.sessions[id] = Session(
@@ -280,7 +298,7 @@ class FakeSessionsRepository implements SessionsRepository {
       clubId: clubId,
       tableId: tableId,
       seatNumber: seatNumber,
-      playerUid: 'walk-in:${store.nextId('w')}',
+      playerUid: playerUid,
       playerName: playerName,
       stakes: stakes,
       status: SessionStatus.active,

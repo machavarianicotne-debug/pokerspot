@@ -79,6 +79,17 @@ abstract interface class SessionsRepository {
     required String playerName,
   });
 
+  /// Seat a registered player directly (not via the waitlist) — keeps their real
+  /// [playerUid] so the session shows in their own activity.
+  Future<void> seatPlayer({
+    required String clubId,
+    required String tableId,
+    required int seatNumber,
+    required Stakes stakes,
+    required String playerUid,
+    required String playerName,
+  });
+
   /// End a session (status -> ended, stamps endedAt).
   Future<void> end(String sessionId);
 }

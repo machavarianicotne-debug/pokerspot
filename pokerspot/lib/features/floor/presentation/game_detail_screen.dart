@@ -4,11 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
+import 'package:pokerspot/features/auth/domain/app_user.dart';
+import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
 import 'package:pokerspot/features/floor/domain/reservation.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
+import 'package:pokerspot/shared/widgets/ps_avatar.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
 import 'package:pokerspot/shared/widgets/ps_countdown.dart';
@@ -694,10 +697,8 @@ class _ElapsedTimerState extends State<_ElapsedTimer> {
   }
 }
 
-/// Seat-a-player sheet (mockup smart search). Searches the club's waiting list
-/// for this stake (rules forbid Pit Bosses reading the full users collection,
-/// so registered-user search is out of scope); seats the picked player, or a
-/// walk-in using the typed name.
+/// Seat-a-player sheet (mockup smart search): the top waiting player ("Call #1"),
+/// registered players matched by name/phone, or a walk-in using the typed name.
 class _SeatPickerSheet extends ConsumerStatefulWidget {
   const _SeatPickerSheet({required this.clubId, required this.table, required this.seat});
   final String clubId;
@@ -724,6 +725,15 @@ class _SeatPickerSheetState extends ConsumerState<_SeatPickerSheet> {
     nav.pop();
   }
 
+  void _seatUser(AppUser u) {
+    final nav = Navigator.of(context);
+    unawaited(ref.read(sessionsRepositoryProvider).seatPlayer(
+          clubId: widget.clubId, tableId: widget.table.id, seatNumber: widget.seat,
+          stakes: widget.table.stakes, playerUid: u.uid,
+          playerName: '${u.firstName} ${u.lastName}'.trim()));
+    nav.pop();
+  }
+
   void _walkIn() {
     final nav = Navigator.of(context);
     final name = _q.text.trim().isEmpty ? AppL10n.of(context).walkInLabel : _q.text.trim();
@@ -741,6 +751,14 @@ class _SeatPickerSheetState extends ConsumerState<_SeatPickerSheet> {
         .where((e) => e.stakes.label == widget.table.stakes.label)
         .where((e) => query.isEmpty || e.playerName.toLowerCase().contains(query))
         .toList();
+    // Registered players matched by name / phone (rules let Pit Bosses read users).
+    final registered = (ref.watch(allUsersProvider).valueOrNull ?? const <AppUser>[])
+        .where((u) => u.role == AppRole.player)
+        .where((u) => query.isEmpty ||
+            '${u.firstName} ${u.lastName}'.toLowerCase().contains(query) ||
+            u.phone.toLowerCase().contains(query))
+        .take(6)
+        .toList();
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -756,6 +774,7 @@ class _SeatPickerSheetState extends ConsumerState<_SeatPickerSheet> {
           onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: PsSpacing.s3),
+        // Waiting players (top one is "Call #1").
         for (var i = 0; i < waiting.length; i++)
           Padding(
             padding: const EdgeInsets.only(bottom: PsSpacing.s2),
@@ -771,6 +790,22 @@ class _SeatPickerSheetState extends ConsumerState<_SeatPickerSheet> {
               ),
             ),
           ),
+        // Registered players matched by the search.
+        for (final u in registered)
+          Padding(
+            padding: const EdgeInsets.only(bottom: PsSpacing.s2),
+            child: PsCard(
+              key: Key('regPick_${u.uid}'),
+              onTap: () => _seatUser(u),
+              child: PsListTile(
+                leading: PsAvatar(initials: _initials(u), size: 32),
+                title: '${u.firstName} ${u.lastName}'.trim().isEmpty
+                    ? '—'
+                    : '${u.firstName} ${u.lastName}'.trim(),
+                subtitle: u.phone,
+              ),
+            ),
+          ),
         PsButton(
           key: const Key('walkInBtn'),
           label: _q.text.trim().isEmpty ? l10n.walkInLabel : '${l10n.walkInLabel}: ${_q.text.trim()}',
@@ -780,5 +815,14 @@ class _SeatPickerSheetState extends ConsumerState<_SeatPickerSheet> {
         ),
       ],
     );
+  }
+
+  static String _initials(AppUser u) {
+    final f = u.firstName.trim();
+    final l = u.lastName.trim();
+    final a = f.isNotEmpty ? f[0] : '';
+    final b = l.isNotEmpty ? l[0] : (f.length >= 2 ? f[1] : '');
+    final s = (a + b).toUpperCase();
+    return s.isEmpty ? '?' : s;
   }
 }

@@ -37,12 +37,16 @@ class FirebaseTablesRepository implements TablesRepository {
     required Stakes stakes,
     required int seatCount,
     required bool open,
+    num? avgStack,
+    num? minBuyIn,
   }) async {
     final doc = await _tables(clubId).add({
       'number': number,
       ...stakes.toMap(),
       'seatCount': seatCount,
       'open': open,
+      'avgStack': avgStack,
+      'minBuyIn': minBuyIn,
     });
     return doc.id;
   }

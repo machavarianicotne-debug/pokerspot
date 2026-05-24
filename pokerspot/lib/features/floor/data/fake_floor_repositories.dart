@@ -75,6 +75,8 @@ class FakeTablesRepository implements TablesRepository {
     required Stakes stakes,
     required int seatCount,
     required bool open,
+    num? avgStack,
+    num? minBuyIn,
   }) async {
     final id = store.nextId('table');
     store.tables[id] = PokerTable(
@@ -84,6 +86,8 @@ class FakeTablesRepository implements TablesRepository {
       stakes: stakes,
       seatCount: seatCount,
       open: open,
+      avgStack: avgStack,
+      minBuyIn: minBuyIn,
     );
     store.notify();
     return id;

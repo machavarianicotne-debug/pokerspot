@@ -20,8 +20,7 @@ const _blindPresets = ['1/3', '2/5', '5/5', '5/10'];
 String _symbol(String c) => c == 'USD' ? '\$' : c == 'EUR' ? '€' : '₾';
 
 /// Open a new game (mockup `pit-boss-new-game`): pick type / blinds / currency /
-/// tables and create N same-stake tables. Min buy-in + avg stack are collected
-/// but not persisted yet (PokerTable has no such fields — deferred per spec §7).
+/// min buy-in / avg stack / tables and create N same-stake tables.
 class NewGameScreen extends ConsumerStatefulWidget {
   const NewGameScreen({super.key, required this.clubId});
   final String clubId;
@@ -64,10 +63,13 @@ class _NewGameScreenState extends ConsumerState<NewGameScreen> {
     final repo = ref.read(tablesRepositoryProvider);
     final existing = ref.read(tablesProvider(widget.clubId)).valueOrNull ?? const <PokerTable>[];
     var next = existing.fold<int>(0, (m, t) => t.number > m ? t.number : m) + 1;
+    final minBuyIn = num.tryParse(_minBuyIn.text.trim());
+    final avgStack = num.tryParse(_avgStack.text.trim());
     final nav = Navigator.of(context);
     for (var i = 0; i < _tables; i++) {
       await repo.createTable(
-          clubId: widget.clubId, number: next++, stakes: stakes, seatCount: 9, open: true);
+          clubId: widget.clubId, number: next++, stakes: stakes, seatCount: 9, open: true,
+          minBuyIn: minBuyIn, avgStack: avgStack);
     }
     nav.pop();
   }

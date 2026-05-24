@@ -12,6 +12,11 @@ class PokerTable {
   final int seatCount;
   final bool open;
 
+  /// Optional Pit-Boss-editable economics (display only; mirror across same-stake
+  /// tables). Null until set.
+  final num? avgStack;
+  final num? minBuyIn;
+
   const PokerTable({
     required this.id,
     required this.clubId,
@@ -19,6 +24,8 @@ class PokerTable {
     required this.stakes,
     required this.seatCount,
     required this.open,
+    this.avgStack,
+    this.minBuyIn,
   });
 
   factory PokerTable.fromMap(String id, String clubId, Map<String, dynamic> m) => PokerTable(
@@ -28,6 +35,8 @@ class PokerTable {
         stakes: Stakes.fromMap(m),
         seatCount: (m['seatCount'] ?? BusinessRules.maxPlayersPerTable) as int,
         open: (m['open'] ?? false) as bool,
+        avgStack: m['avgStack'] as num?,
+        minBuyIn: m['minBuyIn'] as num?,
       );
 
   Map<String, dynamic> toMap() => {
@@ -35,6 +44,8 @@ class PokerTable {
         ...stakes.toMap(),
         'seatCount': seatCount,
         'open': open,
+        'avgStack': avgStack,
+        'minBuyIn': minBuyIn,
       };
 
   PokerTable copyWith({
@@ -44,6 +55,8 @@ class PokerTable {
     Stakes? stakes,
     int? seatCount,
     bool? open,
+    num? avgStack,
+    num? minBuyIn,
   }) =>
       PokerTable(
         id: id ?? this.id,
@@ -52,6 +65,8 @@ class PokerTable {
         stakes: stakes ?? this.stakes,
         seatCount: seatCount ?? this.seatCount,
         open: open ?? this.open,
+        avgStack: avgStack ?? this.avgStack,
+        minBuyIn: minBuyIn ?? this.minBuyIn,
       );
 
   @override
@@ -64,8 +79,11 @@ class PokerTable {
           number == other.number &&
           stakes == other.stakes &&
           seatCount == other.seatCount &&
-          open == other.open;
+          open == other.open &&
+          avgStack == other.avgStack &&
+          minBuyIn == other.minBuyIn;
 
   @override
-  int get hashCode => Object.hash(id, clubId, number, stakes, seatCount, open);
+  int get hashCode =>
+      Object.hash(id, clubId, number, stakes, seatCount, open, avgStack, minBuyIn);
 }

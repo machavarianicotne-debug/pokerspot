@@ -18,6 +18,8 @@ abstract interface class TablesRepository {
     required Stakes stakes,
     required int seatCount,
     required bool open,
+    num? avgStack,
+    num? minBuyIn,
   });
 
   /// Update an existing table's fields (matched by [table.clubId]/[table.id]).

@@ -11,6 +11,8 @@ import 'package:pokerspot/features/floor/presentation/providers.dart';
 import 'package:pokerspot/features/floor/presentation/table_editor_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
+import 'package:pokerspot/shared/widgets/ps_list_tile.dart';
+import 'package:pokerspot/shared/widgets/ps_overline.dart';
 import 'package:pokerspot/shared/widgets/ps_scaffold.dart';
 import 'package:pokerspot/shared/widgets/ps_seat_map.dart';
 import 'package:pokerspot/shared/widgets/ps_sheet.dart';
@@ -38,6 +40,7 @@ class TableDetailScreen extends ConsumerWidget {
     for (final s in sessions) {
       if (s.tableId == tableId) bySeat[s.seatNumber] = s;
     }
+    final waitlist = ref.watch(clubWaitlistProvider(clubId)).valueOrNull ?? const <WaitlistEntry>[];
 
     final t = table;
     return PsScaffold(
@@ -93,6 +96,7 @@ class TableDetailScreen extends ConsumerWidget {
                         }
                       },
                     ),
+                    ..._waitlistSection(context, ref, t, waitlist, bySeat),
                   ],
                 ),
               ),
@@ -105,6 +109,57 @@ class TableDetailScreen extends ConsumerWidget {
   static bool _isWarn(Session s) {
     final start = s.startedAt;
     return start != null && DateTime.now().difference(start) > _sessionWarn;
+  }
+
+  /// "Waitlist for this stake" — Call (notify) / Seat (at the first free seat).
+  List<Widget> _waitlistSection(BuildContext context, WidgetRef ref, PokerTable t,
+      List<WaitlistEntry> waitlist, Map<int, Session> bySeat) {
+    final l10n = AppL10n.of(context);
+    final stakeWl = waitlist.where((e) => e.stakes.label == t.stakes.label).toList();
+    if (stakeWl.isEmpty) return const [];
+    int? firstFree;
+    for (var n = 1; n <= t.seatCount; n++) {
+      if (!bySeat.containsKey(n)) {
+        firstFree = n;
+        break;
+      }
+    }
+    return [
+      const SizedBox(height: PsSpacing.s5),
+      Align(
+        alignment: Alignment.centerLeft,
+        child: PsOverline('${l10n.waitlistTitle} · ${stakeWl.length}'),
+      ),
+      const SizedBox(height: PsSpacing.s3),
+      for (final e in stakeWl)
+        Padding(
+          padding: const EdgeInsets.only(bottom: PsSpacing.s2),
+          child: PsCard(
+            key: Key('wlRow_${e.id}'),
+            child: PsListTile(
+              title: e.playerName.isEmpty ? '—' : e.playerName,
+              subtitle: e.status == WaitlistStatus.called ? l10n.statusCalled : l10n.statusWaiting,
+              trailing: e.status == WaitlistStatus.called
+                  ? PsButton(
+                      key: Key('seatBtn_${e.id}'),
+                      label: l10n.seatAction,
+                      onPressed: firstFree == null
+                          ? null
+                          : () => unawaited(ref.read(waitlistRepositoryProvider).seat(
+                                entry: e,
+                                tableId: t.id,
+                                seatNumber: firstFree!,
+                              )),
+                    )
+                  : PsButton(
+                      key: Key('callBtn_${e.id}'),
+                      label: l10n.callAction,
+                      onPressed: () => unawaited(ref.read(waitlistRepositoryProvider).call(e.id)),
+                    ),
+            ),
+          ),
+        ),
+    ];
   }
 
   void _confirmDelete(BuildContext context, WidgetRef ref, PokerTable t) {

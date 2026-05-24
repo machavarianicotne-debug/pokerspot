@@ -100,4 +100,24 @@ void main() {
     expect(find.byKey(const Key('editTableBtn')), findsOneWidget);
     expect(find.byKey(const Key('deleteTableBtn')), findsOneWidget);
   });
+
+  testWidgets('TableDetailScreen shows the per-stake waitlist with a Call action', (tester) async {
+    final entry = WaitlistEntry(
+        id: 'e1', clubId: 'vake', playerUid: 'u', playerName: 'Nino K', stakes: _stakes,
+        status: WaitlistStatus.waiting, createdAt: DateTime.now(), calledAt: null);
+    await tester.pumpWidget(_wrap(
+      const TableDetailScreen(clubId: 'vake', tableId: 't1'),
+      [
+        currentUserProvider.overrideWith((ref) => Stream.value(_pb())),
+        tablesProvider('vake').overrideWith((ref) => Stream.value(const [_table])),
+        clubSessionsProvider('vake').overrideWith((ref) => Stream.value(const <Session>[])),
+        clubWaitlistProvider('vake').overrideWith((ref) => Stream.value([entry])),
+      ],
+    ));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(find.byKey(const Key('wlRow_e1')), 200,
+        scrollable: find.byType(Scrollable).first);
+    expect(find.byKey(const Key('wlRow_e1')), findsOneWidget);
+    expect(find.byKey(const Key('callBtn_e1')), findsOneWidget);
+  });
 }

@@ -110,5 +110,11 @@
   "chatEntrySub": "Dress code, პარკინგი, VIP — ჰკითხე დარბაზს",
   "messageHint": "მისწერე დარბაზს…",
   "tabInbox": "შემოსული",
-  "inboxEmpty": "საუბრები ჯერ არ არის"
+  "inboxEmpty": "საუბრები ჯერ არ არის",
+  "tabStats": "სტატისტიკა",
+  "tabSettings": "პარამეტრები",
+  "registeredLabel": "რეგისტრირებული",
+  "availabilityHeader": "ხელმისაწვდომობა",
+  "availableLabel": "ვიღებ მოთამაშეებს",
+  "noStatsYet": "სესიები ჯერ არ არის"
 }

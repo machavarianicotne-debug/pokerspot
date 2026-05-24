@@ -110,5 +110,11 @@
   "chatEntrySub": "Дресс-код, парковка, VIP — спросите зал",
   "messageHint": "Написать залу…",
   "tabInbox": "Входящие",
-  "inboxEmpty": "Пока нет переписок"
+  "inboxEmpty": "Пока нет переписок",
+  "tabStats": "Статистика",
+  "tabSettings": "Настройки",
+  "registeredLabel": "Зарегистрированные",
+  "availabilityHeader": "Доступность",
+  "availableLabel": "Принимаю игроков",
+  "noStatsYet": "Сессий пока нет"
 }

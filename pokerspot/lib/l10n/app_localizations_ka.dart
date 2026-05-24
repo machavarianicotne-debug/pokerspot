@@ -343,4 +343,22 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get inboxEmpty => 'საუბრები ჯერ არ არის';
+
+  @override
+  String get tabStats => 'სტატისტიკა';
+
+  @override
+  String get tabSettings => 'პარამეტრები';
+
+  @override
+  String get registeredLabel => 'რეგისტრირებული';
+
+  @override
+  String get availabilityHeader => 'ხელმისაწვდომობა';
+
+  @override
+  String get availableLabel => 'ვიღებ მოთამაშეებს';
+
+  @override
+  String get noStatsYet => 'სესიები ჯერ არ არის';
 }

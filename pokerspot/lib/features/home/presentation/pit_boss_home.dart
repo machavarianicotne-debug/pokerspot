@@ -11,8 +11,9 @@ import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
 import 'package:pokerspot/features/chat/presentation/inbox_screen.dart';
 import 'package:pokerspot/features/floor/presentation/tables_screen.dart';
+import 'package:pokerspot/features/home/presentation/pit_boss_settings_screen.dart';
+import 'package:pokerspot/features/home/presentation/pit_boss_stats_screen.dart';
 import 'package:pokerspot/features/home/presentation/player_home.dart' show TabShell;
-import 'package:pokerspot/features/home/presentation/profile_screen.dart';
 import 'package:pokerspot/shared/widgets/ps_avatar.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
@@ -64,13 +65,15 @@ class PitBossHome extends ConsumerWidget {
         PsTabItem(Icons.grid_view, l10n.tabFloor),
         PsTabItem(Icons.table_bar, l10n.tabTables),
         PsTabItem(Icons.chat_bubble_outline, l10n.tabInbox),
-        PsTabItem(Icons.person, l10n.tabProfile),
+        PsTabItem(Icons.bar_chart, l10n.tabStats),
+        PsTabItem(Icons.settings, l10n.tabSettings),
       ],
       tabs: const [
         _FloorTab(),
         TablesScreen(),
         InboxScreen(),
-        ProfileScreen(),
+        PitBossStatsScreen(),
+        PitBossSettingsScreen(),
       ],
     );
   }

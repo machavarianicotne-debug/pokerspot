@@ -343,4 +343,22 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get inboxEmpty => 'Пока нет переписок';
+
+  @override
+  String get tabStats => 'Статистика';
+
+  @override
+  String get tabSettings => 'Настройки';
+
+  @override
+  String get registeredLabel => 'Зарегистрированные';
+
+  @override
+  String get availabilityHeader => 'Доступность';
+
+  @override
+  String get availableLabel => 'Принимаю игроков';
+
+  @override
+  String get noStatsYet => 'Сессий пока нет';
 }

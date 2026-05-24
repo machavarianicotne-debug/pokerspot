@@ -343,4 +343,22 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get inboxEmpty => 'No conversations yet';
+
+  @override
+  String get tabStats => 'Stats';
+
+  @override
+  String get tabSettings => 'Settings';
+
+  @override
+  String get registeredLabel => 'Registered';
+
+  @override
+  String get availabilityHeader => 'Availability';
+
+  @override
+  String get availableLabel => 'Accepting players';
+
+  @override
+  String get noStatsYet => 'No sessions yet';
 }

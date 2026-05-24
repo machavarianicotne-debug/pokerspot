@@ -764,6 +764,42 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'No conversations yet'**
   String get inboxEmpty;
+
+  /// No description provided for @tabStats.
+  ///
+  /// In en, this message translates to:
+  /// **'Stats'**
+  String get tabStats;
+
+  /// No description provided for @tabSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get tabSettings;
+
+  /// No description provided for @registeredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered'**
+  String get registeredLabel;
+
+  /// No description provided for @availabilityHeader.
+  ///
+  /// In en, this message translates to:
+  /// **'Availability'**
+  String get availabilityHeader;
+
+  /// No description provided for @availableLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Accepting players'**
+  String get availableLabel;
+
+  /// No description provided for @noStatsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No sessions yet'**
+  String get noStatsYet;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

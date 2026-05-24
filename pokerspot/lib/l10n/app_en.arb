@@ -110,5 +110,11 @@
   "chatEntrySub": "Dress code, parking, VIP — ask the floor",
   "messageHint": "Message the floor…",
   "tabInbox": "Inbox",
-  "inboxEmpty": "No conversations yet"
+  "inboxEmpty": "No conversations yet",
+  "tabStats": "Stats",
+  "tabSettings": "Settings",
+  "registeredLabel": "Registered",
+  "availabilityHeader": "Availability",
+  "availableLabel": "Accepting players",
+  "noStatsYet": "No sessions yet"
 }

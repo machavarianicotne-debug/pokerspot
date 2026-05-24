@@ -14,6 +14,10 @@ import 'package:pokerspot/features/floor/domain/poker_table.dart';
 import 'package:pokerspot/features/floor/domain/stakes.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
+import 'package:pokerspot/shared/widgets/ps_button.dart';
+import 'package:pokerspot/shared/widgets/ps_card.dart';
+import 'package:pokerspot/shared/widgets/ps_scaffold.dart';
+import 'package:pokerspot/shared/widgets/ps_sheet.dart';
 
 class ClubDetailsScreen extends ConsumerWidget {
   const ClubDetailsScreen({super.key, required this.clubId});
@@ -23,26 +27,83 @@ class ClubDetailsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppL10n.of(context);
     final clubAsync = ref.watch(clubProvider(clubId));
-    return Scaffold(
-      backgroundColor: PsColors.bg0,
-      appBar: AppBar(
-        backgroundColor: PsColors.bg1,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: PsColors.accentPrimary),
-          tooltip: l10n.backToClubs,
-          onPressed: () => context.go('/home'),
+    return PsScaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            _Nav(title: clubAsync.valueOrNull?.name ?? l10n.clubsListTitle),
+            Expanded(
+              child: clubAsync.when(
+                loading: () => const Center(
+                  child: CircularProgressIndicator(color: PsColors.accentPrimary),
+                ),
+                error: (e, _) => Center(
+                  child: Text('$e', style: const TextStyle(color: PsColors.statusLive)),
+                ),
+                data: (club) => club == null
+                    ? Center(
+                        child: Text(l10n.noClubsYet,
+                            style: TextStyle(color: PsColors.textMuted)))
+                    : _Details(club: club),
+              ),
+            ),
+          ],
         ),
       ),
-      body: clubAsync.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Text('$e', style: const TextStyle(color: PsColors.statusLive)),
-        ),
-        data: (club) => club == null
-            ? Center(
-                child: Text(l10n.noClubsYet,
-                    style: TextStyle(color: PsColors.textMuted)))
-            : _Details(club: club),
+    );
+  }
+}
+
+/// Glass nav: a round back button + the club name title (mockup `.nav-back`).
+class _Nav extends StatelessWidget {
+  const _Nav({required this.title});
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(PsSpacing.s4, PsSpacing.s2, PsSpacing.s5, PsSpacing.s3),
+      child: Row(
+        children: [
+          Semantics(
+            button: true,
+            label: l10n.backToClubs,
+            child: GestureDetector(
+              onTap: () => context.go('/home'),
+              child: ClipOval(
+                child: BackdropFilter(
+                  filter: PsGlass.backdrop(PsGlass.blurThin),
+                  child: Container(
+                    width: 38,
+                    height: 38,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: PsColors.glassRegular,
+                      border: Border.all(color: PsColors.glassBorder),
+                    ),
+                    child: const Icon(Icons.arrow_back_ios_new, size: 16, color: PsColors.text),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: PsSpacing.s3),
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                fontSize: PsType.body,
+                fontWeight: PsType.weightBold,
+                letterSpacing: PsType.trackingSnug,
+                color: PsColors.text,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -58,69 +119,185 @@ class _Details extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(PsSpacing.s5),
       children: [
-        _Hero(photoUrl: club.photoUrl),
-        const SizedBox(height: PsSpacing.s4),
-        Text(club.name,
-            style: const TextStyle(
-                color: PsColors.text,
-                fontSize: PsType.title,
-                fontWeight: FontWeight.w900)),
-        const SizedBox(height: PsSpacing.s1),
-        Text(club.city,
-            style: TextStyle(color: PsColors.textMuted, fontSize: PsType.body)),
+        _InfoCard(club: club),
         const SizedBox(height: PsSpacing.s5),
-        _InfoRow(icon: Icons.place, label: l10n.clubAddress, value: club.address),
-        _InfoRow(icon: Icons.schedule, label: l10n.clubHours, value: club.hoursText),
-        ListTile(
-          key: const Key('phoneTile'),
-          contentPadding: EdgeInsets.zero,
-          leading: const Icon(Icons.call, color: PsColors.accentSecondary),
-          title: Text(l10n.clubPhone,
-              style: TextStyle(color: PsColors.textMuted, fontSize: PsType.subhead)),
-          subtitle: Text(club.phone,
-              style: const TextStyle(color: PsColors.text, fontSize: PsType.body)),
-          // Normalize to digits + a single leading '+' — the tel: URI spec
-          // forbids spaces (the seeded numbers contain them), which made some
-          // browsers ignore the link entirely.
-          onTap: () {
-            final tel = club.phone.replaceAll(RegExp(r'[^\d+]'), '');
-            unawaited(launchUrl(Uri.parse('tel:$tel')));
-          },
-          trailing: IconButton(
-            key: const Key('copyPhoneBtn'),
-            icon: Icon(Icons.copy, color: PsColors.textMuted),
-            onPressed: () {
-              // Copy the display-formatted number (with spaces) — easier to read.
-              unawaited(Clipboard.setData(ClipboardData(text: club.phone)));
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(l10n.phoneCopied)),
-              );
-            },
+        PsButton(
+          key: const Key('joinWaitlistBtn'),
+          label: l10n.joinWaitlist,
+          icon: Icons.event_seat,
+          onPressed: () => unawaited(
+            PsSheet.show<void>(context, child: _StakePickerSheet(clubId: club.id)),
           ),
         ),
-        const SizedBox(height: PsSpacing.s5),
-        _JoinWaitlistButton(clubId: club.id),
       ],
     );
   }
 }
 
-class _JoinWaitlistButton extends ConsumerWidget {
-  const _JoinWaitlistButton({required this.clubId});
-  final String clubId;
+class _InfoCard extends StatelessWidget {
+  const _InfoCard({required this.club});
+  final Club club;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
+    return PsCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              _LogoOrb(name: club.name),
+              const SizedBox(width: PsSpacing.s3),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      club.name,
+                      style: const TextStyle(
+                        fontSize: PsType.title,
+                        fontWeight: PsType.weightBlack,
+                        letterSpacing: PsType.trackingSnug,
+                        color: PsColors.text,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      club.city,
+                      style: TextStyle(
+                        fontSize: PsType.subhead,
+                        fontWeight: PsType.weightMedium,
+                        color: PsColors.textMuted,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: PsSpacing.s3),
+          Container(height: 1, color: PsColors.glassBorder),
+          const SizedBox(height: PsSpacing.s3),
+          _InfoRow(icon: Icons.place_outlined, value: club.address),
+          const SizedBox(height: PsSpacing.s2),
+          _PhoneRow(phone: club.phone),
+          const SizedBox(height: PsSpacing.s2),
+          _InfoRow(icon: Icons.schedule, value: club.hoursText),
+        ],
+      ),
+    );
+  }
+}
+
+class _LogoOrb extends StatelessWidget {
+  const _LogoOrb({required this.name});
+  final String name;
+
+  @override
+  Widget build(BuildContext context) {
+    final letter = name.trim().isEmpty ? '?' : name.trim()[0].toUpperCase();
+    return Container(
+      width: 56,
+      height: 56,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(PsRadii.md),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [PsColors.accentPrimary, PsColors.accentSecondary],
+        ),
+        boxShadow: PsElevation.e2,
+      ),
+      child: Text(
+        letter,
+        style: const TextStyle(
+          fontSize: 24,
+          fontWeight: PsType.weightBlack,
+          color: PsColors.onAccent,
+        ),
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({required this.icon, required this.value});
+  final IconData icon;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, size: 18, color: PsColors.textMuted),
+        const SizedBox(width: PsSpacing.s3),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(fontSize: PsType.body, color: PsColors.textMuted),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The callable phone row (accent-secondary) with a copy action.
+class _PhoneRow extends StatelessWidget {
+  const _PhoneRow({required this.phone});
+  final String phone;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
-    return FilledButton.icon(
-      key: const Key('joinWaitlistBtn'),
-      onPressed: () => unawaited(showModalBottomSheet<void>(
-        context: context,
-        backgroundColor: PsColors.bg1,
-        builder: (_) => _StakePickerSheet(clubId: clubId),
-      )),
-      icon: const Icon(Icons.event_seat),
-      label: Text(l10n.joinWaitlist),
+    return Row(
+      children: [
+        Expanded(
+          child: GestureDetector(
+            key: const Key('phoneTile'),
+            onTap: () {
+              // Normalize to digits + a single leading '+' — the tel: URI spec
+              // forbids spaces (the seeded numbers contain them), which made some
+              // browsers ignore the link entirely.
+              final tel = phone.replaceAll(RegExp(r'[^\d+]'), '');
+              unawaited(launchUrl(Uri.parse('tel:$tel')));
+            },
+            behavior: HitTestBehavior.opaque,
+            child: Row(
+              children: [
+                const Icon(Icons.call, size: 18, color: PsColors.accentSecondary),
+                const SizedBox(width: PsSpacing.s3),
+                Expanded(
+                  child: Text(
+                    phone,
+                    style: const TextStyle(
+                      fontSize: PsType.body,
+                      fontWeight: PsType.weightBold,
+                      color: PsColors.accentSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        GestureDetector(
+          key: const Key('copyPhoneBtn'),
+          onTap: () {
+            // Copy the display-formatted number (with spaces) — easier to read.
+            unawaited(Clipboard.setData(ClipboardData(text: phone)));
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(l10n.phoneCopied)),
+            );
+          },
+          behavior: HitTestBehavior.opaque,
+          child: Padding(
+            padding: const EdgeInsets.all(PsSpacing.s2),
+            child: Icon(Icons.copy, size: 18, color: PsColors.textMuted),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -146,119 +323,104 @@ class _StakePickerSheet extends ConsumerWidget {
     final myLabels =
         mine.where((e) => e.clubId == clubId).map((e) => e.stakes.label).toSet();
 
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(PsSpacing.s4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(l10n.chooseStake,
-                style: const TextStyle(
-                    color: PsColors.text,
-                    fontSize: PsType.headline,
-                    fontWeight: FontWeight.w700)),
-            const SizedBox(height: PsSpacing.s3),
-            if (stakes.isEmpty)
-              Padding(
-                padding: const EdgeInsets.all(PsSpacing.s4),
-                child: Text(l10n.noStakesYet,
-                    style: TextStyle(color: PsColors.textMuted)),
-              )
-            else
-              for (final s in stakes)
-                ListTile(
-                  key: Key('stake_${s.label}'),
-                  title: Text(s.label, style: const TextStyle(color: PsColors.text)),
-                  trailing: myLabels.contains(s.label)
-                      ? Text(l10n.statusWaiting,
-                          style: const TextStyle(color: PsColors.accentSecondary))
-                      : const Icon(Icons.add, color: PsColors.accentPrimary),
-                  onTap: myLabels.contains(s.label)
-                      ? null
-                      : () async {
-                          final messenger = ScaffoldMessenger.of(context);
-                          final navigator = Navigator.of(context);
-                          final uid = ref.read(authRepositoryProvider).currentUid;
-                          final user = ref.read(currentUserProvider).valueOrNull;
-                          if (uid != null) {
-                            await ref.read(waitlistRepositoryProvider).join(
-                                  clubId: clubId,
-                                  playerUid: uid,
-                                  playerName: user == null
-                                      ? ''
-                                      : '${user.firstName} ${user.lastName}'.trim(),
-                                  stakes: s,
-                                );
-                          }
-                          navigator.pop();
-                          messenger.showSnackBar(
-                            SnackBar(content: Text(l10n.joinedWaitlist)),
-                          );
-                        },
-                ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _InfoRow extends StatelessWidget {
-  const _InfoRow({required this.icon, required this.label, required this.value});
-  final IconData icon;
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: PsSpacing.s2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: PsColors.accentSecondary),
-          const SizedBox(width: PsSpacing.s4),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label,
-                    style: TextStyle(color: PsColors.textMuted, fontSize: PsType.subhead)),
-                Text(value,
-                    style: const TextStyle(color: PsColors.text, fontSize: PsType.body)),
-              ],
-            ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          l10n.chooseStake,
+          style: const TextStyle(
+            fontSize: PsType.headline,
+            fontWeight: PsType.weightBold,
+            color: PsColors.text,
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: PsSpacing.s3),
+        if (stakes.isEmpty)
+          Padding(
+            padding: const EdgeInsets.all(PsSpacing.s4),
+            child: Text(l10n.noStakesYet, style: TextStyle(color: PsColors.textMuted)),
+          )
+        else
+          for (final s in stakes)
+            _StakeRow(
+              stakes: s,
+              waiting: myLabels.contains(s.label),
+              onJoin: myLabels.contains(s.label)
+                  ? null
+                  : () async {
+                      final messenger = ScaffoldMessenger.of(context);
+                      final navigator = Navigator.of(context);
+                      final uid = ref.read(authRepositoryProvider).currentUid;
+                      final user = ref.read(currentUserProvider).valueOrNull;
+                      if (uid != null) {
+                        await ref.read(waitlistRepositoryProvider).join(
+                              clubId: clubId,
+                              playerUid: uid,
+                              playerName: user == null
+                                  ? ''
+                                  : '${user.firstName} ${user.lastName}'.trim(),
+                              stakes: s,
+                            );
+                      }
+                      navigator.pop();
+                      messenger.showSnackBar(SnackBar(content: Text(l10n.joinedWaitlist)));
+                    },
+            ),
+      ],
     );
   }
 }
 
-class _Hero extends StatelessWidget {
-  const _Hero({required this.photoUrl});
-  final String? photoUrl;
+class _StakeRow extends StatelessWidget {
+  const _StakeRow({required this.stakes, required this.waiting, this.onJoin});
+  final Stakes stakes;
+  final bool waiting;
+  final Future<void> Function()? onJoin;
 
   @override
   Widget build(BuildContext context) {
-    final url = photoUrl;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(PsRadii.lg),
-      child: SizedBox(
-        height: 180,
-        width: double.infinity,
-        child: (url != null && url.isNotEmpty)
-            ? Image.network(url, fit: BoxFit.cover, errorBuilder: (_, __, ___) => _fallback())
-            : _fallback(),
+    final l10n = AppL10n.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(bottom: PsSpacing.s2),
+      child: GestureDetector(
+        key: Key('stake_${stakes.label}'),
+        onTap: onJoin == null ? null : () => unawaited(onJoin!()),
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: PsSpacing.s4, vertical: PsSpacing.s3),
+          decoration: BoxDecoration(
+            color: PsColors.glassThin,
+            borderRadius: BorderRadius.circular(PsRadii.md),
+            border: Border.all(color: PsColors.glassBorder),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  stakes.label,
+                  style: const TextStyle(
+                    fontSize: PsType.body,
+                    fontWeight: PsType.weightBold,
+                    color: PsColors.text,
+                  ),
+                ),
+              ),
+              if (waiting)
+                Text(
+                  l10n.statusWaiting,
+                  style: const TextStyle(
+                    fontSize: PsType.subhead,
+                    fontWeight: PsType.weightBold,
+                    color: PsColors.accentSecondary,
+                  ),
+                )
+              else
+                const Icon(Icons.add, color: PsColors.accentPrimary),
+            ],
+          ),
+        ),
       ),
     );
   }
-
-  Widget _fallback() => Container(
-        color: PsColors.bg1,
-        child: const Center(
-          child: Icon(Icons.casino, color: PsColors.accentPrimary, size: 64),
-        ),
-      );
 }

@@ -69,7 +69,8 @@ void main() {
     await tester.pumpWidget(_wrap('vake', FakeClubsRepository(seed: const [_vake])));
     await tester.pumpAndSettle();
 
-    expect(find.text('PokerSpot Vake'), findsOneWidget);
+    // Name appears in both the nav title and the info card (mockup behaviour).
+    expect(find.text('PokerSpot Vake'), findsWidgets);
     expect(find.text('Tbilisi'), findsOneWidget);
     expect(find.text('Chavchavadze Ave 47'), findsOneWidget);
     expect(find.text('Daily 14:00–04:00'), findsOneWidget);

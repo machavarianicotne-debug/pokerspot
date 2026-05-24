@@ -104,4 +104,58 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get phoneCopied => 'Phone number copied';
+
+  @override
+  String get joinWaitlist => 'Join waitlist';
+
+  @override
+  String get chooseStake => 'Choose a stake';
+
+  @override
+  String get noStakesYet => 'No stakes available yet';
+
+  @override
+  String get joinedWaitlist => 'Added to the waitlist';
+
+  @override
+  String get yourWaitlist => 'Your waitlist';
+
+  @override
+  String get statusWaiting => 'Waiting';
+
+  @override
+  String get statusCalled => 'You\'ve been called!';
+
+  @override
+  String get cancelWaitlist => 'Cancel';
+
+  @override
+  String get waitlistTitle => 'Waitlist';
+
+  @override
+  String get noClubAssigned => 'No club is assigned to your account';
+
+  @override
+  String get waitlistEmpty => 'No one is waiting';
+
+  @override
+  String get callAction => 'Call';
+
+  @override
+  String get seatAction => 'Seat';
+
+  @override
+  String get chooseTable => 'Choose a table';
+
+  @override
+  String get seatNumber => 'Seat number';
+
+  @override
+  String get seatedTitle => 'Seated players';
+
+  @override
+  String get endSession => 'End';
+
+  @override
+  String get tableLabel => 'Table';
 }

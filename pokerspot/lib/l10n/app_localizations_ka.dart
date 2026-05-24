@@ -104,4 +104,58 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get phoneCopied => 'ნომერი დაკოპირდა';
+
+  @override
+  String get joinWaitlist => 'რიგში ჩაწერა';
+
+  @override
+  String get chooseStake => 'აირჩიეთ ლიმიტი';
+
+  @override
+  String get noStakesYet => 'ხელმისაწვდომი ლიმიტები არ არის';
+
+  @override
+  String get joinedWaitlist => 'რიგში ჩაგწერეთ';
+
+  @override
+  String get yourWaitlist => 'თქვენი რიგი';
+
+  @override
+  String get statusWaiting => 'ელოდება';
+
+  @override
+  String get statusCalled => 'გიხმობენ!';
+
+  @override
+  String get cancelWaitlist => 'გაუქმება';
+
+  @override
+  String get waitlistTitle => 'რიგი';
+
+  @override
+  String get noClubAssigned => 'თქვენს ანგარიშზე კლუბი არ არის მიბმული';
+
+  @override
+  String get waitlistEmpty => 'რიგში არავინ არის';
+
+  @override
+  String get callAction => 'გამოძახება';
+
+  @override
+  String get seatAction => 'დასმა';
+
+  @override
+  String get chooseTable => 'აირჩიეთ მაგიდა';
+
+  @override
+  String get seatNumber => 'ადგილის ნომერი';
+
+  @override
+  String get seatedTitle => 'დამსხდარი მოთამაშეები';
+
+  @override
+  String get endSession => 'დასრულება';
+
+  @override
+  String get tableLabel => 'მაგიდა';
 }

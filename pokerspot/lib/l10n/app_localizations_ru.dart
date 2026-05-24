@@ -104,4 +104,58 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get phoneCopied => 'Номер скопирован';
+
+  @override
+  String get joinWaitlist => 'Встать в очередь';
+
+  @override
+  String get chooseStake => 'Выберите лимит';
+
+  @override
+  String get noStakesYet => 'Пока нет доступных лимитов';
+
+  @override
+  String get joinedWaitlist => 'Вы в очереди';
+
+  @override
+  String get yourWaitlist => 'Ваша очередь';
+
+  @override
+  String get statusWaiting => 'Ожидание';
+
+  @override
+  String get statusCalled => 'Вас вызвали!';
+
+  @override
+  String get cancelWaitlist => 'Отменить';
+
+  @override
+  String get waitlistTitle => 'Очередь';
+
+  @override
+  String get noClubAssigned => 'К вашему аккаунту не привязан клуб';
+
+  @override
+  String get waitlistEmpty => 'Никто не ожидает';
+
+  @override
+  String get callAction => 'Вызвать';
+
+  @override
+  String get seatAction => 'Посадить';
+
+  @override
+  String get chooseTable => 'Выберите стол';
+
+  @override
+  String get seatNumber => 'Номер места';
+
+  @override
+  String get seatedTitle => 'Игроки за столами';
+
+  @override
+  String get endSession => 'Завершить';
+
+  @override
+  String get tableLabel => 'Стол';
 }

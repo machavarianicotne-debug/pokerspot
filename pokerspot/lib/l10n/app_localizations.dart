@@ -290,6 +290,114 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Phone number copied'**
   String get phoneCopied;
+
+  /// No description provided for @joinWaitlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Join waitlist'**
+  String get joinWaitlist;
+
+  /// No description provided for @chooseStake.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a stake'**
+  String get chooseStake;
+
+  /// No description provided for @noStakesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No stakes available yet'**
+  String get noStakesYet;
+
+  /// No description provided for @joinedWaitlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Added to the waitlist'**
+  String get joinedWaitlist;
+
+  /// No description provided for @yourWaitlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Your waitlist'**
+  String get yourWaitlist;
+
+  /// No description provided for @statusWaiting.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting'**
+  String get statusWaiting;
+
+  /// No description provided for @statusCalled.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve been called!'**
+  String get statusCalled;
+
+  /// No description provided for @cancelWaitlist.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancelWaitlist;
+
+  /// No description provided for @waitlistTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Waitlist'**
+  String get waitlistTitle;
+
+  /// No description provided for @noClubAssigned.
+  ///
+  /// In en, this message translates to:
+  /// **'No club is assigned to your account'**
+  String get noClubAssigned;
+
+  /// No description provided for @waitlistEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No one is waiting'**
+  String get waitlistEmpty;
+
+  /// No description provided for @callAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Call'**
+  String get callAction;
+
+  /// No description provided for @seatAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Seat'**
+  String get seatAction;
+
+  /// No description provided for @chooseTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a table'**
+  String get chooseTable;
+
+  /// No description provided for @seatNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Seat number'**
+  String get seatNumber;
+
+  /// No description provided for @seatedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Seated players'**
+  String get seatedTitle;
+
+  /// No description provided for @endSession.
+  ///
+  /// In en, this message translates to:
+  /// **'End'**
+  String get endSession;
+
+  /// No description provided for @tableLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Table'**
+  String get tableLabel;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

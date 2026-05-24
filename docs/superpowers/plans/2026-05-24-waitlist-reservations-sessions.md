@@ -54,9 +54,10 @@ Two top-level collections (waitlist, sessions) + tables nested under their club.
 - From a called entry: **Seat** → pick a table + seat number → `WaitlistRepository.seat(...)` creates a `Session` (active, startedAt) and flips the entry to seated. Sessions list per club with a live-updating elapsed timer; **End** session.
 - **Accept:** widget tests (seat creates session; timer renders; end); analyze clean.
 
-### Task 8: l10n keys
+### Task 8: l10n keys — **front-loaded before Tasks 4–7** (their UI consumes these keys)
 - Add waitlist/session keys (en/ka/ru): join, stake picker, statuses, call, seat, end, "you've been called", "no club assigned", etc. `flutter gen-l10n`.
 - **Accept:** analyze clean; tests green.
+- **Note:** committed before Task 4 because Tasks 4–7 reference these getters (otherwise their gate fails to compile) — same as Plan 3.
 
 ### Task 9: Router/home wiring + seed tables + README + deploy
 - Routes for my-waitlist / pit-boss floor as needed; wire PlayerHome/PitBossHome.

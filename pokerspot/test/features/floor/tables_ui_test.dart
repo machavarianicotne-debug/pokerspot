@@ -43,6 +43,7 @@ void main() {
       currentUserProvider.overrideWith((ref) => Stream.value(_pb())),
       tablesProvider('vake').overrideWith((ref) => Stream.value(const [_table])),
       clubSessionsProvider('vake').overrideWith((ref) => Stream.value([_session(3)])),
+      clubWaitlistProvider('vake').overrideWith((ref) => Stream.value(const <WaitlistEntry>[])),
     ]));
     await tester.pumpAndSettle();
 
@@ -74,6 +75,7 @@ void main() {
       currentUserProvider.overrideWith((ref) => Stream.value(_pb())),
       tablesProvider('vake').overrideWith((ref) => Stream.value(const <PokerTable>[])),
       clubSessionsProvider('vake').overrideWith((ref) => Stream.value(const <Session>[])),
+      clubWaitlistProvider('vake').overrideWith((ref) => Stream.value(const <WaitlistEntry>[])),
     ]));
     await tester.pumpAndSettle();
     expect(find.text('No tables yet'), findsOneWidget);

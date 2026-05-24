@@ -8,6 +8,7 @@ import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/clubs/data/fake_clubs_repository.dart';
 import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
+import 'package:pokerspot/features/floor/domain/reservation.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
@@ -43,6 +44,7 @@ void main() {
         // streams off Firebase.
         myWaitlistProvider.overrideWith((ref) => Stream.value(const <WaitlistEntry>[])),
         mySessionProvider.overrideWith((ref) => Stream.value(const <Session>[])),
+        myReservationsProvider.overrideWith((ref) => Stream.value(const <Reservation>[])),
       ],
       child: const MaterialApp(
         localizationsDelegates: AppL10n.localizationsDelegates,

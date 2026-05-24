@@ -8,6 +8,7 @@ import 'package:pokerspot/features/auth/domain/app_user.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
+import 'package:pokerspot/features/floor/domain/reservation.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
@@ -37,6 +38,7 @@ Future<void> _pumpForRole(WidgetTester tester, String roleString) async {
       recentAuditProvider.overrideWith((ref) => Stream.value(const <AuditEntry>[])),
       myWaitlistProvider.overrideWith((ref) => Stream.value(const <WaitlistEntry>[])),
       mySessionProvider.overrideWith((ref) => Stream.value(const <Session>[])),
+      myReservationsProvider.overrideWith((ref) => Stream.value(const <Reservation>[])),
     ],
     child: const MaterialApp(
       localizationsDelegates: AppL10n.localizationsDelegates,

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot — Variant 3 · Liquid Sport</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..900&display=swap" rel="stylesheet" />
+<style>
+  /* ============ Variant 3 — "Liquid Sport" ============
+     ESPN-style live data dominance. Huge numbers, live pulse,
+     glass overlays on metric values, electric accents. */
+  :root {
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
+    --bg-0: #04151a; --bg-1: #062a2c;
+    --lime: #c6ff3a; --cyan: #34e3ff; --red: #ff4d57;
+    --text: #ecfbff; --muted: rgba(236,251,255,0.55); --faint: rgba(236,251,255,0.32);
+    --glass: rgba(255,255,255,0.05); --glass-2: rgba(255,255,255,0.085);
+    --bd: rgba(255,255,255,0.11); --hi: rgba(255,255,255,0.30);
+    --r: 20px; --ease: cubic-bezier(0.22,0.61,0.36,1);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family: var(--font); min-height:100vh; display:grid; place-items:center; padding:24px 0;
+    background:
+      radial-gradient(100% 55% at 20% 0%, rgba(52,227,255,0.16), transparent 55%),
+      radial-gradient(90% 50% at 95% 12%, rgba(198,255,58,0.12), transparent 50%),
+      linear-gradient(180deg, var(--bg-1), var(--bg-0));
+    -webkit-font-smoothing:antialiased; }
+  .phone { width:390px; height:844px; border-radius:52px; position:relative; overflow:hidden;
+    display:flex; flex-direction:column;
+    background: radial-gradient(120% 50% at 50% 0%, rgba(52,227,255,0.10), transparent 50%),
+      linear-gradient(180deg,#072226,#031014);
+    box-shadow: 0 0 0 11px #0c1c1f, 0 0 0 13px #163034, 0 50px 120px -30px rgba(0,0,0,0.9); }
+
+  .statusbar { height:54px; flex:none; display:flex; align-items:flex-end; justify-content:space-between;
+    padding:0 30px 8px; font-size:15px; font-weight:700; color:var(--text); z-index:5; position:relative; }
+  .statusbar .ico { display:flex; gap:6px; }
+
+  .topbar { position:relative; z-index:5; display:flex; align-items:center; justify-content:space-between;
+    padding:8px 20px 12px; }
+  .brand { font-size:22px; font-weight:900; letter-spacing:-1px; font-style:italic; }
+  .brand span { color:var(--lime); }
+  .topbar-r { display:flex; align-items:center; gap:10px; }
+  .livecount { display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:800;
+    letter-spacing:0.5px; color:var(--text); padding:6px 11px; border-radius:999px; background:var(--glass-2);
+    border:1px solid var(--bd); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); }
+  .livecount i { width:7px; height:7px; border-radius:50%; background:var(--red);
+    animation:pulse 1.6s infinite; }
+  .av { width:34px; height:34px; border-radius:50%; background:linear-gradient(135deg,var(--cyan),#0a84ff);
+    display:grid; place-items:center; color:#03101a; font-weight:800; font-size:14px; }
+
+  .screen { flex:1; overflow-y:auto; position:relative; z-index:4; padding:6px 16px 112px;
+    scrollbar-width:none; }
+  .screen::-webkit-scrollbar{ display:none; }
+
+  .filters { display:flex; gap:8px; align-items:center; margin-bottom:18px; }
+  .chip { display:inline-flex; align-items:center; gap:6px; padding:9px 13px; border-radius:999px;
+    font-size:13px; font-weight:700; color:var(--text); background:var(--glass); border:1px solid var(--bd);
+    backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
+  .chip.act { background:var(--lime); color:#06241a; border-color:transparent; }
+  .toggle { margin-left:auto; display:inline-flex; align-items:center; gap:7px; font-size:12.5px;
+    font-weight:700; color:var(--muted); }
+  .toggle input{display:none;} .tk{width:42px;height:25px;border-radius:999px;background:var(--glass-2);
+    border:1px solid var(--bd); position:relative; transition:.25s;}
+  .tk::after{content:"";position:absolute;top:2px;left:2px;width:19px;height:19px;border-radius:50%;
+    background:#fff;transition:.25s;}
+  .toggle input:checked + .tk{background:var(--cyan);} .toggle input:checked + .tk::after{transform:translateX(17px);}
+
+  /* scoreboard card */
+  .card { position:relative; border-radius:var(--r); margin-bottom:14px; overflow:hidden;
+    background:var(--glass); border:1px solid var(--bd);
+    backdrop-filter:blur(22px) saturate(150%); -webkit-backdrop-filter:blur(22px) saturate(150%);
+    box-shadow:0 1px 0 var(--hi) inset, 0 22px 40px -28px rgba(0,0,0,0.9);
+    opacity:0; transform:translateY(16px); animation:rise .55s var(--ease) forwards;
+    transition:transform .3s var(--ease); }
+  .card:nth-child(1){animation-delay:.04s}.card:nth-child(2){animation-delay:.1s}
+  .card:nth-child(3){animation-delay:.16s}.card:nth-child(4){animation-delay:.22s}
+  .card:nth-child(5){animation-delay:.28s}
+  @keyframes rise{to{opacity:1;transform:translateY(0)}}
+  .card:active{ transform:scale(0.985); }
+  .accent { position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--lime); }
+  .card.batumi .accent{background:var(--cyan);} .card.full .accent{background:var(--red);}
+  .card.open .accent{background:#ffb02e;} .card.closed .accent{background:#56646a;}
+
+  .chead { display:flex; align-items:center; justify-content:space-between; padding:14px 16px 10px; gap:10px; }
+  .chead .nm { font-size:18px; font-weight:800; letter-spacing:-0.4px; }
+  .chead .loc { font-size:12px; font-weight:600; color:var(--muted); margin-top:2px; text-transform:uppercase;
+    letter-spacing:0.8px; }
+  .live { display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:900; letter-spacing:1px;
+    color:#fff; background:var(--red); padding:4px 9px; border-radius:6px; }
+  .live i { width:6px; height:6px; border-radius:50%; background:#fff; animation:pulse 1.6s infinite; }
+  .tag { font-size:11px; font-weight:900; letter-spacing:1px; padding:4px 9px; border-radius:6px; }
+  .tag.open{ background:rgba(255,176,46,0.18); color:#ffb02e; }
+  .tag.closed{ background:rgba(255,255,255,0.07); color:var(--faint); }
+
+  /* big numbers scoreboard */
+  .score { display:flex; padding:4px 16px 16px; gap:10px; }
+  .metric { flex:1; border-radius:14px; padding:12px 12px 11px; background:var(--glass-2);
+    border:1px solid var(--bd); position:relative; }
+  .metric .num { font-size:42px; font-weight:900; line-height:0.9; letter-spacing:-2px;
+    font-variant-numeric:tabular-nums; }
+  .metric.seats .num { color:var(--lime); } .card.batumi .metric.seats .num{ color:var(--cyan); }
+  .metric.full .num { color:var(--red); font-size:30px; }
+  .metric .lab { font-size:10px; font-weight:800; letter-spacing:0.8px; color:var(--faint);
+    text-transform:uppercase; margin-top:6px; }
+  .metric.small .num { font-size:30px; color:var(--text); }
+  /* glass sheen on metric */
+  .metric::before{content:"";position:absolute;top:0;left:0;right:0;height:1px;
+    background:linear-gradient(90deg,transparent,var(--hi),transparent);}
+
+  .closed-row { padding:14px 16px 16px; font-size:13px; color:var(--faint); font-weight:600; }
+
+  .tabbar { position:absolute; left:14px; right:14px; bottom:12px; z-index:6; display:flex;
+    justify-content:space-around; padding:11px 8px 9px; border-radius:26px; background:var(--glass-2);
+    border:1px solid var(--bd); backdrop-filter:blur(28px) saturate(170%);
+    -webkit-backdrop-filter:blur(28px) saturate(170%);
+    box-shadow:0 1px 0 var(--hi) inset, 0 18px 40px -18px rgba(0,0,0,0.85); }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10px; font-weight:800;
+    letter-spacing:0.3px; color:var(--faint); flex:1; text-transform:uppercase; }
+  .tab.on { color:var(--lime); }
+  .home-ind { position:absolute; bottom:4px; left:50%; transform:translateX(-50%); width:130px; height:5px;
+    border-radius:3px; background:rgba(255,255,255,0.25); z-index:7; }
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,77,87,0.6)}70%{box-shadow:0 0 0 7px rgba(255,77,87,0)}100%{box-shadow:0 0 0 0 rgba(255,77,87,0)}}
+  @media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}.card{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="statusbar">
+    <span>9:41</span>
+    <span class="ico">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="topbar">
+    <div class="brand">POKER<span>SPOT</span></div>
+    <div class="topbar-r">
+      <span class="livecount"><i></i>3 LIVE</span>
+      <span class="av">SZ</span>
+    </div>
+  </div>
+
+  <div class="screen">
+    <div class="filters">
+      <span class="chip act">All cities</span>
+      <span class="chip">NLH · PLO</span>
+      <label class="toggle"><input type="checkbox" /><span class="tk"></span>OPEN</label>
+    </div>
+
+    <!-- Royal -->
+    <div class="card">
+      <span class="accent"></span>
+      <div class="chead">
+        <div><div class="nm">Royal Poker Tbilisi</div><div class="loc">Tbilisi</div></div>
+        <span class="live"><i></i>LIVE</span>
+      </div>
+      <div class="score">
+        <div class="metric seats"><div class="num">12</div><div class="lab">Open seats</div></div>
+        <div class="metric small"><div class="num">3</div><div class="lab">Stakes</div></div>
+        <div class="metric small"><div class="num">8</div><div class="lab">Waitlist</div></div>
+      </div>
+    </div>
+
+    <!-- Bellagio -->
+    <div class="card batumi">
+      <span class="accent"></span>
+      <div class="chead">
+        <div><div class="nm">Bellagio Batumi</div><div class="loc">Batumi</div></div>
+        <span class="live"><i></i>LIVE</span>
+      </div>
+      <div class="score">
+        <div class="metric seats"><div class="num">4</div><div class="lab">Open seats</div></div>
+        <div class="metric small"><div class="num">2</div><div class="lab">Stakes</div></div>
+        <div class="metric small"><div class="num">2</div><div class="lab">Waitlist</div></div>
+      </div>
+    </div>
+
+    <!-- Shangri La -->
+    <div class="card full">
+      <span class="accent"></span>
+      <div class="chead">
+        <div><div class="nm">Shangri La Tbilisi</div><div class="loc">Tbilisi</div></div>
+        <span class="live"><i></i>LIVE</span>
+      </div>
+      <div class="score">
+        <div class="metric full"><div class="num">FULL</div><div class="lab">No seats</div></div>
+        <div class="metric small"><div class="num">1</div><div class="lab">Stake</div></div>
+        <div class="metric small"><div class="num">6</div><div class="lab">Waitlist</div></div>
+      </div>
+    </div>
+
+    <!-- Iveria -->
+    <div class="card open">
+      <span class="accent"></span>
+      <div class="chead">
+        <div><div class="nm">Iveria Casino</div><div class="loc">Tbilisi</div></div>
+        <span class="tag open">OPEN</span>
+      </div>
+      <div class="closed-row">Floor open — no games running yet tonight.</div>
+    </div>
+
+    <!-- Mercure -->
+    <div class="card closed">
+      <span class="accent"></span>
+      <div class="chead">
+        <div><div class="nm">Mercure Tbilisi</div><div class="loc">Tbilisi</div></div>
+        <span class="tag closed">CLOSED</span>
+      </div>
+      <div class="closed-row">Opens at 20:00.</div>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-2.5 4-6 6.2-6 9.7A6 6 0 0 0 12 18a6 6 0 0 0 6-6.3C18 8.2 14.5 6 12 2z"/></svg>Clubs</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Activity</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile</div>
+  </div>
+  <div class="home-ind"></div>
+</div>
+</body>
+</html>

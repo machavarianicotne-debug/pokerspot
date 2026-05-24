@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot — Variant 1 · Dark Casino Glass</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&display=swap" rel="stylesheet" />
+<style>
+  /* ============ Variant 1 — "Dark Casino Glass" ============
+     iOS 26 Liquid Glass + late-night poker-room aesthetic.
+     Glass on nav AND cards (expressive deviation). Gold + felt-green. */
+  :root {
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+            "Inter", system-ui, sans-serif;
+
+    --bg-0: #07090a;
+    --bg-1: #0c1011;
+    --felt: #0e5c3f;
+    --felt-glow: rgba(31, 169, 113, 0.18);
+    --gold: #e8c77a;
+    --gold-deep: #c9a227;
+    --gold-soft: rgba(232, 199, 122, 0.14);
+
+    --text: #f6f2e9;
+    --muted: rgba(246, 242, 233, 0.56);
+    --faint: rgba(246, 242, 233, 0.34);
+
+    --glass: rgba(255, 255, 255, 0.045);
+    --glass-2: rgba(255, 255, 255, 0.07);
+    --glass-bd: rgba(255, 255, 255, 0.10);
+    --glass-hi: rgba(255, 255, 255, 0.28);
+
+    --live: #2fe08a;
+    --open: #ffce4a;
+    --closed: #6b7280;
+
+    --r-card: 22px;
+    --r-pill: 999px;
+    --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--font);
+    background:
+      radial-gradient(120% 80% at 50% -10%, var(--felt-glow), transparent 55%),
+      radial-gradient(90% 60% at 90% 8%, var(--gold-soft), transparent 50%),
+      linear-gradient(180deg, var(--bg-1), var(--bg-0));
+    color: var(--text);
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 24px 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* device frame */
+  .phone {
+    width: 390px;
+    height: 844px;
+    border-radius: 52px;
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(130% 70% at 50% -8%, rgba(31,169,113,0.10), transparent 50%),
+      linear-gradient(180deg, #0b0f10, #060809);
+    box-shadow:
+      0 0 0 11px #1a1c1d, 0 0 0 13px #2a2d2e,
+      0 50px 120px -30px rgba(0,0,0,0.9),
+      inset 0 1px 0 rgba(255,255,255,0.05);
+    display: flex; flex-direction: column;
+  }
+  /* felt texture overlay */
+  .phone::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+    background-image:
+      radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
+    background-size: 4px 4px; opacity: 0.6;
+  }
+
+  /* status bar */
+  .statusbar {
+    height: 54px; flex: none; display: flex; align-items: flex-end;
+    justify-content: space-between; padding: 0 30px 8px; font-size: 15px;
+    font-weight: 600; letter-spacing: 0.3px; position: relative; z-index: 5;
+  }
+  .statusbar .ico { display: flex; gap: 6px; align-items: center; }
+  .statusbar svg { display: block; }
+
+  /* glass top bar */
+  .topbar {
+    position: relative; z-index: 5; margin: 4px 14px 0;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 11px 14px; border-radius: var(--r-pill);
+    background: var(--glass); backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid var(--glass-bd);
+    box-shadow: 0 1px 0 var(--glass-hi) inset, 0 12px 30px -18px rgba(0,0,0,0.8);
+  }
+  .brand { display: flex; align-items: center; gap: 8px; font-size: 19px; font-weight: 800;
+           letter-spacing: -0.5px; }
+  .brand .spade { color: var(--gold);
+    filter: drop-shadow(0 0 8px rgba(232,199,122,0.5)); }
+  .brand b { color: var(--text); }
+  .brand b span { color: var(--gold); }
+  .topbar-r { display: flex; align-items: center; gap: 10px; }
+  .lang { display: flex; align-items: center; gap: 4px; font-size: 13px; font-weight: 600;
+    color: var(--muted); padding: 6px 10px; border-radius: var(--r-pill);
+    background: var(--glass-2); border: 1px solid var(--glass-bd); }
+  .avatar { width: 34px; height: 34px; border-radius: 50%;
+    background: conic-gradient(from 220deg, var(--gold), var(--gold-deep), var(--felt), var(--gold));
+    display: grid; place-items: center; color: #0a0c0b; font-weight: 800; font-size: 14px;
+    border: 1px solid var(--glass-hi); }
+
+  /* scroll content */
+  .screen { flex: 1; overflow-y: auto; position: relative; z-index: 4;
+    padding: 16px 14px 110px; scrollbar-width: none; }
+  .screen::-webkit-scrollbar { display: none; }
+
+  /* filter bar */
+  .filters { display: flex; gap: 8px; margin: 4px 0 18px; align-items: center; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 9px 13px;
+    border-radius: var(--r-pill); font-size: 13.5px; font-weight: 600; color: var(--text);
+    background: var(--glass); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+    border: 1px solid var(--glass-bd); cursor: pointer; transition: transform .15s var(--ease); }
+  .chip:active { transform: scale(0.96); }
+  .chip svg { opacity: 0.7; }
+  .toggle { margin-left: auto; display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600; color: var(--muted); cursor: pointer; }
+  .toggle input { display: none; }
+  .track { width: 42px; height: 26px; border-radius: 999px; background: var(--glass-2);
+    border: 1px solid var(--glass-bd); position: relative; transition: background .25s var(--ease); }
+  .track::after { content: ""; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px;
+    border-radius: 50%; background: #fff; transition: transform .25s var(--ease);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4); }
+  .toggle input:checked + .track { background: linear-gradient(120deg, var(--gold-deep), var(--gold)); }
+  .toggle input:checked + .track::after { transform: translateX(16px); }
+
+  .section-label { font-size: 12px; font-weight: 700; letter-spacing: 1.6px;
+    text-transform: uppercase; color: var(--gold); margin: 0 4px 12px;
+    display: flex; align-items: center; gap: 8px; }
+  .section-label::after { content: ""; flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--gold-soft), transparent); }
+
+  /* club card */
+  .card { position: relative; border-radius: var(--r-card); padding: 17px 18px;
+    margin-bottom: 14px; background: var(--glass);
+    backdrop-filter: blur(26px) saturate(150%); -webkit-backdrop-filter: blur(26px) saturate(150%);
+    border: 1px solid var(--glass-bd); overflow: hidden; cursor: pointer;
+    box-shadow: 0 1px 0 var(--glass-hi) inset, 0 22px 40px -28px rgba(0,0,0,0.9);
+    transition: transform .35s var(--ease), box-shadow .35s var(--ease);
+    opacity: 0; transform: translateY(18px);
+    animation: rise .6s var(--ease) forwards; }
+  .card:nth-child(1){animation-delay:.05s}.card:nth-child(2){animation-delay:.12s}
+  .card:nth-child(3){animation-delay:.19s}.card:nth-child(4){animation-delay:.26s}
+  .card:nth-child(5){animation-delay:.33s}
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+  .card:hover { transform: translateY(-3px);
+    box-shadow: 0 1px 0 var(--glass-hi) inset, 0 30px 50px -26px rgba(0,0,0,0.95),
+                0 0 0 1px rgba(232,199,122,0.18); }
+  /* gold edge sheen */
+  .card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--glass-hi), transparent); }
+
+  .card.dim { opacity: 1; }
+  .card.dim .cname, .card.dim .meta { opacity: 0.5; }
+
+  .card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .cname { font-size: 19px; font-weight: 700; letter-spacing: -0.3px; }
+  .meta { font-size: 13px; color: var(--muted); margin-top: 3px; display: flex; gap: 7px; align-items: center; }
+  .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--faint); }
+
+  .status { flex: none; display: inline-flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 700; padding: 6px 11px; border-radius: 999px;
+    background: var(--glass-2); border: 1px solid var(--glass-bd); }
+  .status i { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .status.live i { background: var(--live); box-shadow: 0 0 0 0 rgba(47,224,138,0.7);
+    animation: pulse 2s infinite; }
+  .status.live { color: var(--live); }
+  .status.open i { background: var(--open); } .status.open { color: var(--open); }
+  .status.closed i { background: var(--closed); } .status.closed { color: var(--faint); }
+  @keyframes pulse { 0%{box-shadow:0 0 0 0 rgba(47,224,138,0.55)} 70%{box-shadow:0 0 0 8px rgba(47,224,138,0)} 100%{box-shadow:0 0 0 0 rgba(47,224,138,0)} }
+
+  /* stats row */
+  .stats { display: flex; gap: 22px; margin-top: 16px; align-items: flex-end; }
+  .stat .k { font-size: 11px; font-weight: 600; letter-spacing: 0.4px; color: var(--faint);
+    text-transform: uppercase; }
+  .stat .v { font-size: 26px; font-weight: 700; letter-spacing: -1px; line-height: 1.05;
+    margin-top: 3px; font-variant-numeric: tabular-nums; }
+  .stat .v.gold { color: var(--gold); }
+  .stat .v small { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: 0; }
+
+  /* chip stack visual */
+  .chips { display: flex; margin-top: 8px; }
+  .chips span { width: 16px; height: 16px; border-radius: 50%; margin-left: -6px;
+    border: 1.5px dashed rgba(255,255,255,0.55); box-shadow: 0 2px 4px rgba(0,0,0,0.4); }
+  .chips span:first-child { margin-left: 0; }
+  .chips .c1{background:#1fa971}.chips .c2{background:#c9a227}.chips .c3{background:#b4452f}
+  .chips .c4{background:#2b6f8f}.chips .more{background:rgba(255,255,255,0.10);border-style:solid;
+    color:var(--gold);font-size:9px;font-weight:800;display:grid;place-items:center;}
+
+  .empty-note { margin-top: 14px; font-size: 13px; color: var(--faint); font-style: italic; }
+
+  /* glass tab bar */
+  .tabbar { position: absolute; left: 14px; right: 14px; bottom: 12px; z-index: 6;
+    display: flex; justify-content: space-around; padding: 11px 8px 9px;
+    border-radius: 28px; background: var(--glass-2);
+    backdrop-filter: blur(30px) saturate(170%); -webkit-backdrop-filter: blur(30px) saturate(170%);
+    border: 1px solid var(--glass-bd);
+    box-shadow: 0 1px 0 var(--glass-hi) inset, 0 18px 40px -18px rgba(0,0,0,0.85); }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 3px;
+    font-size: 10.5px; font-weight: 600; color: var(--faint); cursor: pointer; flex: 1; }
+  .tab.active { color: var(--gold); }
+  .tab.active svg { filter: drop-shadow(0 0 6px rgba(232,199,122,0.6)); }
+  .home-ind { position: absolute; bottom: 4px; left: 50%; transform: translateX(-50%);
+    width: 130px; height: 5px; border-radius: 3px; background: rgba(255,255,255,0.25); z-index: 7; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+    .card { opacity: 1; transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <!-- status bar -->
+  <div class="statusbar">
+    <span>9:41</span>
+    <span class="ico">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5S3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z" opacity=".9"/><path d="M8.5 6c1.2 0 2.3.5 3.1 1.3l1.4-1.5C11.9 4.6 10.3 4 8.5 4S5.1 4.6 4 5.8l1.4 1.5C6.2 6.5 7.3 6 8.5 6z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <!-- glass top bar -->
+  <div class="topbar">
+    <div class="brand"><span class="spade">♠</span><b>Poker<span>Spot</span></b></div>
+    <div class="topbar-r">
+      <span class="lang">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>
+        EN
+      </span>
+      <div class="avatar">SZ</div>
+    </div>
+  </div>
+
+  <div class="screen">
+    <!-- filters -->
+    <div class="filters">
+      <span class="chip">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+        Tbilisi
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg>
+      </span>
+      <span class="chip">NLH · PLO
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg>
+      </span>
+      <label class="toggle"><input type="checkbox" /><span class="track"></span>Open</label>
+    </div>
+
+    <div class="section-label">Tonight · Live now</div>
+
+    <!-- 1 Royal -->
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <div class="cname">Royal Poker Tbilisi</div>
+          <div class="meta">Tbilisi <span class="dot"></span> 3 stakes <span class="dot"></span> 8 waiting</div>
+        </div>
+        <span class="status live"><i></i>LIVE</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="k">Open seats</div><div class="v gold">12</div>
+          <div class="chips"><span class="c1"></span><span class="c2"></span><span class="c3"></span><span class="c4"></span><span class="more">+8</span></div></div>
+        <div class="stat"><div class="k">Stakes</div><div class="v">3</div></div>
+        <div class="stat"><div class="k">Waitlist</div><div class="v">8</div></div>
+      </div>
+    </div>
+
+    <!-- 2 Bellagio -->
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <div class="cname">Bellagio Batumi</div>
+          <div class="meta">Batumi <span class="dot"></span> 2 stakes <span class="dot"></span> 2 waiting</div>
+        </div>
+        <span class="status live"><i></i>LIVE</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="k">Open seats</div><div class="v gold">4</div>
+          <div class="chips"><span class="c2"></span><span class="c1"></span><span class="c4"></span><span class="c3"></span></div></div>
+        <div class="stat"><div class="k">Stakes</div><div class="v">2</div></div>
+        <div class="stat"><div class="k">Waitlist</div><div class="v">2</div></div>
+      </div>
+    </div>
+
+    <!-- 3 Shangri La -->
+    <div class="card">
+      <div class="card-top">
+        <div>
+          <div class="cname">Shangri La Tbilisi</div>
+          <div class="meta">Tbilisi <span class="dot"></span> 1 stake <span class="dot"></span> 6 waiting</div>
+        </div>
+        <span class="status live"><i></i>LIVE</span>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="k">Open seats</div><div class="v"><small>full ·</small> 0</div></div>
+        <div class="stat"><div class="k">Stakes</div><div class="v">1</div></div>
+        <div class="stat"><div class="k">Waitlist</div><div class="v gold">6</div></div>
+      </div>
+    </div>
+
+    <div class="section-label">Open · No games yet</div>
+
+    <!-- 4 Iveria -->
+    <div class="card dim">
+      <div class="card-top">
+        <div>
+          <div class="cname">Iveria Casino</div>
+          <div class="meta">Tbilisi <span class="dot"></span> waiting for action</div>
+        </div>
+        <span class="status open"><i></i>OPEN</span>
+      </div>
+      <div class="empty-note">Floor is open — no games running yet tonight.</div>
+    </div>
+
+    <!-- 5 Mercure -->
+    <div class="card dim">
+      <div class="card-top">
+        <div>
+          <div class="cname">Mercure Tbilisi</div>
+          <div class="meta">Tbilisi <span class="dot"></span> opens 20:00</div>
+        </div>
+        <span class="status closed"><i></i>CLOSED</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- glass tab bar -->
+  <div class="tabbar">
+    <div class="tab active">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-2.5 4-6 6.2-6 9.7A6 6 0 0 0 12 18a6 6 0 0 0 6-6.3C18 8.2 14.5 6 12 2z"/><path d="M11 16h2l1 6h-4z"/></svg>
+      Clubs</div>
+    <div class="tab">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      Activity</div>
+    <div class="tab">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Profile</div>
+  </div>
+  <div class="home-ind"></div>
+</div>
+</body>
+</html>

@@ -290,50 +290,7 @@ class GameDetailScreen extends ConsumerWidget {
   }
 
   void _seatPicker(BuildContext context, WidgetRef ref, List<PokerTable> tables, PokerTable t, int seat) {
-    final l10n = AppL10n.of(context);
-    final waiting = (ref.read(clubWaitlistProvider(clubId)).valueOrNull ?? const <WaitlistEntry>[])
-        .where((e) => e.stakes.label == t.stakes.label)
-        .toList();
-    PsSheet.show<void>(
-      context,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text('${l10n.seatWhoTitle} · #$seat',
-              style: const TextStyle(
-                  fontSize: PsType.headline, fontWeight: PsType.weightBold, color: PsColors.text)),
-          const SizedBox(height: PsSpacing.s3),
-          for (final e in waiting)
-            Padding(
-              padding: const EdgeInsets.only(bottom: PsSpacing.s2),
-              child: PsCard(
-                key: Key('pick_${e.id}'),
-                onTap: () {
-                  final nav = Navigator.of(context);
-                  unawaited(ref.read(waitlistRepositoryProvider)
-                      .seat(entry: e, tableId: t.id, seatNumber: seat));
-                  nav.pop();
-                },
-                child: PsListTile(title: e.playerName, subtitle: e.stakes.label),
-              ),
-            ),
-          PsButton(
-            key: const Key('walkInBtn'),
-            label: l10n.walkInLabel,
-            icon: Icons.directions_walk,
-            variant: PsButtonVariant.secondary,
-            onPressed: () {
-              final nav = Navigator.of(context);
-              unawaited(ref.read(sessionsRepositoryProvider).seatWalkIn(
-                    clubId: clubId, tableId: t.id, seatNumber: seat,
-                    stakes: t.stakes, playerName: l10n.walkInLabel));
-              nav.pop();
-            },
-          ),
-        ],
-      ),
-    );
+    PsSheet.show<void>(context, child: _SeatPickerSheet(clubId: clubId, table: t, seat: seat));
   }
 
   void _endSession(BuildContext context, WidgetRef ref, Session s) {
@@ -413,4 +370,93 @@ class GameDetailScreen extends ConsumerWidget {
   }
 
   static String _fmt(num n) => n == n.truncate() ? n.toInt().toString() : '$n';
+}
+
+/// Seat-a-player sheet (mockup smart search). Searches the club's waiting list
+/// for this stake (rules forbid Pit Bosses reading the full users collection,
+/// so registered-user search is out of scope); seats the picked player, or a
+/// walk-in using the typed name.
+class _SeatPickerSheet extends ConsumerStatefulWidget {
+  const _SeatPickerSheet({required this.clubId, required this.table, required this.seat});
+  final String clubId;
+  final PokerTable table;
+  final int seat;
+
+  @override
+  ConsumerState<_SeatPickerSheet> createState() => _SeatPickerSheetState();
+}
+
+class _SeatPickerSheetState extends ConsumerState<_SeatPickerSheet> {
+  final _q = TextEditingController();
+
+  @override
+  void dispose() {
+    _q.dispose();
+    super.dispose();
+  }
+
+  void _seat(WaitlistEntry e) {
+    final nav = Navigator.of(context);
+    unawaited(ref.read(waitlistRepositoryProvider)
+        .seat(entry: e, tableId: widget.table.id, seatNumber: widget.seat));
+    nav.pop();
+  }
+
+  void _walkIn() {
+    final nav = Navigator.of(context);
+    final name = _q.text.trim().isEmpty ? AppL10n.of(context).walkInLabel : _q.text.trim();
+    unawaited(ref.read(sessionsRepositoryProvider).seatWalkIn(
+          clubId: widget.clubId, tableId: widget.table.id, seatNumber: widget.seat,
+          stakes: widget.table.stakes, playerName: name));
+    nav.pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    final query = _q.text.trim().toLowerCase();
+    final waiting = (ref.watch(clubWaitlistProvider(widget.clubId)).valueOrNull ?? const <WaitlistEntry>[])
+        .where((e) => e.stakes.label == widget.table.stakes.label)
+        .where((e) => query.isEmpty || e.playerName.toLowerCase().contains(query))
+        .toList();
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('${l10n.seatWhoTitle} · #${widget.seat}',
+            style: const TextStyle(
+                fontSize: PsType.headline, fontWeight: PsType.weightBold, color: PsColors.text)),
+        const SizedBox(height: PsSpacing.s3),
+        PsTextField(
+          controller: _q,
+          hintText: l10n.searchUsersHint,
+          onChanged: (_) => setState(() {}),
+        ),
+        const SizedBox(height: PsSpacing.s3),
+        for (var i = 0; i < waiting.length; i++)
+          Padding(
+            padding: const EdgeInsets.only(bottom: PsSpacing.s2),
+            child: PsCard(
+              key: Key('pick_${waiting[i].id}'),
+              onTap: () => _seat(waiting[i]),
+              child: PsListTile(
+                leading: i == 0 && query.isEmpty
+                    ? const Icon(Icons.campaign, size: 20, color: PsColors.accentPrimary)
+                    : null,
+                title: waiting[i].playerName.isEmpty ? '—' : waiting[i].playerName,
+                subtitle: i == 0 && query.isEmpty ? '${l10n.callAction} #1' : waiting[i].stakes.label,
+              ),
+            ),
+          ),
+        PsButton(
+          key: const Key('walkInBtn'),
+          label: _q.text.trim().isEmpty ? l10n.walkInLabel : '${l10n.walkInLabel}: ${_q.text.trim()}',
+          icon: Icons.directions_walk,
+          variant: PsButtonVariant.secondary,
+          onPressed: _walkIn,
+        ),
+      ],
+    );
+  }
 }

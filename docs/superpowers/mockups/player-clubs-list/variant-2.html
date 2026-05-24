@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot — Variant 2 · iOS Pure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&display=swap" rel="stylesheet" />
+<style>
+  /* ============ Variant 2 — "iOS Pure" / Apple Native ============
+     Strict HIG. Grouped inset lists, Large Title, system colors.
+     Glass ONLY on nav bar + tab bar (per Liquid Glass guidance).
+     Solid card backgrounds. Light default + automatic dark mode. */
+  :root {
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+            "Inter", system-ui, sans-serif;
+    --blue: #007AFF;
+    --green: #34C759;
+    --orange: #FF9500;
+    --gray: #8E8E93;
+
+    --label: #000;
+    --label-2: rgba(60,60,67,0.6);
+    --label-3: rgba(60,60,67,0.3);
+    --bg: #F2F2F7;
+    --card: #FFFFFF;
+    --sep: rgba(60,60,67,0.20);
+    --nav: rgba(248,248,250,0.72);
+    --tab: rgba(248,248,250,0.78);
+    --search-bg: rgba(118,118,128,0.12);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --blue: #0A84FF; --green: #30D158; --orange: #FF9F0A; --gray: #8E8E93;
+      --label: #fff; --label-2: rgba(235,235,245,0.6); --label-3: rgba(235,235,245,0.3);
+      --bg: #000000; --card: #1C1C1E; --sep: rgba(84,84,88,0.55);
+      --nav: rgba(28,28,30,0.72); --tab: rgba(22,22,24,0.8); --search-bg: rgba(118,118,128,0.24);
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body { font-family: var(--font); background: #c9ccd2; min-height: 100vh; display: grid;
+    place-items: center; padding: 24px 0; -webkit-font-smoothing: antialiased; }
+  @media (prefers-color-scheme: dark) { body { background: #16181c; } }
+
+  .phone { width: 390px; height: 844px; border-radius: 52px; position: relative; overflow: hidden;
+    background: var(--bg); box-shadow: 0 0 0 11px #d7d9dd, 0 0 0 13px #b9bcc2,
+      0 50px 120px -34px rgba(0,0,0,0.55); display: flex; flex-direction: column; }
+  @media (prefers-color-scheme: dark){ .phone{ box-shadow:0 0 0 11px #1d1f24,0 0 0 13px #303338,0 50px 120px -30px rgba(0,0,0,0.9);} }
+
+  .statusbar { height: 54px; flex: none; display: flex; align-items: flex-end;
+    justify-content: space-between; padding: 0 30px 8px; font-size: 15px; font-weight: 600;
+    color: var(--label); position: relative; z-index: 10; }
+  .statusbar .ico { display: flex; gap: 6px; }
+
+  /* glass nav bar (large title collapses behind it) */
+  .navbar { position: relative; z-index: 9; padding: 4px 16px 6px;
+    background: var(--nav); backdrop-filter: blur(22px) saturate(180%);
+    -webkit-backdrop-filter: blur(22px) saturate(180%);
+    border-bottom: 0.5px solid var(--sep); }
+  .nav-inline { display: flex; align-items: center; justify-content: space-between; height: 36px; }
+  .nav-brand { font-size: 16px; font-weight: 600; color: var(--label-2); letter-spacing: -0.2px; }
+  .nav-actions { display: flex; gap: 16px; align-items: center; color: var(--blue); }
+  .nav-actions .lang { font-size: 16px; font-weight: 500; }
+  .nav-actions .av { width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, #5e9bff, #007AFF); display: grid; place-items: center;
+    color: #fff; font-size: 12px; font-weight: 700; }
+  .large-title { font-size: 34px; font-weight: 700; letter-spacing: 0.4px; color: var(--label);
+    margin-top: 2px; }
+
+  .screen { flex: 1; overflow-y: auto; position: relative; z-index: 4; padding: 12px 16px 108px;
+    scrollbar-width: none; }
+  .screen::-webkit-scrollbar { display: none; }
+
+  /* search */
+  .search { display: flex; align-items: center; gap: 7px; height: 36px; padding: 0 10px;
+    background: var(--search-bg); border-radius: 10px; color: var(--label-2); font-size: 17px;
+    margin: 2px 0 14px; }
+  .search svg { color: var(--gray); }
+  /* filter row */
+  .frow { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+  .seg { display: flex; background: var(--search-bg); border-radius: 9px; padding: 2px; font-size: 13px;
+    font-weight: 600; }
+  .seg span { padding: 6px 12px; border-radius: 7px; color: var(--label-2); }
+  .seg span.on { background: var(--card); color: var(--label);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.12); }
+  .otoggle { margin-left: auto; display: flex; align-items: center; gap: 8px; font-size: 15px;
+    color: var(--label); }
+  .otoggle input { display: none; }
+  .tk { width: 51px; height: 31px; border-radius: 999px; background: var(--label-3); position: relative;
+    transition: background .25s; }
+  .tk::after { content:""; position:absolute; top:2px; left:2px; width:27px; height:27px; border-radius:50%;
+    background:#fff; box-shadow:0 2px 5px rgba(0,0,0,0.25); transition: transform .25s; }
+  .otoggle input:checked + .tk { background: var(--green); }
+  .otoggle input:checked + .tk::after { transform: translateX(20px); }
+
+  .grp-h { font-size: 13px; font-weight: 500; color: var(--label-2); text-transform: uppercase;
+    letter-spacing: 0.3px; margin: 0 0 7px 16px; }
+  .group { background: var(--card); border-radius: 12px; overflow: hidden; margin-bottom: 24px; }
+
+  .row { display: flex; align-items: center; gap: 13px; padding: 12px 16px; position: relative;
+    cursor: pointer; min-height: 60px; transition: background .15s; }
+  .row:active { background: var(--search-bg); }
+  .row + .row::before { content: ""; position: absolute; top: 0; left: 49px; right: 0; height: 0.5px;
+    background: var(--sep); }
+  .sdot { width: 11px; height: 11px; border-radius: 50%; flex: none; }
+  .sdot.live { background: var(--green); box-shadow: 0 0 0 0 rgba(52,199,89,0.6); animation: p 2s infinite; }
+  .sdot.open { background: var(--orange); }
+  .sdot.closed { background: var(--gray); }
+  @keyframes p {0%{box-shadow:0 0 0 0 rgba(52,199,89,0.5)}70%{box-shadow:0 0 0 7px rgba(52,199,89,0)}100%{box-shadow:0 0 0 0 rgba(52,199,89,0)}}
+
+  .row .body { flex: 1; min-width: 0; }
+  .row .t { font-size: 17px; font-weight: 600; color: var(--label); letter-spacing: -0.3px; }
+  .row .s { font-size: 14px; color: var(--label-2); margin-top: 2px; }
+  .row .trail { display: flex; align-items: center; gap: 9px; flex: none; }
+  .seats { text-align: right; }
+  .seats b { font-size: 17px; font-weight: 600; color: var(--label); font-variant-numeric: tabular-nums; }
+  .seats span { display: block; font-size: 12px; color: var(--label-2); }
+  .seats.full b { color: var(--gray); }
+  .badge { font-size: 13px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+    background: rgba(52,199,89,0.16); color: var(--green); }
+  .badge.wait { background: rgba(0,122,255,0.14); color: var(--blue); }
+  .chev { color: var(--label-3); }
+  .row.muted .t { color: var(--label-2); }
+
+  .tabbar { position: absolute; left: 0; right: 0; bottom: 0; z-index: 8; display: flex;
+    justify-content: space-around; padding: 8px 0 22px; background: var(--tab);
+    backdrop-filter: blur(24px) saturate(180%); -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border-top: 0.5px solid var(--sep); }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 3px; font-size: 10px;
+    font-weight: 500; color: var(--gray); flex: 1; }
+  .tab.on { color: var(--blue); }
+  .home-ind { position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px;
+    height: 5px; border-radius: 3px; background: var(--label); opacity: .85; z-index: 9; }
+  @media (prefers-reduced-motion: reduce){ *{animation:none!important;transition:none!important} }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="statusbar">
+    <span>9:41</span>
+    <span class="ico">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><path d="M8.5 6c1.2 0 2.3.5 3.1 1.3l1.4-1.5C11.9 4.6 10.3 4 8.5 4 6.7 4 5.1 4.6 4 5.8l1.4 1.5C6.2 6.5 7.3 6 8.5 6z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".4"/></svg>
+    </span>
+  </div>
+
+  <div class="navbar">
+    <div class="nav-inline">
+      <span class="nav-brand">PokerSpot</span>
+      <div class="nav-actions">
+        <span class="lang">EN</span>
+        <span class="av">SZ</span>
+      </div>
+    </div>
+    <div class="large-title">Clubs</div>
+  </div>
+
+  <div class="screen">
+    <div class="search">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+      Search clubs
+    </div>
+    <div class="frow">
+      <div class="seg"><span class="on">All</span><span>Tbilisi</span><span>Batumi</span></div>
+      <label class="otoggle"><input type="checkbox" /><span class="tk"></span></label>
+    </div>
+
+    <div class="grp-h">Live now</div>
+    <div class="group">
+      <div class="row">
+        <span class="sdot live"></span>
+        <div class="body"><div class="t">Royal Poker Tbilisi</div><div class="s">Tbilisi · 3 stakes · 8 in waitlist</div></div>
+        <div class="trail"><div class="seats"><b>12</b><span>seats</span></div>
+          <svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1.5 1.5L7 7.5 1.5 13.5"/></svg></div>
+      </div>
+      <div class="row">
+        <span class="sdot live"></span>
+        <div class="body"><div class="t">Bellagio Batumi</div><div class="s">Batumi · 2 stakes · 2 in waitlist</div></div>
+        <div class="trail"><div class="seats"><b>4</b><span>seats</span></div>
+          <svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1.5 1.5L7 7.5 1.5 13.5"/></svg></div>
+      </div>
+      <div class="row">
+        <span class="sdot live"></span>
+        <div class="body"><div class="t">Shangri La Tbilisi</div><div class="s">Tbilisi · 1 stake · 6 in waitlist</div></div>
+        <div class="trail"><span class="badge wait">6 waiting</span>
+          <svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1.5 1.5L7 7.5 1.5 13.5"/></svg></div>
+      </div>
+    </div>
+
+    <div class="grp-h">Open · No games yet</div>
+    <div class="group">
+      <div class="row muted">
+        <span class="sdot open"></span>
+        <div class="body"><div class="t">Iveria Casino</div><div class="s">Tbilisi · Floor open, no games running</div></div>
+        <div class="trail"><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1.5 1.5L7 7.5 1.5 13.5"/></svg></div>
+      </div>
+    </div>
+
+    <div class="grp-h">Closed</div>
+    <div class="group">
+      <div class="row muted">
+        <span class="sdot closed"></span>
+        <div class="body"><div class="t">Mercure Tbilisi</div><div class="s">Tbilisi · Opens at 20:00</div></div>
+        <div class="trail"><svg class="chev" width="9" height="15" viewBox="0 0 9 15" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M1.5 1.5L7 7.5 1.5 13.5"/></svg></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <div class="tab on">
+      <svg width="25" height="25" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-2.5 4-6 6.2-6 9.7A6 6 0 0 0 12 18a6 6 0 0 0 6-6.3C18 8.2 14.5 6 12 2z"/></svg>Clubs</div>
+    <div class="tab">
+      <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Activity</div>
+    <div class="tab">
+      <svg width="25" height="25" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile</div>
+  </div>
+  <div class="home-ind"></div>
+</div>
+</body>
+</html>

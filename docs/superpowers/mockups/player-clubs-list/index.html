@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PokerSpot · Player Clubs List — Design Directions</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..800&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
+    --bg-0:#070809; --bg-1:#0e1113; --text:#f3f4f6; --muted:rgba(243,244,246,0.58);
+    --faint:rgba(243,244,246,0.34); --gold:#e8c77a; --bd:rgba(255,255,255,0.10);
+    --glass:rgba(255,255,255,0.045); --ease:cubic-bezier(0.22,0.61,0.36,1);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:var(--font); color:var(--text); -webkit-font-smoothing:antialiased;
+    min-height:100vh; padding:48px 24px 80px;
+    background:
+      radial-gradient(80% 50% at 50% -5%, rgba(31,169,113,0.10), transparent 55%),
+      radial-gradient(60% 40% at 90% 0%, rgba(232,199,122,0.07), transparent 50%),
+      linear-gradient(180deg,var(--bg-1),var(--bg-0)); }
+
+  header { max-width:1180px; margin:0 auto 44px; }
+  .eyebrow { font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase;
+    color:var(--gold); margin-bottom:14px; }
+  h1 { font-size:clamp(34px,5vw,56px); font-weight:800; letter-spacing:-1.5px; line-height:1; }
+  h1 .sp { color:var(--gold); }
+  .sub { font-size:17px; color:var(--muted); margin-top:16px; max-width:680px; line-height:1.5; }
+  .meta-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:22px; }
+  .tag { font-size:12.5px; font-weight:600; color:var(--text); padding:7px 13px; border-radius:999px;
+    background:var(--glass); border:1px solid var(--bd); }
+
+  .grid { max-width:1180px; margin:0 auto;
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:28px; }
+
+  .tile { background:var(--glass); border:1px solid var(--bd); border-radius:24px; padding:22px 22px 20px;
+    transition:transform .35s var(--ease), box-shadow .35s var(--ease); }
+  .tile:hover { transform:translateY(-5px); box-shadow:0 30px 60px -30px rgba(0,0,0,0.8),
+    0 0 0 1px rgba(232,199,122,0.16); }
+
+  .num { font-size:13px; font-weight:800; color:var(--faint); letter-spacing:1px; }
+  .vname { font-size:21px; font-weight:700; letter-spacing:-0.4px; margin:4px 0 4px; }
+  .vdesc { font-size:13.5px; color:var(--muted); line-height:1.45; min-height:38px; }
+
+  /* live preview frame */
+  .preview { margin:18px auto 0; width:220px; height:476px; border-radius:34px; overflow:hidden;
+    position:relative; box-shadow:0 24px 50px -24px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.06);
+    background:#000; }
+  .preview iframe { width:390px; height:844px; border:0; transform:scale(0.5641); transform-origin:top left;
+    pointer-events:none; }
+  .preview a.cover { position:absolute; inset:0; z-index:2; }
+
+  .open { display:flex; align-items:center; justify-content:center; gap:7px; margin-top:18px;
+    font-size:14px; font-weight:700; color:var(--bg-0); background:var(--gold); padding:11px;
+    border-radius:14px; text-decoration:none; transition:filter .2s; }
+  .open:hover { filter:brightness(1.08); }
+
+  .glassflag { display:inline-block; font-size:11px; font-weight:700; letter-spacing:0.4px;
+    padding:3px 8px; border-radius:999px; margin-top:10px;
+    background:rgba(95,240,168,0.14); color:#5ff0a8; border:1px solid rgba(95,240,168,0.25); }
+  .glassflag.partial { background:rgba(255,206,74,0.12); color:#ffce4a; border-color:rgba(255,206,74,0.25); }
+
+  footer { max-width:1180px; margin:48px auto 0; font-size:13px; color:var(--faint); line-height:1.6;
+    border-top:1px solid var(--bd); padding-top:24px; }
+  footer b { color:var(--muted); font-weight:700; }
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">PokerSpot · Visual Prototyping</div>
+  <h1>Player Clubs List — 5 design directions<span class="sp">.</span></h1>
+  <p class="sub">The first screen a player sees. Five takes on the same data, all built on Apple HIG +
+  iOS&nbsp;26 Liquid Glass foundations — different accents. Pick the strongest; the rest of the app design
+  follows from it.</p>
+  <div class="meta-row">
+    <span class="tag">390px · iPhone frame</span>
+    <span class="tag">SF Pro / Inter Display</span>
+    <span class="tag">Apple HIG</span>
+    <span class="tag">Liquid Glass (iOS 26+)</span>
+    <span class="tag">Live data: 5 clubs</span>
+  </div>
+</header>
+
+<div class="grid">
+  <div class="tile">
+    <div class="num">01</div>
+    <div class="vname">Dark Casino Glass</div>
+    <div class="vdesc">Late-night premium. Translucent glass cards, gold + felt-green, chip-stack seat indicators.</div>
+    <span class="glassflag">Full glass</span>
+    <div class="preview"><iframe src="variant-1.html" scrolling="no" title="Variant 1"></iframe><a class="cover" href="variant-1.html" target="_blank"></a></div>
+    <a class="open" href="variant-1.html" target="_blank">Open full screen →</a>
+  </div>
+
+  <div class="tile">
+    <div class="num">02</div>
+    <div class="vname">iOS Pure / Native</div>
+    <div class="vdesc">Strict HIG. Grouped inset lists, Large Title, system colors. Glass only on nav + tab bar.</div>
+    <span class="glassflag partial">Glass: nav only</span>
+    <div class="preview"><iframe src="variant-2.html" scrolling="no" title="Variant 2"></iframe><a class="cover" href="variant-2.html" target="_blank"></a></div>
+    <a class="open" href="variant-2.html" target="_blank">Open full screen →</a>
+  </div>
+
+  <div class="tile">
+    <div class="num">03</div>
+    <div class="vname">Liquid Sport</div>
+    <div class="vdesc">ESPN-style live data. Huge numbers, scoreboard metrics, pulsing LIVE, electric accents.</div>
+    <span class="glassflag">Full glass</span>
+    <div class="preview"><iframe src="variant-3.html" scrolling="no" title="Variant 3"></iframe><a class="cover" href="variant-3.html" target="_blank"></a></div>
+    <a class="open" href="variant-3.html" target="_blank">Open full screen →</a>
+  </div>
+
+  <div class="tile">
+    <div class="num">04</div>
+    <div class="vname">Editorial Apple</div>
+    <div class="vdesc">Magazine typography. Newsreader serif display, hero feature, hairline rules, Royal Red accent.</div>
+    <span class="glassflag partial">Glass: nav only</span>
+    <div class="preview"><iframe src="variant-4.html" scrolling="no" title="Variant 4"></iframe><a class="cover" href="variant-4.html" target="_blank"></a></div>
+    <a class="open" href="variant-4.html" target="_blank">Open full screen →</a>
+  </div>
+
+  <div class="tile">
+    <div class="num">05</div>
+    <div class="vname">Vision Pro Inspired</div>
+    <div class="vdesc">visionOS depth. Floating ultra-thin glass cards in 3D, soft environment blooms, live specular light.</div>
+    <span class="glassflag">Full glass</span>
+    <div class="preview"><iframe src="variant-5.html" scrolling="no" title="Variant 5"></iframe><a class="cover" href="variant-5.html" target="_blank"></a></div>
+    <a class="open" href="variant-5.html" target="_blank">Open full screen →</a>
+  </div>
+</div>
+
+<footer>
+  <b>Mock data (all variants):</b> Royal Poker Tbilisi 🟢 12 seats · Bellagio Batumi 🟢 4 seats ·
+  Shangri La Tbilisi 🟢 full / 6 waiting · Iveria Casino 🟡 open · Mercure Tbilisi ⚫ closed.<br />
+  <b>Note:</b> previews are non-interactive scaled iframes — open full screen for hover/motion/glass effects.
+  Best viewed in Safari/Chrome (backdrop-filter). Language in mockups: English.
+</footer>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot — Variant 4 · Editorial Apple</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,300..600&family=Inter:opsz,wght@14..32,400..700&display=swap" rel="stylesheet" />
+<style>
+  /* ============ Variant 4 — "Editorial Apple" ============
+     HIG-compatible structure, magazine typography. Newsreader (NY-like
+     serif) display + SF/Inter body. Paper + ink + single Royal Red accent.
+     Asymmetric grid, hero feature, hairline rules, editorial confidence. */
+  :root {
+    --serif: "Newsreader", "New York", Georgia, serif;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+    --paper: #f7f4ee; --paper-2: #fffdf9; --ink: #16120d;
+    --ink-2: rgba(22,18,13,0.58); --ink-3: rgba(22,18,13,0.34);
+    --rule: rgba(22,18,13,0.14); --red: #b5121b; --red-soft: rgba(181,18,27,0.08);
+    --ease: cubic-bezier(0.22,0.61,0.36,1);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family: var(--sans); min-height:100vh; display:grid; place-items:center; padding:24px 0;
+    background:#cbc6bc; -webkit-font-smoothing:antialiased; }
+  .phone { width:390px; height:844px; border-radius:52px; position:relative; overflow:hidden;
+    background:var(--paper); color:var(--ink);
+    box-shadow:0 0 0 11px #e7e2d8, 0 0 0 13px #c4bfb4, 0 50px 120px -34px rgba(0,0,0,0.5);
+    display:flex; flex-direction:column; }
+
+  .statusbar { height:54px; flex:none; display:flex; align-items:flex-end; justify-content:space-between;
+    padding:0 30px 8px; font-size:15px; font-weight:600; color:var(--ink); z-index:5; }
+  .statusbar .ico{ display:flex; gap:6px; }
+
+  /* masthead */
+  .mast { display:flex; align-items:center; justify-content:space-between; padding:6px 22px 12px; }
+  .mast .wm { font-size:12px; font-weight:700; letter-spacing:3px; text-transform:uppercase; }
+  .mast .wm b { color:var(--red); }
+  .mast .acts { display:flex; align-items:center; gap:14px; }
+  .mast .lang { font-size:12px; font-weight:700; letter-spacing:1px; color:var(--ink-2); }
+  .mast .av { width:30px; height:30px; border-radius:50%; background:var(--ink); color:var(--paper);
+    display:grid; place-items:center; font-size:11px; font-weight:700; font-family:var(--serif); }
+  .rule { height:1.5px; background:var(--ink); margin:0 22px; }
+  .rule.thin { height:1px; background:var(--rule); }
+
+  .screen { flex:1; overflow-y:auto; position:relative; z-index:4; padding:0 0 100px; scrollbar-width:none; }
+  .screen::-webkit-scrollbar{ display:none; }
+
+  /* editorial title */
+  .head { padding:18px 22px 14px; }
+  .kicker { font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--red);
+    margin-bottom:6px; }
+  .title { font-family:var(--serif); font-size:80px; line-height:0.88; font-weight:400; letter-spacing:-2px; }
+  .title em { font-style:italic; }
+  .dek { font-family:var(--serif); font-size:17px; font-weight:300; color:var(--ink-2); margin-top:12px;
+    line-height:1.4; max-width:88%; }
+
+  /* filter — editorial pills */
+  .filt { display:flex; gap:18px; align-items:center; padding:14px 22px; font-size:12px; font-weight:700;
+    letter-spacing:1px; text-transform:uppercase; }
+  .filt a { color:var(--ink-3); position:relative; padding-bottom:3px; }
+  .filt a.on { color:var(--ink); border-bottom:2px solid var(--red); }
+  .filt .open { margin-left:auto; color:var(--ink-2); display:flex; gap:7px; align-items:center; }
+  .filt .open .d { width:9px; height:9px; border-radius:50%; border:1.5px solid var(--ink-3); }
+
+  /* HERO feature */
+  .hero { margin:6px 22px 8px; cursor:pointer;
+    opacity:0; transform:translateY(14px); animation:rise .6s var(--ease) .05s forwards; }
+  .hero .photo { height:188px; border-radius:4px; position:relative; overflow:hidden;
+    background:
+      radial-gradient(120% 100% at 80% 10%, #2a4d3a, transparent 60%),
+      linear-gradient(150deg, #0f2018, #1c0c0c 90%);
+    display:flex; align-items:flex-end; padding:14px; }
+  .hero .photo::after { content:"♠"; position:absolute; right:-10px; top:-30px; font-size:180px;
+    color:rgba(255,255,255,0.05); }
+  .hero .live { font-size:10px; font-weight:800; letter-spacing:1.5px; color:#fff; background:var(--red);
+    padding:4px 9px; border-radius:2px; display:inline-flex; align-items:center; gap:6px; }
+  .hero .live i { width:6px; height:6px; border-radius:50%; background:#fff; animation:pulse 1.6s infinite; }
+  .hero .hname { font-family:var(--serif); font-size:32px; font-weight:500; letter-spacing:-0.5px;
+    margin-top:12px; line-height:1; }
+  .hero .hmeta { display:flex; gap:18px; margin-top:12px; padding-top:12px; border-top:1px solid var(--rule); }
+  .hero .hmeta .m b { font-family:var(--serif); font-size:26px; font-weight:500; letter-spacing:-1px; }
+  .hero .hmeta .m b.r { color:var(--red); }
+  .hero .hmeta .m span { display:block; font-size:10px; font-weight:700; letter-spacing:1px;
+    text-transform:uppercase; color:var(--ink-3); margin-top:2px; }
+
+  .sec { font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--ink-2);
+    padding:18px 22px 4px; }
+
+  /* editorial list rows */
+  .item { display:flex; gap:14px; align-items:baseline; padding:15px 22px; cursor:pointer; position:relative;
+    opacity:0; transform:translateY(12px); animation:rise .55s var(--ease) forwards; }
+  .item:nth-of-type(1){animation-delay:.12s}.item:nth-of-type(2){animation-delay:.18s}
+  .item:nth-of-type(3){animation-delay:.24s}.item:nth-of-type(4){animation-delay:.3s}
+  .item + .item, .sec + .item { border-top:1px solid var(--rule); }
+  .idx { font-family:var(--serif); font-size:15px; font-weight:400; color:var(--ink-3); font-style:italic;
+    width:22px; flex:none; }
+  .item .ib { flex:1; min-width:0; }
+  .item .nm { font-family:var(--serif); font-size:21px; font-weight:500; letter-spacing:-0.3px; }
+  .item .mt { font-size:12.5px; color:var(--ink-2); margin-top:3px; }
+  .item .rt { text-align:right; flex:none; }
+  .item .rt .seats { font-family:var(--serif); font-size:24px; font-weight:500; letter-spacing:-1px;
+    line-height:1; }
+  .item .rt .seats.r { color:var(--red); } .item .rt .seats.full { color:var(--ink-3); font-size:15px;
+    font-style:italic; }
+  .item .rt .lab { font-size:10px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase;
+    color:var(--ink-3); margin-top:3px; }
+  .stp { font-size:10px; font-weight:800; letter-spacing:1px; text-transform:uppercase; }
+  .stp.live { color:var(--red); } .stp.open{ color:#9a7b1f; } .stp.closed{ color:var(--ink-3); }
+  .item.dim .nm { color:var(--ink-2); }
+
+  /* bottom editorial bar */
+  .tabbar { position:absolute; left:0; right:0; bottom:0; z-index:6; display:flex; justify-content:space-around;
+    padding:14px 0 24px; background:rgba(247,244,238,0.85); backdrop-filter:blur(20px);
+    -webkit-backdrop-filter:blur(20px); border-top:1.5px solid var(--ink); }
+  .tab { font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--ink-3); }
+  .tab.on { color:var(--ink); }
+  .tab.on::before { content:"— "; color:var(--red); }
+  .home-ind { position:absolute; bottom:8px; left:50%; transform:translateX(-50%); width:134px; height:5px;
+    border-radius:3px; background:var(--ink); opacity:.7; z-index:7; }
+
+  @keyframes rise{to{opacity:1;transform:translateY(0)}}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,0.5)}70%{box-shadow:0 0 0 6px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important}.hero,.item{opacity:1;transform:none}}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="statusbar">
+    <span>9:41</span>
+    <span class="ico">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="mast">
+    <div class="wm">Poker<b>·</b>Spot</div>
+    <div class="acts"><span class="lang">EN</span><span class="av">S</span></div>
+  </div>
+  <div class="rule"></div>
+
+  <div class="screen">
+    <div class="head">
+      <div class="kicker">Friday · May 23</div>
+      <div class="title">To<em>night</em></div>
+      <div class="dek">Twelve clubs across Georgia. Three tables live in Tbilisi right now.</div>
+    </div>
+
+    <div class="filt">
+      <a class="on">All</a><a>Tbilisi</a><a>Batumi</a>
+      <span class="open"><span class="d"></span>Open only</span>
+    </div>
+    <div class="rule thin"></div>
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="photo"><span class="live"><i></i>LIVE</span></div>
+      <div class="hname">Royal Poker Tbilisi</div>
+      <div class="hmeta">
+        <div class="m"><b class="r">12</b><span>Open seats</span></div>
+        <div class="m"><b>3</b><span>Stakes</span></div>
+        <div class="m"><b>8</b><span>In waitlist</span></div>
+      </div>
+    </div>
+
+    <div class="sec">Also playing</div>
+
+    <div class="item">
+      <div class="idx">01</div>
+      <div class="ib"><div class="nm">Bellagio Batumi</div>
+        <div class="mt">Batumi · 2 stakes · <span class="stp live">Live</span></div></div>
+      <div class="rt"><div class="seats r">4</div><div class="lab">Seats</div></div>
+    </div>
+    <div class="item">
+      <div class="idx">02</div>
+      <div class="ib"><div class="nm">Shangri La Tbilisi</div>
+        <div class="mt">Tbilisi · 1 stake · <span class="stp live">Live</span></div></div>
+      <div class="rt"><div class="seats full">Full</div><div class="lab">6 waiting</div></div>
+    </div>
+
+    <div class="sec">Open &amp; upcoming</div>
+
+    <div class="item dim">
+      <div class="idx">03</div>
+      <div class="ib"><div class="nm">Iveria Casino</div>
+        <div class="mt">Tbilisi · No games yet · <span class="stp open">Open</span></div></div>
+      <div class="rt"><div class="seats full">—</div></div>
+    </div>
+    <div class="item dim">
+      <div class="idx">04</div>
+      <div class="ib"><div class="nm">Mercure Tbilisi</div>
+        <div class="mt">Tbilisi · Opens 20:00 · <span class="stp closed">Closed</span></div></div>
+      <div class="rt"><div class="seats full">—</div></div>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <span class="tab on">Clubs</span>
+    <span class="tab">Activity</span>
+    <span class="tab">Profile</span>
+  </div>
+  <div class="home-ind"></div>
+</div>
+</body>
+</html>

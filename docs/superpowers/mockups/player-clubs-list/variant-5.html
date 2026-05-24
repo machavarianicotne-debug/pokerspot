@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>PokerSpot — Variant 5 · Vision Pro Inspired</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300..700&display=swap" rel="stylesheet" />
+<style>
+  /* ============ Variant 5 — "Vision Pro Inspired" ============
+     visionOS depth: floating ultra-thin glass cards in 3D space,
+     layered translucency, soft environment blooms, live specular light. */
+  :root {
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
+    --text: #ffffff; --muted: rgba(255,255,255,0.62); --faint: rgba(255,255,255,0.36);
+    --glass: rgba(255,255,255,0.10); --glass-2: rgba(255,255,255,0.16);
+    --bd: rgba(255,255,255,0.22); --hi: rgba(255,255,255,0.55);
+    --live:#5ff0a8; --open:#ffd166; --closed:#9aa3ab;
+    --ease: cubic-bezier(0.22,0.61,0.36,1);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body { font-family:var(--font); min-height:100vh; display:grid; place-items:center; padding:24px 0;
+    background:
+      radial-gradient(40% 30% at 18% 18%, rgba(99,140,255,0.55), transparent 60%),
+      radial-gradient(45% 35% at 85% 25%, rgba(180,120,255,0.45), transparent 60%),
+      radial-gradient(50% 40% at 60% 95%, rgba(60,210,200,0.40), transparent 60%),
+      linear-gradient(160deg, #1a1f3a, #0a0d1c 70%);
+    -webkit-font-smoothing:antialiased; }
+
+  .phone { width:390px; height:844px; border-radius:52px; position:relative; overflow:hidden;
+    display:flex; flex-direction:column; perspective:1100px;
+    background:
+      radial-gradient(60% 40% at 25% 12%, rgba(120,150,255,0.30), transparent 60%),
+      radial-gradient(55% 40% at 90% 30%, rgba(190,130,255,0.24), transparent 55%),
+      radial-gradient(70% 50% at 55% 105%, rgba(60,220,200,0.22), transparent 60%),
+      linear-gradient(165deg, #161a30, #070912 75%);
+    box-shadow:0 0 0 11px #14172a, 0 0 0 13px #262b46, 0 50px 130px -28px rgba(0,0,0,0.95); }
+  /* floating dust */
+  .phone::after { content:""; position:absolute; inset:0; pointer-events:none;
+    background-image:radial-gradient(circle at 20% 30%, rgba(255,255,255,0.6) 0.5px, transparent 1px),
+      radial-gradient(circle at 70% 60%, rgba(255,255,255,0.5) 0.5px, transparent 1px),
+      radial-gradient(circle at 45% 85%, rgba(255,255,255,0.4) 0.5px, transparent 1px);
+    background-size:140px 140px,200px 200px,170px 170px; opacity:.5; }
+
+  .statusbar { height:54px; flex:none; display:flex; align-items:flex-end; justify-content:space-between;
+    padding:0 30px 8px; font-size:15px; font-weight:600; color:var(--text); z-index:6; position:relative; }
+  .statusbar .ico{ display:flex; gap:6px; }
+
+  /* floating glass top bar */
+  .topbar { position:relative; z-index:6; margin:6px 16px 0; display:flex; align-items:center;
+    justify-content:space-between; padding:11px 16px; border-radius:999px; background:var(--glass);
+    backdrop-filter:blur(40px) saturate(180%); -webkit-backdrop-filter:blur(40px) saturate(180%);
+    border:1px solid var(--bd);
+    box-shadow:0 1px 0 var(--hi) inset, 0 -1px 0 rgba(0,0,0,0.2) inset, 0 20px 40px -20px rgba(0,0,0,0.7); }
+  .brand { font-size:19px; font-weight:700; letter-spacing:-0.5px; display:flex; align-items:center; gap:7px; }
+  .brand .o { width:22px; height:22px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff, #8ab4ff 60%, #5b76ff);
+    box-shadow:0 0 14px rgba(120,150,255,0.8); }
+  .topbar-r { display:flex; align-items:center; gap:9px; }
+  .lang { font-size:13px; font-weight:600; color:var(--muted); padding:6px 11px; border-radius:999px;
+    background:var(--glass-2); border:1px solid var(--bd); }
+  .av { width:33px; height:33px; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, #fff5, transparent), linear-gradient(135deg,#b48cff,#638cff);
+    display:grid; place-items:center; color:#fff; font-weight:700; font-size:13px; border:1px solid var(--hi); }
+
+  .screen { flex:1; overflow-y:auto; position:relative; z-index:5; padding:18px 16px 116px;
+    scrollbar-width:none; transform-style:preserve-3d; }
+  .screen::-webkit-scrollbar{ display:none; }
+
+  .filters { display:flex; gap:8px; align-items:center; margin-bottom:20px; }
+  .chip { display:inline-flex; align-items:center; gap:6px; padding:9px 14px; border-radius:999px;
+    font-size:13px; font-weight:600; color:var(--text); background:var(--glass);
+    backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px); border:1px solid var(--bd);
+    box-shadow:0 1px 0 var(--hi) inset; }
+  .toggle { margin-left:auto; display:inline-flex; align-items:center; gap:7px; font-size:13px;
+    font-weight:600; color:var(--muted); }
+  .toggle input{display:none;} .tk{width:44px;height:26px;border-radius:999px;background:var(--glass-2);
+    border:1px solid var(--bd); position:relative; transition:.25s;}
+  .tk::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;
+    background:#fff;transition:.25s;box-shadow:0 2px 6px rgba(0,0,0,0.4);}
+  .toggle input:checked + .tk{background:linear-gradient(120deg,#638cff,#b48cff);}
+  .toggle input:checked + .tk::after{transform:translateX(18px);}
+
+  /* floating glass cards */
+  .card { position:relative; border-radius:26px; padding:18px 19px; margin-bottom:18px;
+    background:var(--glass); backdrop-filter:blur(44px) saturate(180%);
+    -webkit-backdrop-filter:blur(44px) saturate(180%); border:1px solid var(--bd);
+    box-shadow:0 1px 0 var(--hi) inset, 0 -1px 0 rgba(0,0,0,0.18) inset,
+      0 30px 50px -22px rgba(0,0,0,0.7), 0 8px 16px -10px rgba(0,0,0,0.5);
+    overflow:hidden; cursor:pointer; transform-style:preserve-3d;
+    transition:transform .4s var(--ease), box-shadow .4s var(--ease);
+    opacity:0; animation:float-in .7s var(--ease) forwards; }
+  .card:nth-child(1){animation-delay:.05s}.card:nth-child(2){animation-delay:.13s}
+  .card:nth-child(3){animation-delay:.21s}.card:nth-child(4){animation-delay:.29s}
+  .card:nth-child(5){animation-delay:.37s}
+  @keyframes float-in{from{opacity:0;transform:translateY(26px) translateZ(-40px) scale(0.96)}
+    to{opacity:1;transform:translateY(0) translateZ(0) scale(1)}}
+  .card:hover { transform:translateY(-6px) translateZ(30px) rotateX(3deg);
+    box-shadow:0 1px 0 var(--hi) inset, 0 44px 70px -24px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.10); }
+  /* live specular following pointer */
+  .card .spec { position:absolute; inset:0; pointer-events:none; border-radius:inherit;
+    background:radial-gradient(220px 160px at var(--mx,30%) var(--my,0%),
+      rgba(255,255,255,0.18), transparent 60%); opacity:0; transition:opacity .3s; }
+  .card:hover .spec { opacity:1; }
+  .card.dim { opacity:1; }
+  .card.dim .cname,.card.dim .meta{ opacity:.55; }
+
+  .card-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .cname { font-size:19px; font-weight:700; letter-spacing:-0.3px; }
+  .meta { font-size:13px; color:var(--muted); margin-top:3px; }
+  .status { flex:none; display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700;
+    padding:6px 12px; border-radius:999px; background:var(--glass-2); border:1px solid var(--bd);
+    box-shadow:0 1px 0 var(--hi) inset; }
+  .status i { width:8px; height:8px; border-radius:50%; }
+  .status.live i { background:var(--live); box-shadow:0 0 10px var(--live); animation:pulse 2s infinite; }
+  .status.live{color:var(--live);} .status.open i{background:var(--open);box-shadow:0 0 10px var(--open);}
+  .status.open{color:var(--open);} .status.closed i{background:var(--closed);} .status.closed{color:var(--faint);}
+
+  .stats { display:flex; gap:12px; margin-top:18px; }
+  .orb { flex:1; border-radius:18px; padding:13px 14px; background:var(--glass-2); border:1px solid var(--bd);
+    box-shadow:0 1px 0 var(--hi) inset; }
+  .orb .v { font-size:28px; font-weight:700; letter-spacing:-1px; line-height:1; font-variant-numeric:tabular-nums; }
+  .orb .v.glow { background:linear-gradient(120deg,#7affc0,#5ff0a8); -webkit-background-clip:text;
+    background-clip:text; color:transparent; }
+  .orb .k { font-size:10px; font-weight:700; letter-spacing:0.6px; text-transform:uppercase; color:var(--faint);
+    margin-top:7px; }
+  .note { margin-top:14px; font-size:13px; color:var(--faint); font-style:italic; }
+
+  .tabbar { position:absolute; left:16px; right:16px; bottom:14px; z-index:7; display:flex;
+    justify-content:space-around; padding:12px 8px 10px; border-radius:30px; background:var(--glass-2);
+    backdrop-filter:blur(44px) saturate(180%); -webkit-backdrop-filter:blur(44px) saturate(180%);
+    border:1px solid var(--bd);
+    box-shadow:0 1px 0 var(--hi) inset, 0 20px 44px -18px rgba(0,0,0,0.8); }
+  .tab { display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10.5px; font-weight:600;
+    color:var(--faint); flex:1; }
+  .tab.on { color:#fff; } .tab.on svg{ filter:drop-shadow(0 0 8px rgba(150,180,255,0.9)); }
+  .home-ind { position:absolute; bottom:5px; left:50%; transform:translateX(-50%); width:130px; height:5px;
+    border-radius:3px; background:rgba(255,255,255,0.4); z-index:8; }
+
+  @keyframes pulse{0%{box-shadow:0 0 10px var(--live),0 0 0 0 rgba(95,240,168,0.5)}70%{box-shadow:0 0 10px var(--live),0 0 0 9px rgba(95,240,168,0)}100%{box-shadow:0 0 10px var(--live),0 0 0 0 rgba(95,240,168,0)}}
+  @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.card{opacity:1}}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="statusbar">
+    <span>9:41</span>
+    <span class="ico">
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor"><rect x="0" y="7" width="3" height="5" rx="1"/><rect x="5" y="4.5" width="3" height="7.5" rx="1"/><rect x="10" y="2" width="3" height="10" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="currentColor"><path d="M8.5 2.5c2.3 0 4.4.9 6 2.4l1.4-1.5C14 1.5 11.4.5 8.5.5 5.6.5 3 1.5 1.1 3.4L2.5 4.9c1.6-1.5 3.7-2.4 6-2.4z"/><circle cx="8.5" cy="10" r="1.6"/></svg>
+      <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="3" stroke="currentColor" opacity=".5"/><rect x="2" y="2" width="17" height="8" rx="1.6" fill="currentColor"/><rect x="23" y="4" width="1.5" height="4" rx="0.75" fill="currentColor" opacity=".5"/></svg>
+    </span>
+  </div>
+
+  <div class="topbar">
+    <div class="brand"><span class="o"></span>PokerSpot</div>
+    <div class="topbar-r"><span class="lang">EN</span><span class="av">SZ</span></div>
+  </div>
+
+  <div class="screen">
+    <div class="filters">
+      <span class="chip">Tbilisi
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M6 9l6 6 6-6"/></svg></span>
+      <span class="chip">NLH · PLO</span>
+      <label class="toggle"><input type="checkbox" /><span class="tk"></span>Open</label>
+    </div>
+
+    <div class="card">
+      <span class="spec"></span>
+      <div class="card-top">
+        <div><div class="cname">Royal Poker Tbilisi</div><div class="meta">Tbilisi · 3 stakes</div></div>
+        <span class="status live"><i></i>Live</span>
+      </div>
+      <div class="stats">
+        <div class="orb"><div class="v glow">12</div><div class="k">Open seats</div></div>
+        <div class="orb"><div class="v">3</div><div class="k">Stakes</div></div>
+        <div class="orb"><div class="v">8</div><div class="k">Waitlist</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="spec"></span>
+      <div class="card-top">
+        <div><div class="cname">Bellagio Batumi</div><div class="meta">Batumi · 2 stakes</div></div>
+        <span class="status live"><i></i>Live</span>
+      </div>
+      <div class="stats">
+        <div class="orb"><div class="v glow">4</div><div class="k">Open seats</div></div>
+        <div class="orb"><div class="v">2</div><div class="k">Stakes</div></div>
+        <div class="orb"><div class="v">2</div><div class="k">Waitlist</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <span class="spec"></span>
+      <div class="card-top">
+        <div><div class="cname">Shangri La Tbilisi</div><div class="meta">Tbilisi · 1 stake</div></div>
+        <span class="status live"><i></i>Live</span>
+      </div>
+      <div class="stats">
+        <div class="orb"><div class="v" style="color:var(--faint);font-size:20px">Full</div><div class="k">No seats</div></div>
+        <div class="orb"><div class="v">1</div><div class="k">Stake</div></div>
+        <div class="orb"><div class="v glow">6</div><div class="k">Waitlist</div></div>
+      </div>
+    </div>
+
+    <div class="card dim">
+      <span class="spec"></span>
+      <div class="card-top">
+        <div><div class="cname">Iveria Casino</div><div class="meta">Tbilisi</div></div>
+        <span class="status open"><i></i>Open</span>
+      </div>
+      <div class="note">Floor open — no games running yet tonight.</div>
+    </div>
+
+    <div class="card dim">
+      <span class="spec"></span>
+      <div class="card-top">
+        <div><div class="cname">Mercure Tbilisi</div><div class="meta">Tbilisi · opens 20:00</div></div>
+        <span class="status closed"><i></i>Closed</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabbar">
+    <div class="tab on"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2c-2.5 4-6 6.2-6 9.7A6 6 0 0 0 12 18a6 6 0 0 0 6-6.3C18 8.2 14.5 6 12 2z"/></svg>Clubs</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Activity</div>
+    <div class="tab"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Profile</div>
+  </div>
+  <div class="home-ind"></div>
+</div>
+<script>
+  // live specular light follows pointer across floating glass cards
+  document.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('pointermove', e => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', ((e.clientX - r.left) / r.width * 100) + '%');
+      card.style.setProperty('--my', ((e.clientY - r.top) / r.height * 100) + '%');
+    });
+  });
+</script>
+</body>
+</html>

@@ -89,5 +89,35 @@ Create one `clubs` document per block below (all `enabled: true`, `photoUrl` omi
 { "name": "Batumi Royal",        "city": "Batumi",  "address": "Memed Abashidze Ave 25",  "hoursText": "Daily 14:00–04:00", "phone": "+995 32 200 0004", "enabled": true }
 ```
 
-Reservations, waitlist, and sessions land in subsequent plans
-(`docs/superpowers/plans/`).
+## Waitlist + Sessions (Plan 4)
+
+A Player joins a club's **per-stake** waitlist from the club details screen; the
+Pit Boss sees the live waitlist for their club, **Calls** a player, then **Seats**
+them at a table+seat (which starts a live **Session** with an elapsed timer).
+
+### Collections
+- `clubs/{clubId}/tables/{tableId}` (subcollection): `number:int`,
+  `variant:string` (`nlh`|`plo`|`plo5`|`plo6`), `smallBlind:num`, `bigBlind:num`,
+  `currency:string` (`GEL`|`USD`|`EUR`), `seatCount:int`, `open:bool`.
+- `waitlist/{id}` (top-level): `clubId`, `playerUid`, `playerName`, stake fields
+  (`variant`/`smallBlind`/`bigBlind`/`currency`), `status`
+  (`waiting`|`called`|`seated`|`cancelled`), `createdAt` (serverTimestamp),
+  `calledAt?`.
+- `sessions/{id}` (top-level): `clubId`, `tableId`, `seatNumber:int`, `playerUid`,
+  `playerName`, stake fields, `status` (`active`|`ended`), `startedAt`, `endedAt?`.
+
+### Seed demo tables
+```bash
+flutter run -t tools/seed_tables.dart -d chrome --dart-define-from-file=env-dev.json
+```
+(or `tools/seed_tables.bat`). Seeds 2 tables per demo club (NLH 1/2 + PLO 2/5,
+GEL) with fixed ids `demo-<club>-t<number>`; idempotent. Run `seed_clubs` first.
+
+### Test as a Pit Boss
+The Pit Boss waitlist screen reads `users/<uid>.clubId`. To try it:
+1. Sign in with a test number and complete onboarding (you're a Player).
+2. Firebase Console → Firestore → `users/<your-uid>`: set `role` = `pitboss`
+   and add a `clubId` field = a club doc id (e.g. `demo-vake`).
+3. Reload — you now land on the Pit Boss home showing that club's live waitlist.
+
+Reservations land in a later mini-plan.

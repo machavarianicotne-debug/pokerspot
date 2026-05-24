@@ -2,5 +2,20 @@
   "@@locale": "ru",
   "appTitle": "PokerSpot",
   "welcomeTitle": "Добро пожаловать в PokerSpot",
-  "gdprConsent": "PokerSpot отслеживает ваши игровые сессии для личной статистики и отчётов клубов. Продолжая, вы соглашаетесь."
+  "gdprConsent": "PokerSpot отслеживает ваши игровые сессии для личной статистики и отчётов клубов. Продолжая, вы соглашаетесь.",
+  "phoneNumber": "Номер телефона",
+  "phoneHint": "+995 5XX XX XX XX",
+  "sendCode": "Отправить код",
+  "smsCode": "SMS-код",
+  "smsHint": "6-значный код",
+  "verify": "Подтвердить",
+  "invalidPhone": "Введите корректный номер +995",
+  "yourName": "Ваше имя",
+  "nameHint": "напр. Гиорги",
+  "getStarted": "Начать",
+  "language": "Язык",
+  "signOut": "Выйти",
+  "playerHome": "Игрок",
+  "pitBossHome": "Pit Boss",
+  "superAdminHome": "Super Admin"
 }

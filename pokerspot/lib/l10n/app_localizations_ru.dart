@@ -17,4 +17,49 @@ class AppL10nRu extends AppL10n {
   @override
   String get gdprConsent =>
       'PokerSpot отслеживает ваши игровые сессии для личной статистики и отчётов клубов. Продолжая, вы соглашаетесь.';
+
+  @override
+  String get phoneNumber => 'Номер телефона';
+
+  @override
+  String get phoneHint => '+995 5XX XX XX XX';
+
+  @override
+  String get sendCode => 'Отправить код';
+
+  @override
+  String get smsCode => 'SMS-код';
+
+  @override
+  String get smsHint => '6-значный код';
+
+  @override
+  String get verify => 'Подтвердить';
+
+  @override
+  String get invalidPhone => 'Введите корректный номер +995';
+
+  @override
+  String get yourName => 'Ваше имя';
+
+  @override
+  String get nameHint => 'напр. Гиорги';
+
+  @override
+  String get getStarted => 'Начать';
+
+  @override
+  String get language => 'Язык';
+
+  @override
+  String get signOut => 'Выйти';
+
+  @override
+  String get playerHome => 'Игрок';
+
+  @override
+  String get pitBossHome => 'Pit Boss';
+
+  @override
+  String get superAdminHome => 'Super Admin';
 }

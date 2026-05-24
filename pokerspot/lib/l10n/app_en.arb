@@ -2,5 +2,20 @@
   "@@locale": "en",
   "appTitle": "PokerSpot",
   "welcomeTitle": "Welcome to PokerSpot",
-  "gdprConsent": "PokerSpot tracks your play sessions for personal stats and club reports. By continuing you consent."
+  "gdprConsent": "PokerSpot tracks your play sessions for personal stats and club reports. By continuing you consent.",
+  "phoneNumber": "Phone number",
+  "phoneHint": "+995 5XX XX XX XX",
+  "sendCode": "Send code",
+  "smsCode": "SMS code",
+  "smsHint": "6-digit code",
+  "verify": "Verify",
+  "invalidPhone": "Enter a valid +995 number",
+  "yourName": "Your name",
+  "nameHint": "e.g. Giorgi",
+  "getStarted": "Get Started",
+  "language": "Language",
+  "signOut": "Sign out",
+  "playerHome": "Player",
+  "pitBossHome": "Pit Boss",
+  "superAdminHome": "Super Admin"
 }

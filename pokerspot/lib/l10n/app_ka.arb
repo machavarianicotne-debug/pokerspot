@@ -2,5 +2,20 @@
   "@@locale": "ka",
   "appTitle": "PokerSpot",
   "welcomeTitle": "მოგესალმებით PokerSpot-ში",
-  "gdprConsent": "PokerSpot ინახავს თქვენი თამაშის სესიებს პირადი სტატისტიკისა და კლუბის ანგარიშებისთვის. გაგრძელებით თანხმობას აცხადებთ."
+  "gdprConsent": "PokerSpot ინახავს თქვენი თამაშის სესიებს პირადი სტატისტიკისა და კლუბის ანგარიშებისთვის. გაგრძელებით თანხმობას აცხადებთ.",
+  "phoneNumber": "ტელეფონის ნომერი",
+  "phoneHint": "+995 5XX XX XX XX",
+  "sendCode": "კოდის გაგზავნა",
+  "smsCode": "SMS კოდი",
+  "smsHint": "6-ნიშნა კოდი",
+  "verify": "დადასტურება",
+  "invalidPhone": "შეიყვანეთ სწორი +995 ნომერი",
+  "yourName": "თქვენი სახელი",
+  "nameHint": "მაგ. გიორგი",
+  "getStarted": "დაწყება",
+  "language": "ენა",
+  "signOut": "გასვლა",
+  "playerHome": "მოთამაშე",
+  "pitBossHome": "Pit Boss",
+  "superAdminHome": "Super Admin"
 }

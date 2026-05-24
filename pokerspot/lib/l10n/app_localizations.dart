@@ -116,6 +116,96 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'PokerSpot tracks your play sessions for personal stats and club reports. By continuing you consent.'**
   String get gdprConsent;
+
+  /// No description provided for @phoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number'**
+  String get phoneNumber;
+
+  /// No description provided for @phoneHint.
+  ///
+  /// In en, this message translates to:
+  /// **'+995 5XX XX XX XX'**
+  String get phoneHint;
+
+  /// No description provided for @sendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get sendCode;
+
+  /// No description provided for @smsCode.
+  ///
+  /// In en, this message translates to:
+  /// **'SMS code'**
+  String get smsCode;
+
+  /// No description provided for @smsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'6-digit code'**
+  String get smsHint;
+
+  /// No description provided for @verify.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify'**
+  String get verify;
+
+  /// No description provided for @invalidPhone.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid +995 number'**
+  String get invalidPhone;
+
+  /// No description provided for @yourName.
+  ///
+  /// In en, this message translates to:
+  /// **'Your name'**
+  String get yourName;
+
+  /// No description provided for @nameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Giorgi'**
+  String get nameHint;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get getStarted;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @signOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign out'**
+  String get signOut;
+
+  /// No description provided for @playerHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Player'**
+  String get playerHome;
+
+  /// No description provided for @pitBossHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Pit Boss'**
+  String get pitBossHome;
+
+  /// No description provided for @superAdminHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Super Admin'**
+  String get superAdminHome;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

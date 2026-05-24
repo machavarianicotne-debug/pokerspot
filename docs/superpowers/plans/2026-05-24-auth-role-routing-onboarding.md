@@ -986,7 +986,6 @@ class CenteredPane extends StatelessWidget {
 ```dart
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/features/auth/data/fake_auth_repository.dart';
@@ -1026,8 +1025,45 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Enter a valid +995 number'), findsOneWidget);
   });
+
+  testWidgets('desktop width (1280): content is capped by the 440px pane', (tester) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final auth = FakeAuthRepository();
+    await tester.pumpWidget(_wrap(const LoginScreen(), auth));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('phoneField')), findsOneWidget);
+    final fieldWidth = tester.getSize(find.byKey(const Key('phoneField'))).width;
+    expect(fieldWidth, lessThanOrEqualTo(440));
+    expect(fieldWidth, greaterThan(300));
+  });
+
+  testWidgets('mobile width (375): content is (near) full-width', (tester) async {
+    tester.view.physicalSize = const Size(375, 800);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final auth = FakeAuthRepository();
+    await tester.pumpWidget(_wrap(const LoginScreen(), auth));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('phoneField')), findsOneWidget);
+    final fieldWidth = tester.getSize(find.byKey(const Key('phoneField'))).width;
+    // Narrower than the viewport (padding) but wider than the 440 cap minus padding.
+    expect(fieldWidth, lessThan(375));
+    expect(fieldWidth, greaterThan(300));
+  });
 }
 ```
+
+> The plan example imported `flutter_localizations` in this test; it is unused
+> (the delegates come from `AppL10n.localizationsDelegates`), so it is omitted to
+> keep `flutter analyze` clean. Two responsive checks (375px / 1280px) were added.
 
 - [ ] **Step 4: Run, confirm FAIL:** `flutter test test/features/auth/login_screen_test.dart`
 

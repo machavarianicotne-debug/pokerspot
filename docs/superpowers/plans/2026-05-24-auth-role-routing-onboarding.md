@@ -1511,7 +1511,7 @@ class RoleScaffold extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => ref.read(authRepositoryProvider).signOut(),
-            child: Text(l10n.signOut, style: const TextStyle(color: PsColors.textMuted)),
+            child: Text(l10n.signOut, style: TextStyle(color: PsColors.textMuted)),
           ),
         ],
       ),
@@ -1592,10 +1592,10 @@ void main() {
         authRepositoryProvider.overrideWithValue(auth),
         usersRepositoryProvider.overrideWithValue(seeded),
       ],
-      child: MaterialApp(
+      child: const MaterialApp(
         localizationsDelegates: AppL10n.localizationsDelegates,
         supportedLocales: AppL10n.supportedLocales,
-        home: const RoleHome(),
+        home: RoleHome(),
       ),
     ));
     await tester.pumpAndSettle();
@@ -1670,7 +1670,12 @@ class PokerSpotApp extends ConsumerWidget {
   }
 }
 ```
-Delete the old top-level `appRouter` (it's replaced by `routerProvider`). Update the Plan 1 smoke test (`test/app/app_smoke_test.dart`): the app now starts at `/login`, so it no longer shows "PokerSpot … Foundation ready". Change its assertion to `expect(find.byType(MaterialApp), findsOneWidget);` and keep the GoogleFonts `setUpAll` guard. (Wrap in `ProviderScope` as before.)
+Delete the old top-level `appRouter` (it's replaced by `routerProvider`). Update the Plan 1 smoke test (`test/app/app_smoke_test.dart`): the app now starts at `/login`, so it no longer shows "PokerSpot … Foundation ready". Assert `expect(find.byType(MaterialApp), findsOneWidget)` and `expect(find.byType(LoginScreen), findsOneWidget)` (a signed-out user lands on login), and keep the GoogleFonts `setUpAll` guard. **Override `authRepositoryProvider` + `usersRepositoryProvider` with `FakeAuthRepository` / `FakeUsersRepository`** in the `ProviderScope`: the real providers construct `FirebaseAuth.instance` / `FirebaseFirestore.instance`, which throw without a live Firebase app in a unit test.
+
+> Implementation divergences from the verbatim code (doc-synced):
+> - `player_home.dart`: dropped `const` from the sign-out `TextStyle` — `PsColors.textMuted` is a runtime `static final` (built with `.withValues`), not a const, so `const TextStyle(color: PsColors.textMuted)` does not compile.
+> - `role_home_test.dart`: made the second `MaterialApp` const (`prefer_const_constructors`).
+> - `app_smoke_test.dart`: added the fake-repo overrides described above (the verbatim instructions omitted them and would crash on `FirebaseAuth.instance`).
 
 - [ ] **Step 9: Run the full suite + analyze:** `flutter analyze` (clean) ; `flutter test` (all pass).
 

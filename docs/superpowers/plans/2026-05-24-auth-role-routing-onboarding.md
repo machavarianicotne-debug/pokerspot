@@ -803,6 +803,13 @@ git commit -m "feat: UsersRepository interface + fake + Firestore impl"
 - [ ] **Step 1: Failing test**
 
 `test/features/auth/providers_test.dart`:
+
+> Note: keep `currentUserProvider` active with `container.listen` and read state
+> after a short delay, rather than `await container.read(...future)`. The latter
+> hangs here: `currentUserProvider` rebuilds (uid loading -> data) while still in
+> its initial loading state, and the `.future` captured on the first build never
+> completes once that build's `Stream.value(null)` is replaced.
+
 ```dart
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -825,13 +832,19 @@ void main() {
     final s = await auth.sendOtp('+995555222222');
     await auth.confirmOtp(s, '222222');
     final uid = auth.currentUid!;
+
+    // Keep currentUserProvider active so it subscribes to the auth + users
+    // streams (like the UI would).
+    final sub = container.listen(currentUserProvider, (_, __) {});
+    addTearDown(sub.close);
+
     // no profile yet
-    await container.read(currentUserProvider.future);
+    await Future<void>.delayed(const Duration(milliseconds: 30));
     expect(container.read(currentUserProvider).valueOrNull, isNull);
 
     // create profile
     await users.createProfile(uid: uid, phone: '+995555222222', displayName: 'Nino', lang: 'en');
-    await Future<void>.delayed(const Duration(milliseconds: 20));
+    await Future<void>.delayed(const Duration(milliseconds: 30));
     expect(container.read(currentUserProvider).valueOrNull?.role, AppRole.player);
   });
 }

@@ -7,8 +7,8 @@ import 'package:pokerspot/features/floor/domain/poker_table.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
+import 'package:pokerspot/features/floor/presentation/game_detail_screen.dart';
 import 'package:pokerspot/features/floor/presentation/new_game_screen.dart';
-import 'package:pokerspot/features/floor/presentation/table_detail_screen.dart';
 import 'package:pokerspot/features/floor/presentation/table_editor_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
@@ -104,7 +104,7 @@ class _TableCard extends StatelessWidget {
       accentRail: table.open ? PsColors.accentPrimary : PsColors.statusClosed,
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (_) => TableDetailScreen(clubId: table.clubId, tableId: table.id),
+          builder: (_) => GameDetailScreen(clubId: table.clubId, stakeLabel: table.stakes.label),
         ),
       ),
       child: Column(

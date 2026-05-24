@@ -9,8 +9,8 @@ import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/stakes.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
+import 'package:pokerspot/features/floor/presentation/game_detail_screen.dart';
 import 'package:pokerspot/features/floor/presentation/new_game_screen.dart';
-import 'package:pokerspot/features/floor/presentation/table_detail_screen.dart';
 import 'package:pokerspot/features/floor/presentation/tables_screen.dart';
 import 'package:pokerspot/shared/widgets/ps_seat_map.dart';
 import 'package:pokerspot/shared/widgets/ps_stepper.dart';
@@ -81,10 +81,9 @@ void main() {
     expect(find.text('No tables yet'), findsOneWidget);
   });
 
-  testWidgets('TableDetailScreen renders a seat per seatCount; occupied shows initials',
-      (tester) async {
+  testWidgets('GameDetailScreen (game-centric) shows the table seat map', (tester) async {
     await tester.pumpWidget(_wrap(
-      const TableDetailScreen(clubId: 'vake', tableId: 't1'),
+      const GameDetailScreen(clubId: 'vake', stakeLabel: 'NLH 1/2 GEL'),
       [
         currentUserProvider.overrideWith((ref) => Stream.value(_pb())),
         tablesProvider('vake').overrideWith((ref) => Stream.value(const [_table])),
@@ -94,19 +93,17 @@ void main() {
     ));
     await tester.pumpAndSettle();
 
-    // Oval seat map: 9 seats, 1 occupied -> 8 open ("8/9").
+    expect(find.byKey(const Key('tableCard_t1')), findsOneWidget);
     expect(find.byType(PsSeatMap), findsOneWidget);
-    expect(find.text('8/9'), findsOneWidget);
-    expect(find.byKey(const Key('editTableBtn')), findsOneWidget);
-    expect(find.byKey(const Key('deleteTableBtn')), findsOneWidget);
+    expect(find.text('8/9'), findsOneWidget); // 9 seats, 1 occupied
   });
 
-  testWidgets('TableDetailScreen shows the per-stake waitlist with a Call action', (tester) async {
+  testWidgets('GameDetailScreen shows the shared waitlist with a Call action', (tester) async {
     final entry = WaitlistEntry(
         id: 'e1', clubId: 'vake', playerUid: 'u', playerName: 'Nino K', stakes: _stakes,
         status: WaitlistStatus.waiting, createdAt: DateTime.now(), calledAt: null);
     await tester.pumpWidget(_wrap(
-      const TableDetailScreen(clubId: 'vake', tableId: 't1'),
+      const GameDetailScreen(clubId: 'vake', stakeLabel: 'NLH 1/2 GEL'),
       [
         currentUserProvider.overrideWith((ref) => Stream.value(_pb())),
         tablesProvider('vake').overrideWith((ref) => Stream.value(const [_table])),

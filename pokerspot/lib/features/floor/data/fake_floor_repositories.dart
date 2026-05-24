@@ -193,6 +193,10 @@ class FakeSessionsRepository implements SessionsRepository {
           .toList());
 
   @override
+  Stream<List<Session>> watchAllByClub(String clubId) => store.watch(() =>
+      store.sessions.values.where((s) => s.clubId == clubId).toList());
+
+  @override
   Stream<List<Session>> watchByPlayer(String playerUid) => store.watch(() =>
       store.sessions.values
           .where((s) => s.playerUid == playerUid && s.status == SessionStatus.active)

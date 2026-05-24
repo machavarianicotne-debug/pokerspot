@@ -60,6 +60,9 @@ abstract interface class SessionsRepository {
   /// Live active sessions for a club.
   Stream<List<Session>> watchActiveByClub(String clubId);
 
+  /// Live ALL sessions for a club (active + ended) — Super Admin analytics.
+  Stream<List<Session>> watchAllByClub(String clubId);
+
   /// Live active sessions for one player.
   Stream<List<Session>> watchByPlayer(String playerUid);
 

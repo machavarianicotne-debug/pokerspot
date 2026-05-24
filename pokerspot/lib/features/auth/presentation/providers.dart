@@ -25,3 +25,8 @@ final currentUserProvider = StreamProvider<AppUser?>((ref) {
   if (uid == null) return Stream<AppUser?>.value(null);
   return ref.watch(usersRepositoryProvider).watchUser(uid);
 });
+
+/// Live list of ALL users (Super Admin management).
+final allUsersProvider = StreamProvider<List<AppUser>>((ref) {
+  return ref.watch(usersRepositoryProvider).watchAllUsers();
+});

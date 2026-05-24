@@ -15,4 +15,16 @@ abstract interface class UsersRepository {
     required String lastName,
     required String lang,
   });
+
+  /// Live list of ALL users (Super Admin search/management).
+  Stream<List<AppUser>> watchAllUsers();
+
+  /// Set a user's role (promote/demote).
+  Future<void> updateRole(String uid, AppRole role);
+
+  /// Block / unblock a user.
+  Future<void> setBlocked(String uid, bool blocked);
+
+  /// Assign (or clear, when null) the club a Pit Boss staffs.
+  Future<void> assignClub(String uid, String? clubId);
 }

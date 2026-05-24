@@ -18,8 +18,18 @@ class FakeClubsRepository implements ClubsRepository {
   final _listController = StreamController<List<Club>>.broadcast();
   final _clubControllers = <String, StreamController<Club?>>{};
 
+  final _allController = StreamController<List<Club>>.broadcast();
+  int _seq = 0;
+
   List<Club> get _enabled =>
       _store.values.where((c) => c.enabled).toList(growable: false);
+
+  List<Club> get _all => _store.values.toList(growable: false);
+
+  void _broadcast() {
+    _listController.add(_enabled);
+    _allController.add(_all);
+  }
 
   StreamController<Club?> _ctrl(String id) =>
       _clubControllers.putIfAbsent(id, () => StreamController<Club?>.broadcast());
@@ -27,8 +37,50 @@ class FakeClubsRepository implements ClubsRepository {
   /// Test helper: add or replace a club and notify listeners.
   void upsert(Club club) {
     _store[club.id] = club;
-    _listController.add(_enabled);
+    _broadcast();
     _ctrl(club.id).add(club);
+  }
+
+  @override
+  Stream<List<Club>> watchAllClubs() {
+    final out = StreamController<List<Club>>();
+    StreamSubscription<List<Club>>? sub;
+    out.onListen = () {
+      out.add(_all);
+      sub = _allController.stream.listen(out.add, onError: out.addError);
+    };
+    out.onCancel = () async {
+      await sub?.cancel();
+    };
+    return out.stream;
+  }
+
+  @override
+  Future<String> createClub(Club draft) async {
+    final id = 'club-${_seq++}';
+    final club = draft.copyWith(id: id);
+    _store[id] = club;
+    _broadcast();
+    _ctrl(id).add(club);
+    return id;
+  }
+
+  @override
+  Future<void> updateClub(Club club) async {
+    _store[club.id] = club;
+    _broadcast();
+    _ctrl(club.id).add(club);
+  }
+
+  @override
+  Future<void> setClubEnabled(String id, bool enabled) async {
+    final c = _store[id];
+    if (c != null) {
+      final updated = c.copyWith(enabled: enabled);
+      _store[id] = updated;
+      _broadcast();
+      _ctrl(id).add(updated);
+    }
   }
 
   @override

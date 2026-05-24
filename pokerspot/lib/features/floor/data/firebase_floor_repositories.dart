@@ -157,6 +157,12 @@ class FirebaseSessionsRepository implements SessionsRepository {
           .toList());
 
   @override
+  Stream<List<Session>> watchAllByClub(String clubId) => _col
+      .where('clubId', isEqualTo: clubId)
+      .snapshots()
+      .map((s) => s.docs.map(_session).toList());
+
+  @override
   Stream<List<Session>> watchByPlayer(String playerUid) => _col
       .where('playerUid', isEqualTo: playerUid)
       .snapshots()

@@ -16,3 +16,8 @@ final clubsListProvider = StreamProvider<List<Club>>((ref) {
 final clubProvider = StreamProvider.family<Club?, String>((ref, id) {
   return ref.watch(clubsRepositoryProvider).watchClub(id);
 });
+
+/// Live list of ALL clubs (Super Admin — includes disabled).
+final allClubsProvider = StreamProvider<List<Club>>((ref) {
+  return ref.watch(clubsRepositoryProvider).watchAllClubs();
+});

@@ -40,4 +40,23 @@ class FirebaseUsersRepository implements UsersRepository {
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
+
+  @override
+  Stream<List<AppUser>> watchAllUsers() => _firestore
+      .collection('users')
+      .snapshots()
+      .map((s) => s.docs.map((d) => AppUser.fromMap(d.id, d.data())).toList()
+        ..sort((a, b) => a.firstName.compareTo(b.firstName)));
+
+  @override
+  Future<void> updateRole(String uid, AppRole role) =>
+      _doc(uid).update({'role': role.asString});
+
+  @override
+  Future<void> setBlocked(String uid, bool blocked) =>
+      _doc(uid).update({'blocked': blocked});
+
+  @override
+  Future<void> assignClub(String uid, String? clubId) =>
+      _doc(uid).update({'clubId': clubId});
 }

@@ -19,6 +19,24 @@ class FirebaseClubsRepository implements ClubsRepository {
       .map((s) => s.docs.map((d) => Club.fromMap(d.id, d.data())).toList());
 
   @override
+  Stream<List<Club>> watchAllClubs() => _col.snapshots().map((s) =>
+      s.docs.map((d) => Club.fromMap(d.id, d.data())).toList()
+        ..sort((a, b) => a.name.compareTo(b.name)));
+
+  @override
+  Future<String> createClub(Club draft) async {
+    final doc = await _col.add(draft.toMap());
+    return doc.id;
+  }
+
+  @override
+  Future<void> updateClub(Club club) => _col.doc(club.id).set(club.toMap());
+
+  @override
+  Future<void> setClubEnabled(String id, bool enabled) =>
+      _col.doc(id).update({'enabled': enabled});
+
+  @override
   Stream<Club?> watchClub(String id) => _col.doc(id).snapshots().map(
         (d) => d.exists ? Club.fromMap(d.id, d.data()!) : null,
       );

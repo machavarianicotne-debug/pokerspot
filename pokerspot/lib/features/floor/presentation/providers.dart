@@ -35,6 +35,10 @@ final myWaitlistProvider = StreamProvider<List<WaitlistEntry>>((ref) {
 final clubSessionsProvider = StreamProvider.family<List<Session>, String>(
     (ref, clubId) => ref.watch(sessionsRepositoryProvider).watchActiveByClub(clubId));
 
+/// All sessions for a club (active + ended) — Super Admin analytics.
+final clubSessionsAllProvider = StreamProvider.family<List<Session>, String>(
+    (ref, clubId) => ref.watch(sessionsRepositoryProvider).watchAllByClub(clubId));
+
 /// The signed-in player's own active sessions (Activity tab; null uid -> empty).
 final mySessionProvider = StreamProvider<List<Session>>((ref) {
   final uid = ref.watch(uidProvider).valueOrNull;

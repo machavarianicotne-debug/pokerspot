@@ -101,12 +101,18 @@ service cloud.firestore {
       allow update, delete: if false;
     }
 
-    // ---- In-club chat (Plan 7-D, deferred) ---------------------------------
-    match /messages/{clubId}/messages/{msgId} {
-      allow read: if isAdmin() || (isPitboss() && myClub() == clubId)
-        || (signedIn() && !isBlocked());
+    // ---- 1-on-1 chat (flat; thread = clubId + playerUid) -------------------
+    match /messages/{id} {
+      allow read: if isAdmin()
+        || (isPitboss() && resource.data.clubId == myClub())
+        || (signedIn() && resource.data.playerUid == request.auth.uid);
+      // Sender must be the caller; you may only post into your own thread
+      // (player) or your own club's threads (Pit Boss / Admin).
       allow create: if signedIn() && !isBlocked()
-        && request.resource.data.senderUid == request.auth.uid;
+        && request.resource.data.senderUid == request.auth.uid
+        && (request.resource.data.playerUid == request.auth.uid
+            || (isPitboss() && request.resource.data.clubId == myClub())
+            || isAdmin());
       allow update, delete: if isAdmin();
     }
   }

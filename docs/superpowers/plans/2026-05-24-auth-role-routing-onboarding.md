@@ -33,6 +33,15 @@ players / unassigned). `fromMap` defaults missing → null (legacy users), and
 for now (Super Admin staff management is a later plan). The Task 2 `AppUser`
 code block below predates this field.
 
+## 🔧 Refinement (Plan 4 tools): onboarding backfills the real phone
+
+`AuthRepository` gained `String? get currentPhone` (Fake tracks the sign-in
+phone; Firebase returns `currentUser?.phoneNumber`). `OnboardingScreen` now
+writes `phone: currentPhone ?? ''` to the `users` doc instead of the hardcoded
+`''` — i.e. the **Plan 7 phone backfill was pulled forward** so the
+`setup_test_users` tool can match users by phone. Legacy user docs keep
+`phone: ''` until their owner re-onboards.
+
 ---
 
 ## ⚠️ DO THIS FIRST — manual setup (human, one-time, before subagent execution)

@@ -23,6 +23,9 @@ abstract interface class AuthRepository {
   /// The current uid synchronously (null if signed out).
   String? get currentUid;
 
+  /// The signed-in user's phone (E.164), or null if signed out / unknown.
+  String? get currentPhone;
+
   /// Start phone sign-in (web: triggers reCAPTCHA + SMS). Returns a session.
   Future<OtpSession> sendOtp(String phoneE164);
 

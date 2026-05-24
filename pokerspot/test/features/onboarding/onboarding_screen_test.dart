@@ -62,6 +62,8 @@ void main() {
     final created = await users.getUser(auth.currentUid!);
     expect(created?.firstName, 'Giorgi');
     expect(created?.lastName, 'Beridze');
+    // Phone backfilled from the signed-in auth (currentPhone).
+    expect(created?.phone, '+995555222222');
   });
 
   testWidgets('identical names block submission and show must-differ error', (tester) async {

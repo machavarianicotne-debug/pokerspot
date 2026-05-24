@@ -21,11 +21,15 @@ class FakeAuthRepository implements AuthRepository {
   final StreamController<String?> _controller =
       StreamController<String?>.broadcast();
   String? _uid;
+  String? _phone;
 
   static String _normalize(String phone) => phone.replaceAll(RegExp(r'\s'), '');
 
   @override
   String? get currentUid => _uid;
+
+  @override
+  String? get currentPhone => _phone;
 
   /// Replays the current uid to each new subscriber, then forwards live
   /// changes. Backed by a broadcast controller so any number of independent
@@ -62,12 +66,14 @@ class FakeAuthRepository implements AuthRepository {
       throw const AuthException('invalid code');
     }
     _uid = 'fake-${phone.substring(phone.length - 6)}';
+    _phone = phone;
     _controller.add(_uid);
   }
 
   @override
   Future<void> signOut() async {
     _uid = null;
+    _phone = null;
     _controller.add(null);
   }
 }

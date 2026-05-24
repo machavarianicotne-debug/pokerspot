@@ -47,7 +47,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     setState(() => _busy = true);
     await ref.read(usersRepositoryProvider).createProfile(
           uid: uid,
-          phone: '', // backfilled from auth in Plan 7; not needed for routing
+          // Backfill the real auth phone (Plan 7 work pulled forward so the
+          // setup_test_users tool can match users by phone).
+          phone: ref.read(authRepositoryProvider).currentPhone ?? '',
           firstName: _first.text.trim(),
           lastName: _last.text.trim(),
           lang: _lang,

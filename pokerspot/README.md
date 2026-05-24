@@ -120,4 +120,23 @@ The Pit Boss waitlist screen reads `users/<uid>.clubId`. To try it:
    and add a `clubId` field = a club doc id (e.g. `demo-vake`).
 3. Reload — you now land on the Pit Boss home showing that club's live waitlist.
 
+### Wire test users automatically (instead of the Console steps above)
+Onboarding now stores the signed-in phone on the user doc, so a small tool can
+set roles/clubs by phone:
+1. Sign in + complete onboarding **once** with each test phone (e.g.
+   +995555111111, +995555222222, +995555333333).
+2. Run:
+   ```bash
+   flutter run -t tools/setup_test_users.dart -d chrome --dart-define-from-file=env-dev.json
+   ```
+   (or `tools/setup_test_users.bat`). It sets, by phone:
+   - `+995555111111` → `pitboss` @ `demo-vake`
+   - `+995555222222` → `player`
+   - `+995555333333` → `pitboss` @ `demo-saburtalo`
+
+Idempotent. A phone that hasn't onboarded yet (or onboarded before this
+phone-write change) is **skipped** — onboard it, then re-run. Note:
+re-onboarding overwrites the user doc back to `role: player`, so re-run this
+tool after any re-onboarding.
+
 Reservations land in a later mini-plan.

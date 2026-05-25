@@ -552,4 +552,58 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get languagesLabel => 'Языки';
+
+  @override
+  String get superAdminRole => 'Владелец · Super Admin';
+
+  @override
+  String get appDefaults => 'Настройки по умолчанию';
+
+  @override
+  String get defaultLanguageNew => 'Язык по умолчанию (новые клубы)';
+
+  @override
+  String get reservationExpiry => 'Срок брони';
+
+  @override
+  String get maxPlayersTable => 'Макс. игроков / стол';
+
+  @override
+  String get featureFlags => 'Функции (только просмотр)';
+
+  @override
+  String get ffClubChat => 'Чат клуба';
+
+  @override
+  String get ffNoShow => 'Авто no-show таймер';
+
+  @override
+  String get ffAnalytics => 'Глубокая аналитика';
+
+  @override
+  String get ffGeo => 'Гео / карта';
+
+  @override
+  String get ffMultiClub => 'Мульти-клуб Pit Boss';
+
+  @override
+  String get ffIos => 'Поддержка iOS';
+
+  @override
+  String get systemHealth => 'Состояние системы';
+
+  @override
+  String get totalClubs => 'Всего клубов';
+
+  @override
+  String get registeredUsers => 'Зарегистрировано';
+
+  @override
+  String get usersBreakdown => 'игроки / pit boss / админы';
+
+  @override
+  String get onLabel => 'Вкл.';
+
+  @override
+  String get offLabel => 'Выкл.';
 }

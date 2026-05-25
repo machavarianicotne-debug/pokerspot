@@ -554,4 +554,58 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get languagesLabel => 'ენები';
+
+  @override
+  String get superAdminRole => 'მფლობელი · Super Admin';
+
+  @override
+  String get appDefaults => 'აპის ნაგულისხმევები';
+
+  @override
+  String get defaultLanguageNew => 'ნაგულისხმევი ენა (ახალი კლუბები)';
+
+  @override
+  String get reservationExpiry => 'რეზერვაციის ვადა';
+
+  @override
+  String get maxPlayersTable => 'მაქს. მოთამაშე / მაგიდა';
+
+  @override
+  String get featureFlags => 'ფუნქციები (მხოლოდ ნახვა)';
+
+  @override
+  String get ffClubChat => 'კლუბის ჩატი';
+
+  @override
+  String get ffNoShow => 'ავტო no-show ტაიმერი';
+
+  @override
+  String get ffAnalytics => 'ღრმა ანალიტიკა';
+
+  @override
+  String get ffGeo => 'გეო / რუკა';
+
+  @override
+  String get ffMultiClub => 'მრავალკლუბიანი Pit Boss';
+
+  @override
+  String get ffIos => 'iOS მხარდაჭერა';
+
+  @override
+  String get systemHealth => 'სისტემის მდგომარეობა';
+
+  @override
+  String get totalClubs => 'სულ კლუბები';
+
+  @override
+  String get registeredUsers => 'რეგისტრირებული მომხმარებლები';
+
+  @override
+  String get usersBreakdown => 'მოთამაშე / pit boss / ადმინი';
+
+  @override
+  String get onLabel => 'ჩართ.';
+
+  @override
+  String get offLabel => 'გამორთ.';
 }

@@ -552,4 +552,58 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get languagesLabel => 'Languages';
+
+  @override
+  String get superAdminRole => 'Owner · Super Admin';
+
+  @override
+  String get appDefaults => 'App-wide defaults';
+
+  @override
+  String get defaultLanguageNew => 'Default language (new clubs)';
+
+  @override
+  String get reservationExpiry => 'Reservation expiry';
+
+  @override
+  String get maxPlayersTable => 'Max players / table';
+
+  @override
+  String get featureFlags => 'Feature flags (read-only)';
+
+  @override
+  String get ffClubChat => 'Club chat';
+
+  @override
+  String get ffNoShow => 'Auto no-show timer';
+
+  @override
+  String get ffAnalytics => 'Deep analytics';
+
+  @override
+  String get ffGeo => 'Geo / map';
+
+  @override
+  String get ffMultiClub => 'Multi-club Pit Boss';
+
+  @override
+  String get ffIos => 'iOS support';
+
+  @override
+  String get systemHealth => 'System health';
+
+  @override
+  String get totalClubs => 'Total clubs';
+
+  @override
+  String get registeredUsers => 'Registered users';
+
+  @override
+  String get usersBreakdown => 'players / pit bosses / admins';
+
+  @override
+  String get onLabel => 'On';
+
+  @override
+  String get offLabel => 'Off';
 }

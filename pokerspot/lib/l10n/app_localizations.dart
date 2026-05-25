@@ -1172,6 +1172,114 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Languages'**
   String get languagesLabel;
+
+  /// No description provided for @superAdminRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Owner · Super Admin'**
+  String get superAdminRole;
+
+  /// No description provided for @appDefaults.
+  ///
+  /// In en, this message translates to:
+  /// **'App-wide defaults'**
+  String get appDefaults;
+
+  /// No description provided for @defaultLanguageNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Default language (new clubs)'**
+  String get defaultLanguageNew;
+
+  /// No description provided for @reservationExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation expiry'**
+  String get reservationExpiry;
+
+  /// No description provided for @maxPlayersTable.
+  ///
+  /// In en, this message translates to:
+  /// **'Max players / table'**
+  String get maxPlayersTable;
+
+  /// No description provided for @featureFlags.
+  ///
+  /// In en, this message translates to:
+  /// **'Feature flags (read-only)'**
+  String get featureFlags;
+
+  /// No description provided for @ffClubChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Club chat'**
+  String get ffClubChat;
+
+  /// No description provided for @ffNoShow.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto no-show timer'**
+  String get ffNoShow;
+
+  /// No description provided for @ffAnalytics.
+  ///
+  /// In en, this message translates to:
+  /// **'Deep analytics'**
+  String get ffAnalytics;
+
+  /// No description provided for @ffGeo.
+  ///
+  /// In en, this message translates to:
+  /// **'Geo / map'**
+  String get ffGeo;
+
+  /// No description provided for @ffMultiClub.
+  ///
+  /// In en, this message translates to:
+  /// **'Multi-club Pit Boss'**
+  String get ffMultiClub;
+
+  /// No description provided for @ffIos.
+  ///
+  /// In en, this message translates to:
+  /// **'iOS support'**
+  String get ffIos;
+
+  /// No description provided for @systemHealth.
+  ///
+  /// In en, this message translates to:
+  /// **'System health'**
+  String get systemHealth;
+
+  /// No description provided for @totalClubs.
+  ///
+  /// In en, this message translates to:
+  /// **'Total clubs'**
+  String get totalClubs;
+
+  /// No description provided for @registeredUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered users'**
+  String get registeredUsers;
+
+  /// No description provided for @usersBreakdown.
+  ///
+  /// In en, this message translates to:
+  /// **'players / pit bosses / admins'**
+  String get usersBreakdown;
+
+  /// No description provided for @onLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'On'**
+  String get onLabel;
+
+  /// No description provided for @offLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get offLabel;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

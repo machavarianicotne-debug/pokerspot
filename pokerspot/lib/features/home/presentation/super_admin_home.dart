@@ -4,9 +4,9 @@ import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/admin/presentation/admin_assign_pitboss_screen.dart';
 import 'package:pokerspot/features/admin/presentation/admin_clubs_screen.dart';
 import 'package:pokerspot/features/admin/presentation/admin_overview_screen.dart';
+import 'package:pokerspot/features/admin/presentation/admin_settings_screen.dart';
 import 'package:pokerspot/features/admin/presentation/admin_users_screen.dart';
 import 'package:pokerspot/features/home/presentation/player_home.dart' show TabShell;
-import 'package:pokerspot/features/home/presentation/profile_screen.dart';
 import 'package:pokerspot/shared/widgets/ps_glass_nav.dart';
 import 'package:pokerspot/shared/widgets/ps_tab_bar.dart';
 
@@ -41,7 +41,7 @@ class SuperAdminHome extends StatelessWidget {
         AdminClubsScreen(),
         AdminAssignPitBossScreen(),
         AdminUsersScreen(),
-        ProfileScreen(),
+        AdminSettingsScreen(),
       ],
     );
   }

@@ -59,9 +59,12 @@ service cloud.firestore {
       allow read: if isAdmin()
         || (isPitboss() && resource.data.clubId == myClub())
         || (signedIn() && resource.data.playerUid == request.auth.uid);
-      // Player joins for themselves (not blocked).
+      // Player joins for themselves; a Pit Boss / Admin may add anyone (a
+      // registered player or a walk-in) to their own club's waitlist.
       allow create: if signedIn() && !isBlocked()
-        && request.resource.data.playerUid == request.auth.uid;
+        && (request.resource.data.playerUid == request.auth.uid
+            || isAdmin()
+            || (isPitboss() && request.resource.data.clubId == myClub()));
       // Player edits own (cancel); Pit Boss/Admin manage their club's.
       allow update: if isAdmin()
         || (isPitboss() && resource.data.clubId == myClub())

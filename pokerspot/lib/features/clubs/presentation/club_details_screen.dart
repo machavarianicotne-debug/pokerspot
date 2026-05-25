@@ -131,10 +131,10 @@ class _Details extends StatelessWidget {
         _InfoCard(club: club),
         const SizedBox(height: PsSpacing.s4),
         _ChatEntry(club: club),
-        const SizedBox(height: PsSpacing.s5),
-        _GamesSection(club: club),
         const SizedBox(height: PsSpacing.s4),
         _TournamentsSection(clubId: club.id),
+        const SizedBox(height: PsSpacing.s5),
+        _GamesSection(club: club),
         const SizedBox(height: PsSpacing.s4),
         PsButton(
           key: const Key('reserveSeatBtn'),

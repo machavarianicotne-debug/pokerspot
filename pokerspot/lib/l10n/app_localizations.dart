@@ -1118,6 +1118,24 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Chat'**
   String get tabChat;
+
+  /// No description provided for @chatPeerStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Usually replies in minutes'**
+  String get chatPeerStatus;
+
+  /// No description provided for @dayToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get dayToday;
+
+  /// No description provided for @dayYesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get dayYesterday;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

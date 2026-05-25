@@ -169,5 +169,8 @@
   "minutesTiny": "წ",
   "noOpenSeats": "ახლა თავისუფალი ადგილი არ არის დასარეზერვებლად — ჩაეწერე რიგში.",
   "openShort": "თავისუფალი",
-  "tabChat": "ჩატი"
+  "tabChat": "ჩატი",
+  "chatPeerStatus": "ჩვეულებრივ წუთებში პასუხობს",
+  "dayToday": "დღეს",
+  "dayYesterday": "გუშინ"
 }

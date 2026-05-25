@@ -23,12 +23,16 @@ class ChatThreadScreen extends ConsumerStatefulWidget {
     required this.playerUid,
     required this.playerName,
     required this.title,
+    this.subtitle,
   });
 
   final String clubId;
   final String playerUid;
   final String playerName;
   final String title;
+
+  /// Optional peer status line under the title (mockup `.chat-peer .st`).
+  final String? subtitle;
 
   @override
   ConsumerState<ChatThreadScreen> createState() => _ChatThreadScreenState();
@@ -52,6 +56,28 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     if (at == null) return '';
     return '${at.hour.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}';
   }
+
+  bool _sameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
+  String _dayLabel(DateTime at, AppL10n l10n) {
+    final now = DateTime.now();
+    final d = DateTime(at.year, at.month, at.day);
+    final today = DateTime(now.year, now.month, now.day);
+    if (d == today) return l10n.dayToday;
+    if (d == today.subtract(const Duration(days: 1))) return l10n.dayYesterday;
+    return '${at.day}.${at.month}';
+  }
+
+  Widget _daySep(String label) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: PsSpacing.s2),
+        child: Text(label.toUpperCase(),
+            style: TextStyle(
+                fontSize: PsType.micro,
+                fontWeight: PsType.weightBlack,
+                letterSpacing: PsType.trackingWide,
+                color: PsColors.textFaint)),
+      );
 
   Future<void> _send() async {
     final text = _input.text.trim();
@@ -110,13 +136,27 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                   PsAvatar(initials: _initials(widget.title)),
                   const SizedBox(width: PsSpacing.s3),
                   Expanded(
-                    child: Text(widget.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: PsType.body,
-                            fontWeight: PsType.weightBold,
-                            color: PsColors.text)),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(widget.title,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: PsType.body,
+                                fontWeight: PsType.weightBold,
+                                color: PsColors.text)),
+                        if (widget.subtitle != null)
+                          Text('● ${widget.subtitle}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: PsType.micro,
+                                  fontWeight: PsType.weightBold,
+                                  color: PsColors.accentPrimary)),
+                      ],
+                    ),
                   ),
                   // Staff can open the player's profile (name + phone).
                   if (isStaff)
@@ -142,13 +182,21 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                       itemCount: reversed.length,
                       itemBuilder: (context, i) {
                         final m = reversed[i];
-                        return Padding(
+                        // reversed[i+1] is the next-older message; if it's on a
+                        // different day (or absent), m starts a new day → label it.
+                        final older = i + 1 < reversed.length ? reversed[i + 1] : null;
+                        final showDay = m.at != null && (older?.at == null || !_sameDay(m.at!, older!.at!));
+                        final bubble = Padding(
                           padding: const EdgeInsets.only(bottom: PsSpacing.s2),
                           child: PsChatBubble(
                             text: m.text,
                             outgoing: m.senderUid == myUid,
                             time: _time(m.at),
                           ),
+                        );
+                        if (!showDay) return bubble;
+                        return Column(
+                          children: [_daySep(_dayLabel(m.at!, l10n)), bubble],
                         );
                       },
                     ),

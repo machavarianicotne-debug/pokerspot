@@ -54,6 +54,7 @@ class PlayerChatInboxScreen extends ConsumerWidget {
                     playerUid: t.playerUid,
                     playerName: myName,
                     title: name,
+                    subtitle: l10n.chatPeerStatus,
                   ),
                 )),
                 child: PsListTile(

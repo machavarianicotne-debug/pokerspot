@@ -169,5 +169,8 @@
   "minutesTiny": "м",
   "noOpenSeats": "Сейчас нет свободных мест для брони — встаньте в лист ожидания.",
   "openShort": "своб.",
-  "tabChat": "Чат"
+  "tabChat": "Чат",
+  "chatPeerStatus": "Обычно отвечает за минуты",
+  "dayToday": "Сегодня",
+  "dayYesterday": "Вчера"
 }

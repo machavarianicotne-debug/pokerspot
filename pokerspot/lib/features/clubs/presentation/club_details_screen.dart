@@ -163,6 +163,7 @@ class _ChatEntry extends ConsumerWidget {
             playerUid: uid,
             playerName: name,
             title: club.name,
+            subtitle: l10n.chatPeerStatus,
           ),
         ));
       },

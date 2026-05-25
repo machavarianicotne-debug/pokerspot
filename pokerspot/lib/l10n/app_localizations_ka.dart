@@ -526,4 +526,13 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get tabChat => 'ჩატი';
+
+  @override
+  String get chatPeerStatus => 'ჩვეულებრივ წუთებში პასუხობს';
+
+  @override
+  String get dayToday => 'დღეს';
+
+  @override
+  String get dayYesterday => 'გუშინ';
 }

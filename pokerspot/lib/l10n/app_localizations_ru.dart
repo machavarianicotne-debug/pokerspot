@@ -525,4 +525,13 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get tabChat => 'Чат';
+
+  @override
+  String get chatPeerStatus => 'Обычно отвечает за минуты';
+
+  @override
+  String get dayToday => 'Сегодня';
+
+  @override
+  String get dayYesterday => 'Вчера';
 }

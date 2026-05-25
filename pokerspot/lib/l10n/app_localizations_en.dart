@@ -525,4 +525,13 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get tabChat => 'Chat';
+
+  @override
+  String get chatPeerStatus => 'Usually replies in minutes';
+
+  @override
+  String get dayToday => 'Today';
+
+  @override
+  String get dayYesterday => 'Yesterday';
 }

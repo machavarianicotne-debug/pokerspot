@@ -169,5 +169,8 @@
   "minutesTiny": "m",
   "noOpenSeats": "No open seats to reserve right now — join the waitlist instead.",
   "openShort": "open",
-  "tabChat": "Chat"
+  "tabChat": "Chat",
+  "chatPeerStatus": "Usually replies in minutes",
+  "dayToday": "Today",
+  "dayYesterday": "Yesterday"
 }

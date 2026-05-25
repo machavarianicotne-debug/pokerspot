@@ -546,4 +546,10 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get waitingWord => 'в ожидании';
+
+  @override
+  String get defaultCurrency => 'Валюта по умолчанию';
+
+  @override
+  String get languagesLabel => 'Языки';
 }

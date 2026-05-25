@@ -1160,6 +1160,18 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'waiting'**
   String get waitingWord;
+
+  /// No description provided for @defaultCurrency.
+  ///
+  /// In en, this message translates to:
+  /// **'Default currency'**
+  String get defaultCurrency;
+
+  /// No description provided for @languagesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages'**
+  String get languagesLabel;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

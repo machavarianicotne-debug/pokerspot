@@ -9,6 +9,8 @@ import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
+import 'package:pokerspot/shared/widgets/ps_filter_pill.dart';
+import 'package:pokerspot/shared/widgets/ps_segmented.dart';
 import 'package:pokerspot/shared/widgets/ps_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_text_field.dart';
 import 'package:pokerspot/shared/widgets/ps_toggle.dart';
@@ -32,7 +34,12 @@ class _ClubEditorSheetState extends ConsumerState<ClubEditorSheet> {
   late final TextEditingController _hours;
   late final TextEditingController _phone;
   late bool _enabled;
+  late String _currency;
+  late Set<String> _langs;
   bool _busy = false;
+
+  static const _currencies = ['GEL', 'USD', 'EUR'];
+  static const _langOptions = [('ka', 'ქა'), ('en', 'EN'), ('ru', 'РУ')];
 
   @override
   void initState() {
@@ -44,6 +51,9 @@ class _ClubEditorSheetState extends ConsumerState<ClubEditorSheet> {
     _hours = TextEditingController(text: e?.hoursText ?? '');
     _phone = TextEditingController(text: e?.phone ?? '');
     _enabled = e?.enabled ?? true;
+    _currency = e?.currency ?? 'GEL';
+    _langs = {...?e?.languages};
+    if (_langs.isEmpty) _langs = {'ka', 'en'};
   }
 
   @override
@@ -71,6 +81,8 @@ class _ClubEditorSheetState extends ConsumerState<ClubEditorSheet> {
       hoursText: _hours.text.trim(),
       phone: _phone.text.trim(),
       enabled: _enabled,
+      currency: _currency,
+      languages: _langs.toList()..sort(),
     );
     if (widget.existing == null) {
       final id = await repo.createClub(draft);
@@ -113,6 +125,27 @@ class _ClubEditorSheetState extends ConsumerState<ClubEditorSheet> {
           PsTextField(controller: _hours, hintText: l10n.clubHours),
           _label(l10n.clubPhone),
           PsTextField(controller: _phone, keyboardType: TextInputType.phone, hintText: l10n.clubPhone),
+          _label(l10n.defaultCurrency),
+          PsSegmented<String>(
+            value: _currencies.contains(_currency) ? _currency : 'GEL',
+            segments: [for (final c in _currencies) PsSegment(c, c)],
+            onChanged: (c) => setState(() => _currency = c),
+          ),
+          _label(l10n.languagesLabel),
+          Wrap(
+            spacing: PsSpacing.s2,
+            runSpacing: PsSpacing.s2,
+            children: [
+              for (final (code, label) in _langOptions)
+                PsFilterPill(
+                  label: label,
+                  active: _langs.contains(code),
+                  onTap: () => setState(() {
+                    if (!_langs.add(code)) _langs.remove(code);
+                  }),
+                ),
+            ],
+          ),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: PsSpacing.s4),
             child: PsToggle(

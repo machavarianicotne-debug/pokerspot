@@ -176,5 +176,7 @@
   "observeFloor": "Observe live floor",
   "readOnlyLabel": "Read-only",
   "observeBanner": "Observing live floor — actions are disabled.",
-  "waitingWord": "waiting"
+  "waitingWord": "waiting",
+  "defaultCurrency": "Default currency",
+  "languagesLabel": "Languages"
 }

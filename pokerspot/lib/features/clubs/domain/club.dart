@@ -58,6 +58,8 @@ class Club {
   final String hoursText;
   final String phone;
   final bool enabled;
+  final String currency; // default stake currency (GEL/USD/EUR)
+  final List<String> languages; // supported languages (ka/en/ru)
 
   // ---- Denormalized live aggregates (written by the syncClubStats Cloud
   // Function). Players may read a club doc but not other clubs' sessions /
@@ -77,6 +79,8 @@ class Club {
     required this.hoursText,
     required this.phone,
     required this.enabled,
+    this.currency = 'GEL',
+    this.languages = const [],
     this.live = false,
     this.openSeats = 0,
     this.stakes = 0,
@@ -93,6 +97,8 @@ class Club {
         hoursText: (m['hoursText'] ?? '') as String,
         phone: (m['phone'] ?? '') as String,
         enabled: (m['enabled'] ?? false) as bool,
+        currency: (m['currency'] ?? 'GEL') as String,
+        languages: (m['languages'] as List?)?.whereType<String>().toList() ?? const [],
         live: (m['live'] ?? false) as bool,
         openSeats: (m['openSeats'] ?? 0) as int,
         stakes: (m['stakes'] ?? 0) as int,
@@ -112,6 +118,8 @@ class Club {
         'hoursText': hoursText,
         'phone': phone,
         'enabled': enabled,
+        'currency': currency,
+        'languages': languages,
       };
 
   Club copyWith({
@@ -123,6 +131,8 @@ class Club {
     String? hoursText,
     String? phone,
     bool? enabled,
+    String? currency,
+    List<String>? languages,
     bool? live,
     int? openSeats,
     int? stakes,
@@ -138,6 +148,8 @@ class Club {
         hoursText: hoursText ?? this.hoursText,
         phone: phone ?? this.phone,
         enabled: enabled ?? this.enabled,
+        currency: currency ?? this.currency,
+        languages: languages ?? this.languages,
         live: live ?? this.live,
         openSeats: openSeats ?? this.openSeats,
         stakes: stakes ?? this.stakes,
@@ -158,6 +170,8 @@ class Club {
           hoursText == other.hoursText &&
           phone == other.phone &&
           enabled == other.enabled &&
+          currency == other.currency &&
+          _listEq(languages, other.languages) &&
           live == other.live &&
           openSeats == other.openSeats &&
           stakes == other.stakes &&
@@ -166,9 +180,9 @@ class Club {
 
   @override
   int get hashCode => Object.hash(id, name, city, address, photoUrl, hoursText, phone, enabled,
-      live, openSeats, stakes, waiting, Object.hashAll(games));
+      currency, Object.hashAll(languages), live, openSeats, stakes, waiting, Object.hashAll(games));
 
-  static bool _listEq(List<ClubGame> a, List<ClubGame> b) {
+  static bool _listEq(List<Object?> a, List<Object?> b) {
     if (a.length != b.length) return false;
     for (var i = 0; i < a.length; i++) {
       if (a[i] != b[i]) return false;

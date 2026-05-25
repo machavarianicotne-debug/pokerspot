@@ -176,5 +176,7 @@
   "observeFloor": "Наблюдать за залом",
   "readOnlyLabel": "Только просмотр",
   "observeBanner": "Наблюдение за залом — действия отключены.",
-  "waitingWord": "в ожидании"
+  "waitingWord": "в ожидании",
+  "defaultCurrency": "Валюта по умолчанию",
+  "languagesLabel": "Языки"
 }

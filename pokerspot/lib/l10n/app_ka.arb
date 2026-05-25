@@ -176,5 +176,7 @@
   "observeFloor": "ცოცხალი დარბაზის დაკვირვება",
   "readOnlyLabel": "მხოლოდ ნახვა",
   "observeBanner": "ცოცხალ დარბაზს აკვირდები — მოქმედებები გათიშულია.",
-  "waitingWord": "რიგში"
+  "waitingWord": "რიგში",
+  "defaultCurrency": "ნაგულისხმევი ვალუტა",
+  "languagesLabel": "ენები"
 }

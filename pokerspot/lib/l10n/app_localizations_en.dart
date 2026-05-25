@@ -546,4 +546,10 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get waitingWord => 'waiting';
+
+  @override
+  String get defaultCurrency => 'Default currency';
+
+  @override
+  String get languagesLabel => 'Languages';
 }

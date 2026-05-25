@@ -548,4 +548,10 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get waitingWord => 'რიგში';
+
+  @override
+  String get defaultCurrency => 'ნაგულისხმევი ვალუტა';
+
+  @override
+  String get languagesLabel => 'ენები';
 }

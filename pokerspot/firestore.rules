@@ -114,7 +114,11 @@ service cloud.firestore {
         && (request.resource.data.playerUid == request.auth.uid
             || (isPitboss() && request.resource.data.clubId == myClub())
             || isAdmin());
-      allow update, delete: if isAdmin();
+      // The recipient marks messages read (read flag); only admins delete.
+      allow update: if isAdmin()
+        || (isPitboss() && resource.data.clubId == myClub())
+        || (signedIn() && resource.data.playerUid == request.auth.uid);
+      allow delete: if isAdmin();
     }
   }
 }

@@ -52,13 +52,32 @@ class FakeChatRepository implements ChatRepository {
             playerName: last.playerName,
             lastText: last.text,
             lastAt: last.at,
-            unread: 0,
+            unread: msgs.where((m) => m.fromPlayer && !m.read).length,
           );
         }).toList()
           ..sort((a, b) =>
               (b.lastAt?.millisecondsSinceEpoch ?? 0).compareTo(a.lastAt?.millisecondsSinceEpoch ?? 0));
         return threads;
       });
+
+  @override
+  Future<void> markThreadRead({
+    required String clubId,
+    required String playerUid,
+    required bool asPit,
+  }) async {
+    for (final entry in _messages.entries.toList()) {
+      final m = entry.value;
+      if (m.clubId != clubId || m.playerUid != playerUid || m.read) continue;
+      if (asPit ? m.fromPlayer : !m.fromPlayer) {
+        _messages[entry.key] = Message(
+          id: m.id, clubId: m.clubId, playerUid: m.playerUid, playerName: m.playerName,
+          senderUid: m.senderUid, senderRole: m.senderRole, text: m.text, at: m.at, read: true,
+        );
+      }
+    }
+    _changes.add(null);
+  }
 
   @override
   Stream<List<ChatThread>> watchPlayerThreads(String playerUid) => _watch(() {
@@ -75,7 +94,7 @@ class FakeChatRepository implements ChatRepository {
             playerName: last.playerName,
             lastText: last.text,
             lastAt: last.at,
-            unread: 0,
+            unread: msgs.where((m) => !m.fromPlayer && !m.read).length,
           );
         }).toList()
           ..sort((a, b) =>

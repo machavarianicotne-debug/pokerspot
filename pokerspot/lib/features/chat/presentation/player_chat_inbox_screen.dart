@@ -6,6 +6,7 @@ import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/chat/domain/message.dart';
 import 'package:pokerspot/features/chat/presentation/chat_thread_screen.dart';
 import 'package:pokerspot/features/chat/presentation/providers.dart';
+import 'package:pokerspot/features/chat/presentation/unread_badge.dart';
 import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/ps_avatar.dart';
@@ -48,6 +49,7 @@ class PlayerChatInboxScreen extends ConsumerWidget {
               padding: const EdgeInsets.only(bottom: PsSpacing.s3),
               child: PsCard(
                 key: Key('myThread_${t.clubId}'),
+                accentRail: t.unread > 0 ? PsColors.accentPrimary : null,
                 onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
                   builder: (_) => ChatThreadScreen(
                     clubId: t.clubId,
@@ -61,6 +63,7 @@ class PlayerChatInboxScreen extends ConsumerWidget {
                   leading: PsAvatar(initials: name.isEmpty ? '?' : name[0].toUpperCase()),
                   title: name,
                   subtitle: t.lastText,
+                  trailing: t.unread > 0 ? UnreadBadge(count: t.unread) : null,
                 ),
               ),
             );

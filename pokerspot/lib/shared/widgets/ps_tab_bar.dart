@@ -3,9 +3,12 @@ import 'package:pokerspot/core/theme/tokens.dart';
 
 /// One entry in a [PsTabBar].
 class PsTabItem {
-  const PsTabItem(this.icon, this.label);
+  const PsTabItem(this.icon, this.label, {this.badge = 0});
   final IconData icon;
   final String label;
+
+  /// Unread/notification count shown as a red badge over the icon (0 = none).
+  final int badge;
 }
 
 /// Liquid Sport tab bar (`.ps-tabbar`): a floating glass-thick bar with a top
@@ -82,7 +85,30 @@ class PsTabBar extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(items[i].icon, size: 22, color: color),
+            Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Icon(items[i].icon, size: 22, color: color),
+                if (items[i].badge > 0)
+                  Positioned(
+                    top: -5,
+                    right: -9,
+                    child: Container(
+                      constraints: const BoxConstraints(minWidth: 16),
+                      height: 16,
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      decoration: BoxDecoration(
+                        color: PsColors.statusLive,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(items[i].badge > 99 ? '99+' : '${items[i].badge}',
+                          style: const TextStyle(
+                              fontSize: 10, fontWeight: PsType.weightBlack, color: Colors.white)),
+                    ),
+                  ),
+              ],
+            ),
             const SizedBox(height: 3),
             Text(
               items[i].label.toUpperCase(),

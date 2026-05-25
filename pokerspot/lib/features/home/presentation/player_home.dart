@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
+import 'package:pokerspot/features/chat/domain/message.dart';
 import 'package:pokerspot/features/chat/presentation/player_chat_inbox_screen.dart';
+import 'package:pokerspot/features/chat/presentation/providers.dart';
 import 'package:pokerspot/features/clubs/presentation/clubs_list_screen.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
 import 'package:pokerspot/features/home/presentation/activity_screen.dart';
@@ -73,6 +75,8 @@ class PlayerHome extends ConsumerWidget {
         .length;
     final user = ref.watch(currentUserProvider).valueOrNull;
     final initials = _initials(user == null ? '' : '${user.firstName} ${user.lastName}');
+    final unread = (ref.watch(myThreadsProvider).valueOrNull ?? const <ChatThread>[])
+        .fold<int>(0, (a, t) => a + t.unread);
     return TabShell(
       nav: PsGlassNav(
         leading: PsBrand(l10n.appTitle, accent: 'Spot'),
@@ -83,7 +87,7 @@ class PlayerHome extends ConsumerWidget {
       ),
       items: [
         PsTabItem(Icons.casino, l10n.tabClubs),
-        PsTabItem(Icons.chat_bubble_outline, l10n.tabChat),
+        PsTabItem(Icons.chat_bubble_outline, l10n.tabChat, badge: unread),
         PsTabItem(Icons.show_chart, l10n.tabActivity),
         PsTabItem(Icons.person, l10n.tabProfile),
       ],

@@ -45,7 +45,8 @@ class FirebaseChatRepository implements ChatRepository {
             playerName: last.playerName,
             lastText: last.text,
             lastAt: last.at,
-            unread: 0,
+            // Unread for the Pit Boss = the player's messages not yet read.
+            unread: msgs.where((m) => m.fromPlayer && !m.read).length,
           );
         }).toList()
           ..sort((a, b) => (b.lastAt?.millisecondsSinceEpoch ?? 0)
@@ -69,13 +70,38 @@ class FirebaseChatRepository implements ChatRepository {
             playerName: last.playerName,
             lastText: last.text,
             lastAt: last.at,
-            unread: 0,
+            // Unread for the player = the Pit Boss's messages not yet read.
+            unread: msgs.where((m) => !m.fromPlayer && !m.read).length,
           );
         }).toList()
           ..sort((a, b) => (b.lastAt?.millisecondsSinceEpoch ?? 0)
               .compareTo(a.lastAt?.millisecondsSinceEpoch ?? 0));
         return threads;
       });
+
+  @override
+  Future<void> markThreadRead({
+    required String clubId,
+    required String playerUid,
+    required bool asPit,
+  }) async {
+    final snap = await _col
+        .where('clubId', isEqualTo: clubId)
+        .where('playerUid', isEqualTo: playerUid)
+        .get();
+    final batch = _db.batch();
+    var any = false;
+    for (final d in snap.docs) {
+      final m = _msg(d);
+      if (m.read) continue;
+      // Pit reads the player's messages; player reads the staff's messages.
+      if (asPit ? m.fromPlayer : !m.fromPlayer) {
+        batch.update(d.reference, {'read': true});
+        any = true;
+      }
+    }
+    if (any) await batch.commit();
+  }
 
   @override
   Future<void> send({

@@ -66,20 +66,10 @@ exports.notifyCalled = onDocumentUpdated(
     const before = event.data.before.data();
     const after = event.data.after.data();
     if (before.status === 'called' || after.status !== 'called') return;
-
-    const userSnap = await db.collection('users').doc(after.playerUid).get();
-    const tokens = (userSnap.exists && userSnap.data().fcmTokens) || [];
-    if (!Array.isArray(tokens) || tokens.length === 0) return;
-
     const variant = (after.variant || '').toString().toUpperCase();
-    await admin.messaging().sendEachForMulticast({
-      tokens,
-      notification: {
-        title: "You're called!",
-        body: `Your ${variant} ${after.smallBlind}/${after.bigBlind} seat is ready.`,
-      },
-      data: { clubId: after.clubId || '', type: 'waitlist.called' },
-    });
+    await sendToTokens(await playerTokens(after.playerUid), "You're called!",
+      `Your ${variant} ${after.smallBlind}/${after.bigBlind} seat is ready.`,
+      { clubId: after.clubId || '', type: 'waitlist.called' });
   },
 );
 
@@ -156,6 +146,9 @@ async function sendToTokens(tokens, title, body, data) {
     tokens: list,
     notification: { title, body },
     data: data || {},
+    // Play the device's default notification sound on every platform.
+    android: { notification: { sound: 'default' } },
+    apns: { payload: { aps: { sound: 'default' } } },
   });
 }
 

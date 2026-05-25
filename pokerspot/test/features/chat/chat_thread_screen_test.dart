@@ -5,6 +5,7 @@ import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/features/auth/data/fake_auth_repository.dart';
 import 'package:pokerspot/features/auth/domain/app_user.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
+import 'package:pokerspot/features/chat/data/fake_chat_repository.dart';
 import 'package:pokerspot/features/chat/domain/message.dart';
 import 'package:pokerspot/features/chat/presentation/chat_thread_screen.dart';
 import 'package:pokerspot/features/chat/presentation/providers.dart';
@@ -20,6 +21,7 @@ void main() {
     await tester.pumpWidget(ProviderScope(
       overrides: [
         authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
+        chatRepositoryProvider.overrideWithValue(FakeChatRepository()), // markThreadRead on open
         threadProvider((clubId: 'c1', playerUid: 'u1')).overrideWith(
             (ref) => Stream.value([_m('1', 'u1', 'Dress code tonight?'), _m('2', 'pb', 'Smart casual.')])),
       ],

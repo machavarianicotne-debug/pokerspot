@@ -13,6 +13,14 @@ abstract interface class ChatRepository {
   /// Live per-club threads for one player (player chat inbox), newest first.
   Stream<List<ChatThread>> watchPlayerThreads(String playerUid);
 
+  /// Mark a thread's incoming messages read. [asPit] true = the Pit Boss read
+  /// the player's messages; false = the player read the Pit Boss's messages.
+  Future<void> markThreadRead({
+    required String clubId,
+    required String playerUid,
+    required bool asPit,
+  });
+
   /// Send a message into a thread.
   Future<void> send({
     required String clubId,

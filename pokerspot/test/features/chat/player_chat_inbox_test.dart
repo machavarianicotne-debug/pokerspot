@@ -38,6 +38,19 @@ void main() {
     expect(find.text('See you tonight'), findsOneWidget); // last message
   });
 
+  testWidgets('player chat inbox shows an unread count badge', (tester) async {
+    final thread = ChatThread(
+      clubId: 'vake', playerUid: 'me', playerName: 'Me',
+      lastText: 'New offer', lastAt: DateTime(2026, 5, 25), unread: 3,
+    );
+    await tester.pumpWidget(_wrap([
+      myThreadsProvider.overrideWith((ref) => Stream.value([thread])),
+      clubsListProvider.overrideWith((ref) => Stream.value(const [_vake])),
+    ]));
+    await tester.pumpAndSettle();
+    expect(find.text('3'), findsOneWidget); // unread badge
+  });
+
   testWidgets('player chat inbox shows the empty state with no threads', (tester) async {
     await tester.pumpWidget(_wrap([
       myThreadsProvider.overrideWith((ref) => Stream.value(const <ChatThread>[])),

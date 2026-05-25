@@ -196,12 +196,17 @@ class _PlaytimeCardState extends State<_PlaytimeCard> {
     var todayMin = 0;
     final byClub = <String, int>{};
     for (final s in widget.sessions) {
-      final mins = s.elapsedAt(now)?.inMinutes ?? 0;
+      final start = s.startedAt;
+      if (start == null) continue;
+      final end = s.endedAt ?? now; // active session counts up to now
+      final mins = end.difference(start).inMinutes;
       if (mins <= 0) continue;
       lifetimeMin += mins;
       byClub[s.clubId] = (byClub[s.clubId] ?? 0) + mins;
-      final start = s.startedAt;
-      if (start != null && !start.isBefore(today)) todayMin += mins;
+      // Today = only the part of the session that falls within today (handles
+      // sessions that started earlier / span midnight), not the whole session.
+      final tStart = start.isBefore(today) ? today : start;
+      if (end.isAfter(tStart)) todayMin += end.difference(tStart).inMinutes;
     }
     final ranked = byClub.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
     final maxMin = ranked.isEmpty ? 1 : ranked.first.value;

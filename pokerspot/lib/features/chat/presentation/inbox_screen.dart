@@ -9,6 +9,7 @@ import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/chat/domain/message.dart';
 import 'package:pokerspot/features/chat/presentation/chat_thread_screen.dart';
 import 'package:pokerspot/features/chat/presentation/providers.dart';
+import 'package:pokerspot/features/chat/presentation/unread_badge.dart';
 import 'package:pokerspot/shared/widgets/ps_avatar.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
 import 'package:pokerspot/shared/widgets/ps_fab.dart';
@@ -63,11 +64,13 @@ class InboxScreen extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: PsSpacing.s3),
                   child: PsCard(
                     key: Key('thread_${t.playerUid}'),
+                    accentRail: t.unread > 0 ? PsColors.accentPrimary : null,
                     onTap: () => _openThread(context, clubId, t.playerUid, t.playerName),
                     child: PsListTile(
                       leading: PsAvatar(initials: _initials(t.playerName)),
                       title: t.playerName.isEmpty ? '—' : t.playerName,
                       subtitle: t.lastText,
+                      trailing: t.unread > 0 ? UnreadBadge(count: t.unread) : null,
                     ),
                   ),
                 ),

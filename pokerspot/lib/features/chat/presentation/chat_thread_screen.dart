@@ -42,6 +42,20 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   final _input = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _markRead());
+  }
+
+  /// Mark the incoming messages read for whichever side is viewing.
+  void _markRead() {
+    final role = ref.read(currentUserProvider).valueOrNull?.role;
+    final asPit = role == AppRole.pitboss || role == AppRole.superadmin;
+    unawaited(ref.read(chatRepositoryProvider).markThreadRead(
+        clubId: widget.clubId, playerUid: widget.playerUid, asPit: asPit));
+  }
+
+  @override
   void dispose() {
     _input.dispose();
     super.dispose();
@@ -110,6 +124,9 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     final myUid = ref.watch(authRepositoryProvider).currentUid;
     final role = ref.watch(currentUserProvider).valueOrNull?.role;
     final isStaff = role == AppRole.pitboss || role == AppRole.superadmin;
+    // New messages arriving while the thread is open get marked read too.
+    ref.listen(threadProvider((clubId: widget.clubId, playerUid: widget.playerUid)),
+        (_, __) => _markRead());
     final messages = ref
             .watch(threadProvider((clubId: widget.clubId, playerUid: widget.playerUid)))
             .valueOrNull ??

@@ -18,6 +18,9 @@ class Message {
   final String text;
   final DateTime? at;
 
+  /// Read by the recipient (the OTHER party in this 1-on-1 thread).
+  final bool read;
+
   const Message({
     required this.id,
     required this.clubId,
@@ -27,6 +30,7 @@ class Message {
     required this.senderRole,
     required this.text,
     required this.at,
+    this.read = false,
   });
 
   /// True when this message was sent by the player (vs the Pit Boss / admin).
@@ -41,6 +45,7 @@ class Message {
         senderRole: AppRole.fromString(m['senderRole'] as String?),
         text: (m['text'] ?? '') as String,
         at: _date(m['at']),
+        read: (m['read'] ?? false) as bool,
       );
 
   Map<String, dynamic> toMap() => {
@@ -51,6 +56,7 @@ class Message {
         'senderRole': senderRole.asString,
         'text': text,
         'at': at?.millisecondsSinceEpoch,
+        'read': read,
       };
 
   @override
@@ -65,11 +71,12 @@ class Message {
           senderUid == other.senderUid &&
           senderRole == other.senderRole &&
           text == other.text &&
-          at == other.at;
+          at == other.at &&
+          read == other.read;
 
   @override
   int get hashCode =>
-      Object.hash(id, clubId, playerUid, playerName, senderUid, senderRole, text, at);
+      Object.hash(id, clubId, playerUid, playerName, senderUid, senderRole, text, at, read);
 }
 
 /// A grouped conversation (one per player) for the Pit Boss inbox.

@@ -146,13 +146,26 @@ class _TableCard extends StatelessWidget {
                       fontWeight: PsType.weightBlack,
                       color: full ? PsColors.statusFull : PsColors.text)),
               const Spacer(),
-              Icon(Icons.hourglass_empty, size: 14, color: PsColors.textMuted),
-              const SizedBox(width: 4),
-              Text('$waiting',
-                  style: TextStyle(
-                      fontSize: PsType.caption,
-                      fontWeight: PsType.weightBold,
-                      color: PsColors.textMuted)),
+              if (waiting > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: PsColors.statusLive.withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.people_alt_outlined, size: 13, color: PsColors.statusLive),
+                      const SizedBox(width: 4),
+                      Text('$waiting ${l10n.waitingWord}',
+                          style: const TextStyle(
+                              fontSize: PsType.caption,
+                              fontWeight: PsType.weightBlack,
+                              color: PsColors.statusLive)),
+                    ],
+                  ),
+                ),
             ],
           ),
         ],

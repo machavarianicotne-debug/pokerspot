@@ -26,7 +26,7 @@ class AppL10nEn extends AppL10n {
   String get phoneNumber => 'Phone number';
 
   @override
-  String get phoneHint => '+995 5XX XX XX XX';
+  String get phoneHint => '5XX XX XX XX';
 
   @override
   String get sendCode => 'Send code';

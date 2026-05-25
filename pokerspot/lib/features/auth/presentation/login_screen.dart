@@ -24,15 +24,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   String? _error;
   bool _busy = false;
 
+  /// Build the E.164 number from local input — the user types only their local
+  /// Georgian number (no +995); we prepend it. Tolerates a pasted +995 / 995 /
+  /// leading 0.
+  static String _toE164(String raw) {
+    var d = raw.replaceAll(RegExp(r'[^0-9]'), '');
+    if (d.startsWith('995')) d = d.substring(3);
+    if (d.startsWith('0')) d = d.substring(1);
+    return '+995$d';
+  }
+
   Future<void> _send() async {
     setState(() => _error = null);
-    if (!ValidationRules.isValidPhone(_phone.text)) {
+    final e164 = _toE164(_phone.text);
+    if (!ValidationRules.isValidPhone(e164)) {
       setState(() => _error = AppL10n.of(context).invalidPhone);
       return;
     }
     setState(() => _busy = true);
     try {
-      _session = await ref.read(authRepositoryProvider).sendOtp(_phone.text);
+      _session = await ref.read(authRepositoryProvider).sendOtp(e164);
     } on AuthException catch (e) {
       _error = e.message;
     } finally {
@@ -69,15 +80,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               Center(child: PsBrand(l10n.appTitle, accent: 'Spot', fontSize: PsType.display1)),
               const SizedBox(height: PsSpacing.s8),
               if (!sent) ...[
-                PsTextField(
-                  key: const Key('phoneField'),
-                  controller: _phone,
-                  keyboardType: TextInputType.phone,
-                  hintText: l10n.phoneHint,
-                  textInputAction: TextInputAction.done,
-                  onSubmitted: (_) {
-                    if (!_busy) _send();
-                  },
+                Row(
+                  children: [
+                    // Fixed Georgia country code — the user types only the local
+                    // number; +995 is added automatically.
+                    Container(
+                      height: 52,
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.symmetric(horizontal: PsSpacing.s4),
+                      margin: const EdgeInsets.only(right: PsSpacing.s2),
+                      decoration: BoxDecoration(
+                        color: PsColors.glassRegular,
+                        borderRadius: BorderRadius.circular(PsRadii.md),
+                        border: Border.all(color: PsColors.glassBorder),
+                      ),
+                      child: const Text('🇬🇪 +995',
+                          style: TextStyle(
+                              fontSize: PsType.body,
+                              fontWeight: PsType.weightBold,
+                              color: PsColors.text)),
+                    ),
+                    Expanded(
+                      child: PsTextField(
+                        key: const Key('phoneField'),
+                        controller: _phone,
+                        keyboardType: TextInputType.phone,
+                        hintText: l10n.phoneHint,
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) {
+                          if (!_busy) _send();
+                        },
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: PsSpacing.s4),
                 PsButton(

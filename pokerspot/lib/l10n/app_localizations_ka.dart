@@ -26,7 +26,7 @@ class AppL10nKa extends AppL10n {
   String get phoneNumber => 'ტელეფონის ნომერი';
 
   @override
-  String get phoneHint => '+995 5XX XX XX XX';
+  String get phoneHint => '5XX XX XX XX';
 
   @override
   String get sendCode => 'კოდის გაგზავნა';

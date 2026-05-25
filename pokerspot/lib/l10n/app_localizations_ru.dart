@@ -26,7 +26,7 @@ class AppL10nRu extends AppL10n {
   String get phoneNumber => 'Номер телефона';
 
   @override
-  String get phoneHint => '+995 5XX XX XX XX';
+  String get phoneHint => '5XX XX XX XX';
 
   @override
   String get sendCode => 'Отправить код';

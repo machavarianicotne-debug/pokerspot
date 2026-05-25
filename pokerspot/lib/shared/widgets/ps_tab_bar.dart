@@ -45,7 +45,7 @@ class PsTabBar extends StatelessWidget {
           child: Stack(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(8, 11, 8, 9),
+                padding: const EdgeInsets.fromLTRB(8, 16, 8, 14),
                 child: Row(
                   children: [
                     for (var i = 0; i < items.length; i++) _tab(i),
@@ -88,14 +88,14 @@ class PsTabBar extends StatelessWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                Icon(items[i].icon, size: 22, color: color),
+                Icon(items[i].icon, size: 30, color: color),
                 if (items[i].badge > 0)
                   Positioned(
-                    top: -5,
-                    right: -9,
+                    top: -6,
+                    right: -11,
                     child: Container(
-                      constraints: const BoxConstraints(minWidth: 16),
-                      height: 16,
+                      constraints: const BoxConstraints(minWidth: 18),
+                      height: 18,
                       alignment: Alignment.center,
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       decoration: BoxDecoration(
@@ -109,11 +109,11 @@ class PsTabBar extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 5),
             Text(
               items[i].label.toUpperCase(),
               style: TextStyle(
-                fontSize: PsType.micro,
+                fontSize: PsType.subhead,
                 fontWeight: PsType.weightBlack,
                 letterSpacing: 0.3,
                 color: color,

@@ -132,7 +132,7 @@ abstract class AppL10n {
   /// No description provided for @phoneHint.
   ///
   /// In en, this message translates to:
-  /// **'+995 5XX XX XX XX'**
+  /// **'5XX XX XX XX'**
   String get phoneHint;
 
   /// No description provided for @sendCode.

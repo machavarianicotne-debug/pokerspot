@@ -50,8 +50,9 @@ void main() {
     await tester.pumpWidget(_wrap(const LoginScreen(), auth));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('phoneField')), findsOneWidget);
-    final fieldWidth = tester.getSize(find.byKey(const Key('phoneField'))).width;
+    // The Send button is full-width, so its width == the content pane width
+    // (the phone field is now narrower, sharing a row with the +995 prefix).
+    final fieldWidth = tester.getSize(find.byKey(const Key('sendCodeBtn'))).width;
     expect(fieldWidth, lessThanOrEqualTo(440));
     expect(fieldWidth, greaterThan(300));
   });
@@ -66,8 +67,7 @@ void main() {
     await tester.pumpWidget(_wrap(const LoginScreen(), auth));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('phoneField')), findsOneWidget);
-    final fieldWidth = tester.getSize(find.byKey(const Key('phoneField'))).width;
+    final fieldWidth = tester.getSize(find.byKey(const Key('sendCodeBtn'))).width;
     // Narrower than the viewport (padding) but wider than the 440 cap minus padding.
     expect(fieldWidth, lessThan(375));
     expect(fieldWidth, greaterThan(300));

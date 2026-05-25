@@ -17,4 +17,15 @@ void main() {
     expect(authRedirect(uid: 'u', hasProfile: true, location: '/onboarding'), '/home');
     expect(authRedirect(uid: 'u', hasProfile: true, location: '/home'), isNull);
   });
+
+  test('signed in but profile still loading → stay (no onboarding flash)', () {
+    // The registered-user fix: while the profile is loading, never redirect to
+    // onboarding — stay where we are until it resolves.
+    expect(
+        authRedirect(uid: 'u', hasProfile: false, location: '/login', profileResolved: false),
+        isNull);
+    expect(
+        authRedirect(uid: 'u', hasProfile: false, location: '/home', profileResolved: false),
+        isNull);
+  });
 }

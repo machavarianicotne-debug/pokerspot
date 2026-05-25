@@ -24,8 +24,16 @@ final routerProvider = Provider<GoRouter>((ref) {
     refreshListenable: refresh,
     redirect: (context, state) {
       final uid = ref.read(uidProvider).valueOrNull;
-      final hasProfile = ref.read(currentUserProvider).valueOrNull != null;
-      return authRedirect(uid: uid, hasProfile: hasProfile, location: state.matchedLocation);
+      final profile = ref.read(currentUserProvider);
+      // Once signed in, wait for the profile to load before choosing onboarding
+      // vs home — otherwise a registered user briefly sees the name form.
+      final profileResolved = uid == null || !profile.isLoading;
+      return authRedirect(
+        uid: uid,
+        hasProfile: profile.valueOrNull != null,
+        location: state.matchedLocation,
+        profileResolved: profileResolved,
+      );
     },
     routes: [
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),

@@ -666,4 +666,28 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get noTournamentsYet => 'No upcoming tournaments';
+
+  @override
+  String get maxPlayersLabel => 'Max players';
+
+  @override
+  String get onWaitlistLabel => 'On waitlist';
+
+  @override
+  String get unlimitedLabel => 'Unlimited';
+
+  @override
+  String get registerBtn => 'Register';
+
+  @override
+  String get joinWaitlistBtn => 'Join waitlist';
+
+  @override
+  String get cancelRegistrationBtn => 'Cancel registration';
+
+  @override
+  String get leaveWaitlistBtn => 'Leave waitlist';
+
+  @override
+  String get youAreRegisteredLabel => 'You\'re registered';
 }

@@ -216,5 +216,14 @@
   "startsLabel": "დაწყება",
   "pickDate": "თარიღი",
   "pickTime": "დრო",
-  "noTournamentsYet": "მომავალი ტურნირები არ არის"
+  "noTournamentsYet": "მომავალი ტურნირები არ არის",
+  "maxPlayersLabel": "მაქს. მოთამაშეები",
+  "registeredLabel": "დარეგისტრირებული",
+  "onWaitlistLabel": "ვეით ლისტში",
+  "unlimitedLabel": "ულიმიტო",
+  "registerBtn": "დარეგისტრირდი",
+  "joinWaitlistBtn": "ვეით ლისტში ჩაწერა",
+  "cancelRegistrationBtn": "რეგისტრაციის გაუქმება",
+  "leaveWaitlistBtn": "ვეით ლისტიდან გასვლა",
+  "youAreRegisteredLabel": "დარეგისტრირებული ხარ"
 }

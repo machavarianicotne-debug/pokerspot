@@ -351,7 +351,7 @@ class AppL10nKa extends AppL10n {
   String get tabSettings => 'პარამეტრები';
 
   @override
-  String get registeredLabel => 'რეგისტრირებული';
+  String get registeredLabel => 'დარეგისტრირებული';
 
   @override
   String get availabilityHeader => 'ხელმისაწვდომობა';
@@ -668,4 +668,28 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get noTournamentsYet => 'მომავალი ტურნირები არ არის';
+
+  @override
+  String get maxPlayersLabel => 'მაქს. მოთამაშეები';
+
+  @override
+  String get onWaitlistLabel => 'ვეით ლისტში';
+
+  @override
+  String get unlimitedLabel => 'ულიმიტო';
+
+  @override
+  String get registerBtn => 'დარეგისტრირდი';
+
+  @override
+  String get joinWaitlistBtn => 'ვეით ლისტში ჩაწერა';
+
+  @override
+  String get cancelRegistrationBtn => 'რეგისტრაციის გაუქმება';
+
+  @override
+  String get leaveWaitlistBtn => 'ვეით ლისტიდან გასვლა';
+
+  @override
+  String get youAreRegisteredLabel => 'დარეგისტრირებული ხარ';
 }

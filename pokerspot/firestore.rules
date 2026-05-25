@@ -132,5 +132,20 @@ service cloud.firestore {
       allow update, delete: if isAdmin()
         || (isPitboss() && resource.data.clubId == myClub());
     }
+
+    // ---- Tournament sign-ups (registration + waitlist) ---------------------
+    // Read by anyone signed in (so the registered / waitlist counts are visible
+    // to all). A player creates only their own sign-up. Seat vs. waitlist is
+    // derived from createdAt ordering (no stored status), so docs are immutable.
+    match /tournament_registrations/{id} {
+      allow read: if signedIn();
+      allow create: if signedIn() && !isBlocked()
+        && request.resource.data.playerUid == request.auth.uid;
+      allow update: if false;
+      // A player removes their own sign-up; the club's Pit Boss / Admin may too.
+      allow delete: if isAdmin()
+        || (isPitboss() && resource.data.clubId == myClub())
+        || (signedIn() && resource.data.playerUid == request.auth.uid && !isBlocked());
+    }
   }
 }

@@ -42,6 +42,7 @@ class _TournamentEditorScreenState extends ConsumerState<TournamentEditorScreen>
   final _rebuyFee = TextEditingController();
   final _addonFee = TextEditingController();
   final _blind = TextEditingController(text: '20');
+  final _maxPlayers = TextEditingController();
   TournamentType _type = TournamentType.freezeout;
   bool _addon = false;
   late DateTime _start;
@@ -61,6 +62,7 @@ class _TournamentEditorScreenState extends ConsumerState<TournamentEditorScreen>
     _rebuyFee.dispose();
     _addonFee.dispose();
     _blind.dispose();
+    _maxPlayers.dispose();
     super.dispose();
   }
 
@@ -98,6 +100,7 @@ class _TournamentEditorScreenState extends ConsumerState<TournamentEditorScreen>
           addonFee: _addon ? num.tryParse(_addonFee.text.trim()) : null,
           blindMinutes: int.tryParse(_blind.text.trim()) ?? 20,
           currency: widget.currency,
+          maxPlayers: int.tryParse(_maxPlayers.text.trim()),
         ));
     nav.pop();
   }
@@ -176,6 +179,11 @@ class _TournamentEditorScreenState extends ConsumerState<TournamentEditorScreen>
                   ],
                   _label(l10n.blindMinutesLabel),
                   PsTextField(controller: _blind, keyboardType: TextInputType.number, hintText: '20'),
+                  _label(l10n.maxPlayersLabel),
+                  PsTextField(
+                      controller: _maxPlayers,
+                      keyboardType: TextInputType.number,
+                      hintText: '50'),
                   _label(l10n.startsLabel),
                   Row(
                     children: [

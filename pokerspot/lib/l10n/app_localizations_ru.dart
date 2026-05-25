@@ -351,7 +351,7 @@ class AppL10nRu extends AppL10n {
   String get tabSettings => 'Настройки';
 
   @override
-  String get registeredLabel => 'Зарегистрированные';
+  String get registeredLabel => 'Зарегистрировано';
 
   @override
   String get availabilityHeader => 'Доступность';
@@ -666,4 +666,28 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get noTournamentsYet => 'Ближайших турниров нет';
+
+  @override
+  String get maxPlayersLabel => 'Макс. игроков';
+
+  @override
+  String get onWaitlistLabel => 'В листе ожидания';
+
+  @override
+  String get unlimitedLabel => 'Без лимита';
+
+  @override
+  String get registerBtn => 'Зарегистрироваться';
+
+  @override
+  String get joinWaitlistBtn => 'Встать в лист ожидания';
+
+  @override
+  String get cancelRegistrationBtn => 'Отменить регистрацию';
+
+  @override
+  String get leaveWaitlistBtn => 'Покинуть лист ожидания';
+
+  @override
+  String get youAreRegisteredLabel => 'Вы зарегистрированы';
 }

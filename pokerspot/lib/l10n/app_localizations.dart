@@ -1400,6 +1400,54 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'No upcoming tournaments'**
   String get noTournamentsYet;
+
+  /// No description provided for @maxPlayersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Max players'**
+  String get maxPlayersLabel;
+
+  /// No description provided for @onWaitlistLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'On waitlist'**
+  String get onWaitlistLabel;
+
+  /// No description provided for @unlimitedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlimited'**
+  String get unlimitedLabel;
+
+  /// No description provided for @registerBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get registerBtn;
+
+  /// No description provided for @joinWaitlistBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Join waitlist'**
+  String get joinWaitlistBtn;
+
+  /// No description provided for @cancelRegistrationBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel registration'**
+  String get cancelRegistrationBtn;
+
+  /// No description provided for @leaveWaitlistBtn.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave waitlist'**
+  String get leaveWaitlistBtn;
+
+  /// No description provided for @youAreRegisteredLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re registered'**
+  String get youAreRegisteredLabel;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

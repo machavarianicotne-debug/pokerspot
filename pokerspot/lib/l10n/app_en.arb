@@ -216,5 +216,14 @@
   "startsLabel": "Starts",
   "pickDate": "Date",
   "pickTime": "Time",
-  "noTournamentsYet": "No upcoming tournaments"
+  "noTournamentsYet": "No upcoming tournaments",
+  "maxPlayersLabel": "Max players",
+  "registeredLabel": "Registered",
+  "onWaitlistLabel": "On waitlist",
+  "unlimitedLabel": "Unlimited",
+  "registerBtn": "Register",
+  "joinWaitlistBtn": "Join waitlist",
+  "cancelRegistrationBtn": "Cancel registration",
+  "leaveWaitlistBtn": "Leave waitlist",
+  "youAreRegisteredLabel": "You're registered"
 }

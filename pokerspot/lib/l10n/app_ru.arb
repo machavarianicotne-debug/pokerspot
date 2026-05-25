@@ -216,5 +216,14 @@
   "startsLabel": "Начало",
   "pickDate": "Дата",
   "pickTime": "Время",
-  "noTournamentsYet": "Ближайших турниров нет"
+  "noTournamentsYet": "Ближайших турниров нет",
+  "maxPlayersLabel": "Макс. игроков",
+  "registeredLabel": "Зарегистрировано",
+  "onWaitlistLabel": "В листе ожидания",
+  "unlimitedLabel": "Без лимита",
+  "registerBtn": "Зарегистрироваться",
+  "joinWaitlistBtn": "Встать в лист ожидания",
+  "cancelRegistrationBtn": "Отменить регистрацию",
+  "leaveWaitlistBtn": "Покинуть лист ожидания",
+  "youAreRegisteredLabel": "Вы зарегистрированы"
 }

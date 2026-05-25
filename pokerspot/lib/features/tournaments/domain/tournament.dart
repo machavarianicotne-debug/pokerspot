@@ -43,6 +43,10 @@ class Tournament {
   final int blindMinutes;
   final String currency;
 
+  /// Seat cap. `null` = unlimited (legacy tournaments written before the cap).
+  /// When the registered count reaches this, further sign-ups go on a waitlist.
+  final int? maxPlayers;
+
   const Tournament({
     required this.id,
     required this.clubId,
@@ -55,6 +59,7 @@ class Tournament {
     required this.addonFee,
     required this.blindMinutes,
     required this.currency,
+    required this.maxPlayers,
   });
 
   factory Tournament.fromMap(String id, Map<String, dynamic> m) => Tournament(
@@ -69,6 +74,7 @@ class Tournament {
         addonFee: m['addonFee'] as num?,
         blindMinutes: (m['blindMinutes'] ?? 20) as int,
         currency: (m['currency'] ?? 'GEL') as String,
+        maxPlayers: m['maxPlayers'] as int?,
       );
 
   Map<String, dynamic> toMap() => {
@@ -82,6 +88,7 @@ class Tournament {
         'addonFee': addonFee,
         'blindMinutes': blindMinutes,
         'currency': currency,
+        'maxPlayers': maxPlayers,
       };
 
   @override
@@ -99,9 +106,10 @@ class Tournament {
           hasAddon == other.hasAddon &&
           addonFee == other.addonFee &&
           blindMinutes == other.blindMinutes &&
-          currency == other.currency;
+          currency == other.currency &&
+          maxPlayers == other.maxPlayers;
 
   @override
   int get hashCode => Object.hash(id, clubId, name, type, startAt, buyIn, rebuyFee, hasAddon,
-      addonFee, blindMinutes, currency);
+      addonFee, blindMinutes, currency, maxPlayers);
 }

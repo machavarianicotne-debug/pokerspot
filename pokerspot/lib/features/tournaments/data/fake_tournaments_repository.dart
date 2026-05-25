@@ -36,7 +36,7 @@ class FakeTournamentsRepository implements TournamentsRepository {
     _items[id] = Tournament(
       id: id, clubId: t.clubId, name: t.name, type: t.type, startAt: t.startAt,
       buyIn: t.buyIn, rebuyFee: t.rebuyFee, hasAddon: t.hasAddon, addonFee: t.addonFee,
-      blindMinutes: t.blindMinutes, currency: t.currency,
+      blindMinutes: t.blindMinutes, currency: t.currency, maxPlayers: t.maxPlayers,
     );
     _changes.add(null);
   }

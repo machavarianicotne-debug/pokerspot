@@ -32,7 +32,10 @@ const _table = PokerTable(
 
 /// Minimal wrap (only the clubs repo) — for render tests that don't open the sheet.
 Widget _wrap(String clubId, FakeClubsRepository repo) => ProviderScope(
-      overrides: [clubsRepositoryProvider.overrideWithValue(repo)],
+      overrides: [
+        uidProvider.overrideWith((ref) => Stream.value('u1')), // club reads gated on auth
+        clubsRepositoryProvider.overrideWithValue(repo),
+      ],
       child: MaterialApp(
         localizationsDelegates: AppL10n.localizationsDelegates,
         supportedLocales: AppL10n.supportedLocales,
@@ -45,6 +48,7 @@ Widget _wrapFull(String clubId, FakeFloorStore store, FakeAuthRepository auth,
         FakeUsersRepository users) =>
     ProviderScope(
       overrides: [
+        uidProvider.overrideWith((ref) => Stream.value('u1')), // club reads gated on auth
         clubsRepositoryProvider.overrideWithValue(FakeClubsRepository(seed: const [_vake])),
         authRepositoryProvider.overrideWithValue(auth),
         usersRepositoryProvider.overrideWithValue(users),
@@ -87,6 +91,7 @@ void main() {
     final store = FakeFloorStore(tables: const [_table]);
     await tester.pumpWidget(ProviderScope(
       overrides: [
+        uidProvider.overrideWith((ref) => Stream.value('u1')), // club reads gated on auth
         clubsRepositoryProvider.overrideWithValue(FakeClubsRepository(seed: const [_vake])),
         tablesRepositoryProvider.overrideWithValue(FakeTablesRepository(store)),
         myWaitlistProvider.overrideWith((ref) => Stream.value(const <WaitlistEntry>[])),

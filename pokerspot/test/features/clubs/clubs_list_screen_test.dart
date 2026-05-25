@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
+import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/clubs/data/fake_clubs_repository.dart';
 import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/clubs_list_screen.dart';
@@ -22,7 +23,8 @@ Club _club(String id, {String name = '', String city = 'Tbilisi'}) => Club(
     );
 
 Widget _wrap(List<Override> overrides) => ProviderScope(
-      overrides: overrides,
+      // Club reads are gated on a signed-in uid.
+      overrides: [uidProvider.overrideWith((ref) => Stream.value('u1')), ...overrides],
       child: const MaterialApp(
         localizationsDelegates: AppL10n.localizationsDelegates,
         supportedLocales: AppL10n.supportedLocales,
@@ -75,6 +77,7 @@ void main() {
     );
     await tester.pumpWidget(ProviderScope(
       overrides: [
+        uidProvider.overrideWith((ref) => Stream.value('u1')),
         clubsRepositoryProvider.overrideWithValue(FakeClubsRepository(seed: [_club('a')])),
       ],
       child: MaterialApp.router(

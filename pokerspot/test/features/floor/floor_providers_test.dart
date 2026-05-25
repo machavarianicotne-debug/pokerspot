@@ -15,9 +15,13 @@ void main() {
       PokerTable(id: 't1', clubId: 'c1', number: 1, stakes: _stakes, seatCount: 9, open: true),
     ]);
     final container = ProviderContainer(
-      overrides: [tablesRepositoryProvider.overrideWithValue(FakeTablesRepository(store))],
+      overrides: [
+        tablesRepositoryProvider.overrideWithValue(FakeTablesRepository(store)),
+        uidProvider.overrideWith((ref) => Stream.value('u1')), // gated on auth
+      ],
     );
     addTearDown(container.dispose);
+    await container.read(uidProvider.future); // let the gated uid resolve first
     final list = await container.read(tablesProvider('c1').future);
     expect(list.length, 1);
     expect(list.first.id, 't1');
@@ -28,9 +32,13 @@ void main() {
     final wl = FakeWaitlistRepository(store);
     await wl.join(clubId: 'c1', playerUid: 'u1', playerName: 'Nino', stakes: _stakes);
     final container = ProviderContainer(
-      overrides: [waitlistRepositoryProvider.overrideWithValue(wl)],
+      overrides: [
+        waitlistRepositoryProvider.overrideWithValue(wl),
+        uidProvider.overrideWith((ref) => Stream.value('u1')), // gated on auth
+      ],
     );
     addTearDown(container.dispose);
+    await container.read(uidProvider.future); // let the gated uid resolve first
     final list = await container.read(clubWaitlistProvider('c1').future);
     expect(list.length, 1);
     expect(list.first.playerName, 'Nino');

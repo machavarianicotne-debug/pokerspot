@@ -26,7 +26,11 @@ final currentUserProvider = StreamProvider<AppUser?>((ref) {
   return ref.watch(usersRepositoryProvider).watchUser(uid);
 });
 
-/// Live list of ALL users (Super Admin management).
+/// Live list of ALL users (Super Admin management). Gated on auth so the query
+/// never runs unauthenticated (which Firestore rules reject with
+/// permission-denied during the brief sign-in / session-restore window).
 final allUsersProvider = StreamProvider<List<AppUser>>((ref) {
+  final uid = ref.watch(uidProvider).valueOrNull;
+  if (uid == null) return Stream.value(const <AppUser>[]);
   return ref.watch(usersRepositoryProvider).watchAllUsers();
 });

@@ -20,13 +20,20 @@ final sessionsRepositoryProvider = Provider<SessionsRepository>(
 final reservationsRepositoryProvider = Provider<ReservationsRepository>(
     (ref) => FirebaseReservationsRepository(FirebaseFirestore.instance));
 
+// Club reads require signedIn() — gate on auth so a query never fires before
+// the session is ready (avoids intermittent permission-denied after sign-in).
+
 /// Tables for a club (ordered by number).
-final tablesProvider = StreamProvider.family<List<PokerTable>, String>(
-    (ref, clubId) => ref.watch(tablesRepositoryProvider).watchTables(clubId));
+final tablesProvider = StreamProvider.family<List<PokerTable>, String>((ref, clubId) {
+  if (ref.watch(uidProvider).valueOrNull == null) return Stream.value(const <PokerTable>[]);
+  return ref.watch(tablesRepositoryProvider).watchTables(clubId);
+});
 
 /// A club's live active waitlist (Pit Boss view).
-final clubWaitlistProvider = StreamProvider.family<List<WaitlistEntry>, String>(
-    (ref, clubId) => ref.watch(waitlistRepositoryProvider).watchByClub(clubId));
+final clubWaitlistProvider = StreamProvider.family<List<WaitlistEntry>, String>((ref, clubId) {
+  if (ref.watch(uidProvider).valueOrNull == null) return Stream.value(const <WaitlistEntry>[]);
+  return ref.watch(waitlistRepositoryProvider).watchByClub(clubId);
+});
 
 /// The signed-in player's active waitlist entries (null uid -> empty).
 final myWaitlistProvider = StreamProvider<List<WaitlistEntry>>((ref) {
@@ -36,12 +43,16 @@ final myWaitlistProvider = StreamProvider<List<WaitlistEntry>>((ref) {
 });
 
 /// A club's live active sessions (Pit Boss view).
-final clubSessionsProvider = StreamProvider.family<List<Session>, String>(
-    (ref, clubId) => ref.watch(sessionsRepositoryProvider).watchActiveByClub(clubId));
+final clubSessionsProvider = StreamProvider.family<List<Session>, String>((ref, clubId) {
+  if (ref.watch(uidProvider).valueOrNull == null) return Stream.value(const <Session>[]);
+  return ref.watch(sessionsRepositoryProvider).watchActiveByClub(clubId);
+});
 
 /// All sessions for a club (active + ended) — Super Admin analytics.
-final clubSessionsAllProvider = StreamProvider.family<List<Session>, String>(
-    (ref, clubId) => ref.watch(sessionsRepositoryProvider).watchAllByClub(clubId));
+final clubSessionsAllProvider = StreamProvider.family<List<Session>, String>((ref, clubId) {
+  if (ref.watch(uidProvider).valueOrNull == null) return Stream.value(const <Session>[]);
+  return ref.watch(sessionsRepositoryProvider).watchAllByClub(clubId);
+});
 
 /// The signed-in player's own active sessions (Activity tab; null uid -> empty).
 final mySessionProvider = StreamProvider<List<Session>>((ref) {
@@ -58,8 +69,10 @@ final myAllSessionsProvider = StreamProvider<List<Session>>((ref) {
 });
 
 /// A club's active (held) reservations (Pit Boss view).
-final clubReservationsProvider = StreamProvider.family<List<Reservation>, String>(
-    (ref, clubId) => ref.watch(reservationsRepositoryProvider).watchByClub(clubId));
+final clubReservationsProvider = StreamProvider.family<List<Reservation>, String>((ref, clubId) {
+  if (ref.watch(uidProvider).valueOrNull == null) return Stream.value(const <Reservation>[]);
+  return ref.watch(reservationsRepositoryProvider).watchByClub(clubId);
+});
 
 /// The signed-in player's active (held) reservations (null uid -> empty).
 final myReservationsProvider = StreamProvider<List<Reservation>>((ref) {

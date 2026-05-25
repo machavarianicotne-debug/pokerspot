@@ -6,12 +6,27 @@ import 'package:pokerspot/features/floor/domain/stakes.dart';
 
 enum SessionStatus {
   active,
-  ended;
+  ended,
+  held; // a seat reserved/called for a player (not playing yet)
 
-  static SessionStatus fromString(String? raw) =>
-      raw == 'ended' ? SessionStatus.ended : SessionStatus.active;
+  static SessionStatus fromString(String? raw) {
+    switch (raw) {
+      case 'ended':
+        return SessionStatus.ended;
+      case 'held':
+        return SessionStatus.held;
+      default:
+        return SessionStatus.active;
+    }
+  }
 
   String get asString => name;
+}
+
+/// Why a seat is held: a 30-min player reservation or a 10-min waitlist call.
+class HoldKind {
+  static const reservation = 'reservation';
+  static const called = 'called';
 }
 
 DateTime? _date(dynamic millis) =>
@@ -29,6 +44,10 @@ class Session {
   final DateTime? startedAt;
   final DateTime? endedAt;
 
+  /// When a held seat (status == held) auto-releases; the hold's kind.
+  final DateTime? heldUntil;
+  final String? holdKind;
+
   const Session({
     required this.id,
     required this.clubId,
@@ -40,7 +59,12 @@ class Session {
     required this.status,
     required this.startedAt,
     required this.endedAt,
+    this.heldUntil,
+    this.holdKind,
   });
+
+  bool get isHeld => status == SessionStatus.held;
+  bool get isActive => status == SessionStatus.active;
 
   /// Elapsed time as of [now] (or until [endedAt] if ended). Null if not started.
   Duration? elapsedAt(DateTime now) {
@@ -61,6 +85,8 @@ class Session {
         status: SessionStatus.fromString(m['status'] as String?),
         startedAt: _date(m['startedAt']),
         endedAt: _date(m['endedAt']),
+        heldUntil: _date(m['heldUntil']),
+        holdKind: m['holdKind'] as String?,
       );
 
   Map<String, dynamic> toMap() => {
@@ -73,6 +99,8 @@ class Session {
         'status': status.asString,
         'startedAt': startedAt?.millisecondsSinceEpoch,
         'endedAt': endedAt?.millisecondsSinceEpoch,
+        'heldUntil': heldUntil?.millisecondsSinceEpoch,
+        'holdKind': holdKind,
       };
 
   Session copyWith({
@@ -86,6 +114,8 @@ class Session {
     SessionStatus? status,
     DateTime? startedAt,
     DateTime? endedAt,
+    DateTime? heldUntil,
+    String? holdKind,
   }) =>
       Session(
         id: id ?? this.id,
@@ -98,6 +128,8 @@ class Session {
         status: status ?? this.status,
         startedAt: startedAt ?? this.startedAt,
         endedAt: endedAt ?? this.endedAt,
+        heldUntil: heldUntil ?? this.heldUntil,
+        holdKind: holdKind ?? this.holdKind,
       );
 
   @override
@@ -114,9 +146,11 @@ class Session {
           stakes == other.stakes &&
           status == other.status &&
           startedAt == other.startedAt &&
-          endedAt == other.endedAt;
+          endedAt == other.endedAt &&
+          heldUntil == other.heldUntil &&
+          holdKind == other.holdKind;
 
   @override
   int get hashCode => Object.hash(id, clubId, tableId, seatNumber, playerUid,
-      playerName, stakes, status, startedAt, endedAt);
+      playerName, stakes, status, startedAt, endedAt, heldUntil, holdKind);
 }

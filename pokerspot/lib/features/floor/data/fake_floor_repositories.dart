@@ -250,11 +250,12 @@ class FakeSessionsRepository implements SessionsRepository {
   FakeSessionsRepository(this.store);
   final FakeFloorStore store;
 
+  static bool _open(Session s) =>
+      s.status == SessionStatus.active || s.status == SessionStatus.held;
+
   @override
   Stream<List<Session>> watchActiveByClub(String clubId) => store.watch(() =>
-      store.sessions.values
-          .where((s) => s.clubId == clubId && s.status == SessionStatus.active)
-          .toList());
+      store.sessions.values.where((s) => s.clubId == clubId && _open(s)).toList());
 
   @override
   Stream<List<Session>> watchAllByClub(String clubId) => store.watch(() =>
@@ -262,9 +263,7 @@ class FakeSessionsRepository implements SessionsRepository {
 
   @override
   Stream<List<Session>> watchByPlayer(String playerUid) => store.watch(() =>
-      store.sessions.values
-          .where((s) => s.playerUid == playerUid && s.status == SessionStatus.active)
-          .toList());
+      store.sessions.values.where((s) => s.playerUid == playerUid && _open(s)).toList());
 
   @override
   Stream<List<Session>> watchAllByPlayer(String playerUid) => store.watch(() =>
@@ -311,6 +310,51 @@ class FakeSessionsRepository implements SessionsRepository {
     );
     store.notify();
   }
+
+  @override
+  Future<void> holdSeat({
+    required String clubId,
+    required String tableId,
+    required int seatNumber,
+    required Stakes stakes,
+    required String playerUid,
+    required String playerName,
+    required String holdKind,
+    required int durationMinutes,
+  }) async {
+    final id = store.nextId('session');
+    store.sessions[id] = Session(
+      id: id,
+      clubId: clubId,
+      tableId: tableId,
+      seatNumber: seatNumber,
+      playerUid: playerUid,
+      playerName: playerName,
+      stakes: stakes,
+      status: SessionStatus.held,
+      startedAt: null,
+      endedAt: null,
+      holdKind: holdKind,
+      heldUntil: DateTime.now().add(Duration(minutes: durationMinutes)),
+    );
+    store.notify();
+  }
+
+  @override
+  Future<void> seatFromHold(String sessionId) async {
+    final s = store.sessions[sessionId];
+    if (s != null) {
+      store.sessions[sessionId] = Session(
+        id: s.id, clubId: s.clubId, tableId: s.tableId, seatNumber: s.seatNumber,
+        playerUid: s.playerUid, playerName: s.playerName, stakes: s.stakes,
+        status: SessionStatus.active, startedAt: DateTime.now(), endedAt: null,
+      );
+      store.notify();
+    }
+  }
+
+  @override
+  Future<void> releaseHold(String sessionId) => end(sessionId);
 
   @override
   Future<void> end(String sessionId) async {

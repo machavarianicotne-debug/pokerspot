@@ -59,6 +59,27 @@ exports.expireReservations = functions.pubsub
     return null;
   });
 
+// (a3) Scheduled cleanup — release held SEATS (reservation 30-min / called 10-min)
+// whose hold expired, so the seat frees for the next player (1st-gen).
+exports.expireHolds = functions.pubsub
+  .schedule('every 1 minutes')
+  .onRun(async () => {
+    const now = Date.now();
+    const snap = await db.collection('sessions').where('status', '==', 'held').get();
+    const stale = snap.docs.filter((d) => {
+      const t = d.data().heldUntil;
+      const ms = t && t.toMillis ? t.toMillis() : 0;
+      return ms > 0 && ms < now;
+    });
+    if (stale.length === 0) return null;
+    const batch = db.batch();
+    stale.forEach((d) =>
+      batch.update(d.ref, { status: 'ended', endedAt: admin.firestore.FieldValue.serverTimestamp() }));
+    await batch.commit();
+    console.log(`expireHolds: released ${stale.length} expired seat holds`);
+    return null;
+  });
+
 // (b) Push when a waitlist entry flips to 'called' (2nd-gen).
 exports.notifyCalled = onDocumentUpdated(
   { document: 'waitlist/{id}', region: DB_REGION },

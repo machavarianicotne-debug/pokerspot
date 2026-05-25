@@ -54,6 +54,24 @@ void main() {
     expect(active.first.status, SessionStatus.active);
   });
 
+  test('holdSeat -> seatFromHold: held seat occupies, then becomes active', () async {
+    final store = FakeFloorStore();
+    final sessions = FakeSessionsRepository(store);
+
+    await sessions.holdSeat(
+        clubId: 'c1', tableId: 't1', seatNumber: 3, stakes: _stakes,
+        playerUid: 'u', playerName: 'Nino', holdKind: 'reservation', durationMinutes: 30);
+    var open = await sessions.watchActiveByClub('c1').first;
+    expect(open.length, 1); // held seats occupy a seat
+    expect(open.first.status, SessionStatus.held);
+    expect(open.first.holdKind, 'reservation');
+
+    await sessions.seatFromHold(open.first.id);
+    open = await sessions.watchActiveByClub('c1').first;
+    expect(open.first.status, SessionStatus.active);
+    expect(open.first.startedAt, isNotNull);
+  });
+
   test('seatPlayer: seats a registered player keeping their real uid', () async {
     final store = FakeFloorStore();
     final sessions = FakeSessionsRepository(store);

@@ -152,14 +152,16 @@ class FirebaseSessionsRepository implements SessionsRepository {
     return Session.fromMap(d.id, m);
   }
 
+  // "Open" = active OR held (both occupy a seat). Filter client-side so only a
+  // single-field (clubId) index is needed.
+  static bool _open(Session x) =>
+      x.status == SessionStatus.active || x.status == SessionStatus.held;
+
   @override
   Stream<List<Session>> watchActiveByClub(String clubId) => _col
       .where('clubId', isEqualTo: clubId)
       .snapshots()
-      .map((s) => s.docs
-          .map(_session)
-          .where((x) => x.status == SessionStatus.active)
-          .toList());
+      .map((s) => s.docs.map(_session).where(_open).toList());
 
   @override
   Stream<List<Session>> watchAllByClub(String clubId) => _col
@@ -171,10 +173,7 @@ class FirebaseSessionsRepository implements SessionsRepository {
   Stream<List<Session>> watchByPlayer(String playerUid) => _col
       .where('playerUid', isEqualTo: playerUid)
       .snapshots()
-      .map((s) => s.docs
-          .map(_session)
-          .where((x) => x.status == SessionStatus.active)
-          .toList());
+      .map((s) => s.docs.map(_session).where(_open).toList());
 
   @override
   Stream<List<Session>> watchAllByPlayer(String playerUid) => _col
@@ -220,6 +219,46 @@ class FirebaseSessionsRepository implements SessionsRepository {
       'endedAt': null,
     });
   }
+
+  @override
+  Future<void> holdSeat({
+    required String clubId,
+    required String tableId,
+    required int seatNumber,
+    required Stakes stakes,
+    required String playerUid,
+    required String playerName,
+    required String holdKind,
+    required int durationMinutes,
+  }) {
+    return _col.add({
+      'clubId': clubId,
+      'tableId': tableId,
+      'seatNumber': seatNumber,
+      'playerUid': playerUid,
+      'playerName': playerName,
+      ...stakes.toMap(),
+      'status': SessionStatus.held.asString,
+      'startedAt': null,
+      'endedAt': null,
+      'holdKind': holdKind,
+      'heldUntil': Timestamp.fromDate(DateTime.now().add(Duration(minutes: durationMinutes))),
+    });
+  }
+
+  @override
+  Future<void> seatFromHold(String sessionId) => _col.doc(sessionId).update({
+        'status': SessionStatus.active.asString,
+        'startedAt': FieldValue.serverTimestamp(),
+        'heldUntil': null,
+        'holdKind': null,
+      });
+
+  @override
+  Future<void> releaseHold(String sessionId) => _col.doc(sessionId).update({
+        'status': SessionStatus.ended.asString,
+        'endedAt': FieldValue.serverTimestamp(),
+      });
 
   @override
   Future<void> end(String sessionId) => _col.doc(sessionId).update({

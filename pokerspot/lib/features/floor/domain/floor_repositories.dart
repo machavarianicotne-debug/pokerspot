@@ -60,13 +60,13 @@ abstract interface class WaitlistRepository {
 }
 
 abstract interface class SessionsRepository {
-  /// Live active sessions for a club.
+  /// Live open sessions for a club — active AND held (both occupy a seat).
   Stream<List<Session>> watchActiveByClub(String clubId);
 
   /// Live ALL sessions for a club (active + ended) — Super Admin analytics.
   Stream<List<Session>> watchAllByClub(String clubId);
 
-  /// Live active sessions for one player.
+  /// Live open sessions for one player — active AND held (reserved/called seat).
   Stream<List<Session>> watchByPlayer(String playerUid);
 
   /// ALL sessions for one player (active + ended) — playtime stats.
@@ -92,6 +92,25 @@ abstract interface class SessionsRepository {
     required String playerUid,
     required String playerName,
   });
+
+  /// Hold a seat for a player (status held) — a 30-min reservation or a 10-min
+  /// waitlist call. Auto-released by expireHolds when [heldUntil] passes.
+  Future<void> holdSeat({
+    required String clubId,
+    required String tableId,
+    required int seatNumber,
+    required Stakes stakes,
+    required String playerUid,
+    required String playerName,
+    required String holdKind,
+    required int durationMinutes,
+  });
+
+  /// Convert a held seat to an active session (the player arrived & was seated).
+  Future<void> seatFromHold(String sessionId);
+
+  /// Release a held seat (status -> ended) without seating.
+  Future<void> releaseHold(String sessionId);
 
   /// End a session (status -> ended, stamps endedAt).
   Future<void> end(String sessionId);

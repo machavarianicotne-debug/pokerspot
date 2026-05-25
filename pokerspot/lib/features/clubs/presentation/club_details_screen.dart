@@ -17,6 +17,11 @@ import 'package:pokerspot/features/floor/domain/stakes.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
 import 'package:pokerspot/features/floor/presentation/reservation_flow_screen.dart';
+import 'package:pokerspot/features/tournaments/domain/tournament.dart';
+import 'package:pokerspot/features/tournaments/presentation/providers.dart';
+import 'package:pokerspot/features/tournaments/presentation/tournament_detail_screen.dart';
+import 'package:pokerspot/features/tournaments/presentation/tournament_editor_screen.dart'
+    show tournamentTypeLabel;
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
 import 'package:pokerspot/shared/widgets/ps_metric.dart';
@@ -128,6 +133,8 @@ class _Details extends StatelessWidget {
         _ChatEntry(club: club),
         const SizedBox(height: PsSpacing.s5),
         _GamesSection(club: club),
+        const SizedBox(height: PsSpacing.s4),
+        _TournamentsSection(clubId: club.id),
         const SizedBox(height: PsSpacing.s4),
         PsButton(
           key: const Key('reserveSeatBtn'),
@@ -605,5 +612,67 @@ class _GameCard extends ConsumerWidget {
           stakes: stakes,
         ));
     messenger.showSnackBar(SnackBar(content: Text(l10n.joinedWaitlist)));
+  }
+}
+
+/// Upcoming tournaments for the club (player view). Hidden when there are none.
+class _TournamentsSection extends ConsumerWidget {
+  const _TournamentsSection({required this.clubId});
+  final String clubId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+    final now = DateTime.now().subtract(const Duration(hours: 6)); // keep just-started ones briefly
+    final tournaments = (ref.watch(clubTournamentsProvider(clubId)).valueOrNull ?? const <Tournament>[])
+        .where((t) => t.startAt == null || t.startAt!.isAfter(now))
+        .toList();
+    if (tournaments.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: PsSpacing.s3),
+          child: PsOverline(l10n.upcomingTournaments),
+        ),
+        for (final t in tournaments)
+          Padding(
+            padding: const EdgeInsets.only(bottom: PsSpacing.s2),
+            child: PsCard(
+              key: Key('tournamentCard_${t.id}'),
+              accentRail: PsColors.accentSecondary,
+              onTap: () => Navigator.of(context).push(
+                  MaterialPageRoute<void>(builder: (_) => TournamentDetailScreen(tournament: t))),
+              child: Row(
+                children: [
+                  const Text('🏆', style: TextStyle(fontSize: 22)),
+                  const SizedBox(width: PsSpacing.s3),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(t.name.isEmpty ? tournamentTypeLabel(t.type, l10n) : t.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                                fontSize: PsType.body,
+                                fontWeight: PsType.weightBold,
+                                color: PsColors.text)),
+                        const SizedBox(height: 2),
+                        Text(tournamentWhen(t),
+                            style: const TextStyle(
+                                fontSize: PsType.caption,
+                                fontWeight: PsType.weightBold,
+                                color: PsColors.accentPrimary)),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right, size: 18, color: PsColors.textFaint),
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
   }
 }

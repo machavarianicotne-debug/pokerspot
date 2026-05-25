@@ -1292,6 +1292,114 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'You\'re seated'**
   String get playingLabel;
+
+  /// No description provided for @upcomingTournaments.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming tournaments'**
+  String get upcomingTournaments;
+
+  /// No description provided for @newTournament.
+  ///
+  /// In en, this message translates to:
+  /// **'New tournament'**
+  String get newTournament;
+
+  /// No description provided for @announceTournament.
+  ///
+  /// In en, this message translates to:
+  /// **'Announce tournament'**
+  String get announceTournament;
+
+  /// No description provided for @tournamentName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (optional)'**
+  String get tournamentName;
+
+  /// No description provided for @tournamentType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get tournamentType;
+
+  /// No description provided for @typeFreezeout.
+  ///
+  /// In en, this message translates to:
+  /// **'Freezeout'**
+  String get typeFreezeout;
+
+  /// No description provided for @typeKnockoutRebuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Knockout + Rebuy'**
+  String get typeKnockoutRebuy;
+
+  /// No description provided for @typeRebuy.
+  ///
+  /// In en, this message translates to:
+  /// **'Rebuy'**
+  String get typeRebuy;
+
+  /// No description provided for @typeRebuyAddon.
+  ///
+  /// In en, this message translates to:
+  /// **'Rebuy + Add-on'**
+  String get typeRebuyAddon;
+
+  /// No description provided for @buyInLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Buy-in'**
+  String get buyInLabel;
+
+  /// No description provided for @rebuyFeeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rebuy fee'**
+  String get rebuyFeeLabel;
+
+  /// No description provided for @addonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add-on'**
+  String get addonLabel;
+
+  /// No description provided for @addonFeeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add-on fee'**
+  String get addonFeeLabel;
+
+  /// No description provided for @blindMinutesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Blind length (min)'**
+  String get blindMinutesLabel;
+
+  /// No description provided for @startsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts'**
+  String get startsLabel;
+
+  /// No description provided for @pickDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get pickDate;
+
+  /// No description provided for @pickTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get pickTime;
+
+  /// No description provided for @noTournamentsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No upcoming tournaments'**
+  String get noTournamentsYet;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

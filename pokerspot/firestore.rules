@@ -120,5 +120,14 @@ service cloud.firestore {
         || (signedIn() && resource.data.playerUid == request.auth.uid);
       allow delete: if isAdmin();
     }
+
+    // ---- Tournaments (announced by a club; everyone signed in may read) ------
+    match /tournaments/{id} {
+      allow read: if signedIn();
+      allow create: if isAdmin()
+        || (isPitboss() && request.resource.data.clubId == myClub());
+      allow update, delete: if isAdmin()
+        || (isPitboss() && resource.data.clubId == myClub());
+    }
   }
 }

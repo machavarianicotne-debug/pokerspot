@@ -612,4 +612,58 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get playingLabel => 'Вы за столом';
+
+  @override
+  String get upcomingTournaments => 'Ближайшие турниры';
+
+  @override
+  String get newTournament => 'Новый турнир';
+
+  @override
+  String get announceTournament => 'Объявить турнир';
+
+  @override
+  String get tournamentName => 'Название (необязательно)';
+
+  @override
+  String get tournamentType => 'Тип';
+
+  @override
+  String get typeFreezeout => 'Фризаут';
+
+  @override
+  String get typeKnockoutRebuy => 'Нокаут + Ребай';
+
+  @override
+  String get typeRebuy => 'Ребай';
+
+  @override
+  String get typeRebuyAddon => 'Ребай + Аддон';
+
+  @override
+  String get buyInLabel => 'Бай-ин';
+
+  @override
+  String get rebuyFeeLabel => 'Стоимость ребая';
+
+  @override
+  String get addonLabel => 'Аддон';
+
+  @override
+  String get addonFeeLabel => 'Стоимость аддона';
+
+  @override
+  String get blindMinutesLabel => 'Длина блайнда (мин)';
+
+  @override
+  String get startsLabel => 'Начало';
+
+  @override
+  String get pickDate => 'Дата';
+
+  @override
+  String get pickTime => 'Время';
+
+  @override
+  String get noTournamentsYet => 'Ближайших турниров нет';
 }

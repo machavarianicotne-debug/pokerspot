@@ -612,4 +612,58 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get playingLabel => 'You\'re seated';
+
+  @override
+  String get upcomingTournaments => 'Upcoming tournaments';
+
+  @override
+  String get newTournament => 'New tournament';
+
+  @override
+  String get announceTournament => 'Announce tournament';
+
+  @override
+  String get tournamentName => 'Name (optional)';
+
+  @override
+  String get tournamentType => 'Type';
+
+  @override
+  String get typeFreezeout => 'Freezeout';
+
+  @override
+  String get typeKnockoutRebuy => 'Knockout + Rebuy';
+
+  @override
+  String get typeRebuy => 'Rebuy';
+
+  @override
+  String get typeRebuyAddon => 'Rebuy + Add-on';
+
+  @override
+  String get buyInLabel => 'Buy-in';
+
+  @override
+  String get rebuyFeeLabel => 'Rebuy fee';
+
+  @override
+  String get addonLabel => 'Add-on';
+
+  @override
+  String get addonFeeLabel => 'Add-on fee';
+
+  @override
+  String get blindMinutesLabel => 'Blind length (min)';
+
+  @override
+  String get startsLabel => 'Starts';
+
+  @override
+  String get pickDate => 'Date';
+
+  @override
+  String get pickTime => 'Time';
+
+  @override
+  String get noTournamentsYet => 'No upcoming tournaments';
 }

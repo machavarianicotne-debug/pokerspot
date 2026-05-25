@@ -614,4 +614,58 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get playingLabel => 'მაგიდაზე ხარ';
+
+  @override
+  String get upcomingTournaments => 'მომავალი ტურნირები';
+
+  @override
+  String get newTournament => 'ახალი ტურნირი';
+
+  @override
+  String get announceTournament => 'ტურნირის გამოცხადება';
+
+  @override
+  String get tournamentName => 'სახელი (არასავალდებულო)';
+
+  @override
+  String get tournamentType => 'ტიპი';
+
+  @override
+  String get typeFreezeout => 'ფრიზაუთი';
+
+  @override
+  String get typeKnockoutRebuy => 'ნოკაუტი + რებაი';
+
+  @override
+  String get typeRebuy => 'რებაი';
+
+  @override
+  String get typeRebuyAddon => 'რებაი + ადდონი';
+
+  @override
+  String get buyInLabel => 'ბაი-ინი';
+
+  @override
+  String get rebuyFeeLabel => 'რებაის საფასური';
+
+  @override
+  String get addonLabel => 'ადდონი';
+
+  @override
+  String get addonFeeLabel => 'ადდონის საფასური';
+
+  @override
+  String get blindMinutesLabel => 'ბლაინდის ხანგრძლივობა (წთ)';
+
+  @override
+  String get startsLabel => 'დაწყება';
+
+  @override
+  String get pickDate => 'თარიღი';
+
+  @override
+  String get pickTime => 'დრო';
+
+  @override
+  String get noTournamentsYet => 'მომავალი ტურნირები არ არის';
 }

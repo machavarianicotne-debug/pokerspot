@@ -9,6 +9,7 @@ import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
 import 'package:pokerspot/features/floor/presentation/game_detail_screen.dart';
 import 'package:pokerspot/features/floor/presentation/new_game_screen.dart';
+import 'package:pokerspot/features/tournaments/presentation/tournament_editor_screen.dart';
 import 'package:pokerspot/features/floor/presentation/table_editor_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
@@ -65,6 +66,16 @@ class TablesScreen extends ConsumerWidget {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: PsSpacing.s2),
+        PsButton(
+          key: const Key('newTournamentBtn'),
+          label: l10n.newTournament,
+          icon: Icons.emoji_events_outlined,
+          variant: PsButtonVariant.secondary,
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => TournamentEditorScreen(clubId: clubId)),
+          ),
         ),
         const SizedBox(height: PsSpacing.s4),
         if (tables.isEmpty)

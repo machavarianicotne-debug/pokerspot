@@ -105,23 +105,26 @@ class _ClubCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     final closed = !club.enabled;
-    final full = club.live && club.openSeats <= 0;
+    // A room with open tables is LIVE — even with 0 seated players. (club.games
+    // is the open-tables scoreboard; club.live only flips once someone sits.)
+    final live = club.games.isNotEmpty;
+    final full = live && club.openSeats <= 0;
     final tables = club.games.fold<int>(0, (a, g) => a + g.tables);
     final railColor = closed
         ? PsColors.statusClosed
         : full
             ? PsColors.statusFull
-            : club.live
+            : live
                 ? PsColors.accentPrimary
                 : PsColors.statusOpen;
     final status = closed
         ? PsStatus.closed
-        : club.live
+        : live
             ? PsStatus.live
             : PsStatus.open;
     final badgeLabel = closed
         ? l10n.closedLabel
-        : club.live
+        : live
             ? l10n.liveLabel
             : l10n.openLabel;
 
@@ -159,7 +162,7 @@ class _ClubCard extends StatelessWidget {
               ],
             ),
           ),
-          if (club.live)
+          if (live)
             // scoreboard (mockup padding 4 16 16)
             Padding(
               padding: const EdgeInsets.fromLTRB(PsSpacing.s4, PsSpacing.s1, PsSpacing.s4, PsSpacing.s4),

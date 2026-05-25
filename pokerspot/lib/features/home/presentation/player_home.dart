@@ -70,8 +70,9 @@ class PlayerHome extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppL10n.of(context);
+    // A room with open tables counts as LIVE — even with 0 seated players.
     final liveCount = (ref.watch(clubsListProvider).valueOrNull ?? const [])
-        .where((c) => c.live)
+        .where((c) => c.games.isNotEmpty)
         .length;
     final user = ref.watch(currentUserProvider).valueOrNull;
     final initials = _initials(user == null ? '' : '${user.firstName} ${user.lastName}');

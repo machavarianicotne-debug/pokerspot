@@ -83,4 +83,11 @@ class FakeUsersRepository implements UsersRepository {
       ));
     }
   }
+
+  final fcmTokens = <String, List<String>>{};
+
+  @override
+  Future<void> addFcmToken(String uid, String token) async {
+    (fcmTokens[uid] ??= []).add(token);
+  }
 }

@@ -59,4 +59,8 @@ class FirebaseUsersRepository implements UsersRepository {
   @override
   Future<void> assignClub(String uid, String? clubId) =>
       _doc(uid).update({'clubId': clubId});
+
+  @override
+  Future<void> addFcmToken(String uid, String token) =>
+      _doc(uid).set({'fcmTokens': FieldValue.arrayUnion([token])}, SetOptions(merge: true));
 }

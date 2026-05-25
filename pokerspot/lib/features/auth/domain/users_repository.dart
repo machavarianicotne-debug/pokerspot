@@ -27,4 +27,7 @@ abstract interface class UsersRepository {
 
   /// Assign (or clear, when null) the club a Pit Boss staffs.
   Future<void> assignClub(String uid, String? clubId);
+
+  /// Register a Web Push (FCM) token for this user (read by notifyCalled).
+  Future<void> addFcmToken(String uid, String token);
 }

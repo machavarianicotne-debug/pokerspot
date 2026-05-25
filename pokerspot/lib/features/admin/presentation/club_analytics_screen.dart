@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
+import 'package:pokerspot/features/admin/presentation/observe_club_screen.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
+import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
 import 'package:pokerspot/shared/widgets/ps_list_tile.dart';
 import 'package:pokerspot/shared/widgets/ps_metric.dart';
@@ -83,6 +85,16 @@ class ClubAnalyticsScreen extends ConsumerWidget {
                       const SizedBox(width: PsSpacing.s2),
                       Expanded(child: PsMetric(value: '$avgMin', label: l10n.avgMinLabel)),
                     ],
+                  ),
+                  const SizedBox(height: PsSpacing.s4),
+                  PsButton(
+                    key: const Key('observeFloorBtn'),
+                    label: l10n.observeFloor,
+                    icon: Icons.visibility_outlined,
+                    variant: PsButtonVariant.secondary,
+                    onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                      builder: (_) => ObserveClubScreen(clubId: clubId, clubName: clubName),
+                    )),
                   ),
                   const SizedBox(height: PsSpacing.s5),
                   PsOverline(l10n.sessionsLabel),

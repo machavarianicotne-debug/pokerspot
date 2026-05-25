@@ -1136,6 +1136,30 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Yesterday'**
   String get dayYesterday;
+
+  /// No description provided for @observeFloor.
+  ///
+  /// In en, this message translates to:
+  /// **'Observe live floor'**
+  String get observeFloor;
+
+  /// No description provided for @readOnlyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Read-only'**
+  String get readOnlyLabel;
+
+  /// No description provided for @observeBanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Observing live floor — actions are disabled.'**
+  String get observeBanner;
+
+  /// No description provided for @waitingWord.
+  ///
+  /// In en, this message translates to:
+  /// **'waiting'**
+  String get waitingWord;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

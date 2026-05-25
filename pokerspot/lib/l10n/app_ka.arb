@@ -172,5 +172,9 @@
   "tabChat": "ჩატი",
   "chatPeerStatus": "ჩვეულებრივ წუთებში პასუხობს",
   "dayToday": "დღეს",
-  "dayYesterday": "გუშინ"
+  "dayYesterday": "გუშინ",
+  "observeFloor": "ცოცხალი დარბაზის დაკვირვება",
+  "readOnlyLabel": "მხოლოდ ნახვა",
+  "observeBanner": "ცოცხალ დარბაზს აკვირდები — მოქმედებები გათიშულია.",
+  "waitingWord": "რიგში"
 }

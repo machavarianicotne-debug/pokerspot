@@ -172,5 +172,9 @@
   "tabChat": "Чат",
   "chatPeerStatus": "Обычно отвечает за минуты",
   "dayToday": "Сегодня",
-  "dayYesterday": "Вчера"
+  "dayYesterday": "Вчера",
+  "observeFloor": "Наблюдать за залом",
+  "readOnlyLabel": "Только просмотр",
+  "observeBanner": "Наблюдение за залом — действия отключены.",
+  "waitingWord": "в ожидании"
 }

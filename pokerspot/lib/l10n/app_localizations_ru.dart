@@ -534,4 +534,16 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get dayYesterday => 'Вчера';
+
+  @override
+  String get observeFloor => 'Наблюдать за залом';
+
+  @override
+  String get readOnlyLabel => 'Только просмотр';
+
+  @override
+  String get observeBanner => 'Наблюдение за залом — действия отключены.';
+
+  @override
+  String get waitingWord => 'в ожидании';
 }

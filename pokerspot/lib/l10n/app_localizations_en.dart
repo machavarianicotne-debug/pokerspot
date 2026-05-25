@@ -534,4 +534,16 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get dayYesterday => 'Yesterday';
+
+  @override
+  String get observeFloor => 'Observe live floor';
+
+  @override
+  String get readOnlyLabel => 'Read-only';
+
+  @override
+  String get observeBanner => 'Observing live floor — actions are disabled.';
+
+  @override
+  String get waitingWord => 'waiting';
 }

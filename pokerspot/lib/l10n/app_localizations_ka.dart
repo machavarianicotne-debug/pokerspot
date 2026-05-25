@@ -535,4 +535,17 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get dayYesterday => 'გუშინ';
+
+  @override
+  String get observeFloor => 'ცოცხალი დარბაზის დაკვირვება';
+
+  @override
+  String get readOnlyLabel => 'მხოლოდ ნახვა';
+
+  @override
+  String get observeBanner =>
+      'ცოცხალ დარბაზს აკვირდები — მოქმედებები გათიშულია.';
+
+  @override
+  String get waitingWord => 'რიგში';
 }

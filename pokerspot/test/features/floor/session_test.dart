@@ -26,6 +26,33 @@ void main() {
     expect(s.toMap()['startedAt'], 1700000000000);
   });
 
+  test('held session round-trips heldUntil + holdKind (epoch millis)', () {
+    final heldUntil = DateTime.fromMillisecondsSinceEpoch(1700000600000);
+    final s = Session(
+      id: 'h1',
+      clubId: 'c',
+      tableId: 't',
+      seatNumber: 2,
+      playerUid: 'u',
+      playerName: 'N',
+      stakes: _stakes,
+      status: SessionStatus.held,
+      startedAt: null,
+      endedAt: null,
+      heldUntil: heldUntil,
+      holdKind: HoldKind.reservation,
+    );
+    final map = s.toMap();
+    // The Firebase repo converts the stored Timestamp to these millis before
+    // fromMap; given millis, parsing must succeed (regression: heldUntil left as
+    // a Timestamp made `millis as int` throw and blanked the Pit floor + stats).
+    expect(map['heldUntil'], 1700000600000);
+    final back = Session.fromMap('h1', map);
+    expect(back, equals(s));
+    expect(back.heldUntil, heldUntil);
+    expect(back.isHeld, isTrue);
+  });
+
   test('SessionStatus parses; defaults active', () {
     expect(SessionStatus.fromString('ended'), SessionStatus.ended);
     expect(SessionStatus.fromString(null), SessionStatus.active);

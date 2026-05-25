@@ -153,6 +153,10 @@ class FirebaseSessionsRepository implements SessionsRepository {
     final m = Map<String, dynamic>.from(d.data()!);
     m['startedAt'] = _toMillis(m['startedAt']);
     m['endedAt'] = _toMillis(m['endedAt']);
+    // heldUntil is a Firestore Timestamp for held seats — convert it too, or
+    // Session.fromMap's `millis as int` cast throws and the whole sessions
+    // stream errors out (Pit floor + stats go blank whenever a held seat exists).
+    m['heldUntil'] = _toMillis(m['heldUntil']);
     return Session.fromMap(d.id, m);
   }
 

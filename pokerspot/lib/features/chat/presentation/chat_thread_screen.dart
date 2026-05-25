@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
+import 'package:pokerspot/features/auth/domain/app_user.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/chat/domain/message.dart';
 import 'package:pokerspot/features/chat/presentation/providers.dart';
+import 'package:pokerspot/features/home/presentation/player_profile_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_avatar.dart';
 import 'package:pokerspot/shared/widgets/ps_chat.dart';
 import 'package:pokerspot/shared/widgets/ps_scaffold.dart';
@@ -80,6 +82,8 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     final myUid = ref.watch(authRepositoryProvider).currentUid;
+    final role = ref.watch(currentUserProvider).valueOrNull?.role;
+    final isStaff = role == AppRole.pitboss || role == AppRole.superadmin;
     final messages = ref
             .watch(threadProvider((clubId: widget.clubId, playerUid: widget.playerUid)))
             .valueOrNull ??
@@ -114,6 +118,18 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                             fontWeight: PsType.weightBold,
                             color: PsColors.text)),
                   ),
+                  // Staff can open the player's profile (name + phone).
+                  if (isStaff)
+                    GestureDetector(
+                      key: const Key('chatPlayerProfileBtn'),
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () => PlayerProfileSheet.show(context,
+                          uid: widget.playerUid, fallbackName: widget.playerName),
+                      child: Padding(
+                        padding: const EdgeInsets.all(PsSpacing.s2),
+                        child: Icon(Icons.info_outline, size: 20, color: PsColors.textMuted),
+                      ),
+                    ),
                 ],
               ),
             ),

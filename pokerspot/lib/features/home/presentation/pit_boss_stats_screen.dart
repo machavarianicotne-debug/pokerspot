@@ -5,12 +5,14 @@ import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
+import 'package:pokerspot/features/home/presentation/player_profile_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_avatar.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
 import 'package:pokerspot/shared/widgets/ps_segmented.dart';
 
 class _Stat {
-  _Stat(this.name, this.walkIn);
+  _Stat(this.uid, this.name, this.walkIn);
+  final String uid;
   final String name;
   final bool walkIn;
   int sessions = 0;
@@ -67,7 +69,7 @@ class _PitBossStatsScreenState extends ConsumerState<PitBossStatsScreen> {
     final byPlayer = <String, _Stat>{};
     for (final s in sessions) {
       final walkIn = s.playerUid.startsWith('walk-in:');
-      final stat = byPlayer.putIfAbsent(s.playerUid, () => _Stat(s.playerName, walkIn));
+      final stat = byPlayer.putIfAbsent(s.playerUid, () => _Stat(s.playerUid, s.playerName, walkIn));
       stat.sessions += 1;
       stat.minutes += s.elapsedAt(now)?.inMinutes ?? 0;
     }
@@ -115,6 +117,8 @@ class _StatRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final avgMin = stat.sessions == 0 ? 0 : (stat.minutes / stat.sessions).round();
     return PsCard(
+      key: Key('statRow_${stat.uid}'),
+      onTap: () => PlayerProfileSheet.show(context, uid: stat.uid, fallbackName: stat.name),
       child: Row(
         children: [
           SizedBox(

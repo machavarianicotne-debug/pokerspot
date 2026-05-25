@@ -29,6 +29,20 @@ const _holdWindow = Duration(minutes: 10);
 
 const _sessionWarn = Duration(hours: 8);
 
+/// Run a Firestore write and surface any error (e.g. permission-denied) as a
+/// SnackBar instead of letting an unawaited future fail silently — otherwise a
+/// denied seat/hold write just looks like "nothing happened".
+Future<void> _surface(BuildContext context, Future<void> Function() run) async {
+  final messenger = ScaffoldMessenger.of(context);
+  try {
+    await run();
+  } catch (e) {
+    messenger.showSnackBar(
+      SnackBar(content: Text('⚠ $e'), duration: const Duration(seconds: 6)),
+    );
+  }
+}
+
 /// Game-centric Pit Boss detail (mockup `pit-boss-table-detail`): every table of
 /// one stake shown together, a **shared** waitlist, and editable blinds/avg/min
 /// that mirror across all same-stake tables. Tables 2+ note they share the list.
@@ -306,19 +320,19 @@ class GameDetailScreen extends ConsumerWidget {
                     key: Key('callBtn_${waitlist[i].id}'),
                     label: l10n.callAction,
                     primary: true,
-                    onTap: () => _callWaitlist(ref, waitlist[i], firstFree)),
+                    onTap: () => _callWaitlist(context, ref, waitlist[i], firstFree)),
                 _miniBtn(
                     key: Key('seatBtn_${waitlist[i].id}'),
                     label: l10n.seatAction,
                     onTap: (_heldFor(sessions, waitlist[i].playerUid) == null && firstFree == null)
                         ? null
-                        : () => _seatWaitlist(ref, waitlist[i], sessions, firstFree)),
+                        : () => _seatWaitlist(context, ref, waitlist[i], sessions, firstFree)),
                 _miniBtn(
                     key: Key('removeWlBtn_${waitlist[i].id}'),
                     label: '✕',
                     danger: true,
-                    onTap: () =>
-                        unawaited(ref.read(waitlistRepositoryProvider).cancel(waitlist[i].id))),
+                    onTap: () => unawaited(_surface(
+                        context, () => ref.read(waitlistRepositoryProvider).cancel(waitlist[i].id)))),
               ],
             ),
           ),
@@ -336,27 +350,30 @@ class GameDetailScreen extends ConsumerWidget {
 
   /// Call a waiting player: hold the first free seat for 10 min (red) + mark the
   /// entry 'called' so the player gets the push.
-  void _callWaitlist(WidgetRef ref, WaitlistEntry e, ({String tableId, int seat})? free) {
+  void _callWaitlist(
+      BuildContext context, WidgetRef ref, WaitlistEntry e, ({String tableId, int seat})? free) {
     if (free != null && _heldFor(ref.read(clubSessionsProvider(clubId)).valueOrNull ?? const [], e.playerUid) == null) {
-      unawaited(ref.read(sessionsRepositoryProvider).holdSeat(
+      unawaited(_surface(context, () => ref.read(sessionsRepositoryProvider).holdSeat(
             clubId: clubId, tableId: free.tableId, seatNumber: free.seat, stakes: e.stakes,
             playerUid: e.playerUid, playerName: e.playerName,
-            holdKind: HoldKind.called, durationMinutes: 10));
+            holdKind: HoldKind.called, durationMinutes: 10)));
     }
-    unawaited(ref.read(waitlistRepositoryProvider).call(e.id));
+    unawaited(_surface(context, () => ref.read(waitlistRepositoryProvider).call(e.id)));
   }
 
   /// Seat a waiting player: from their held seat if one exists (no double-book),
   /// otherwise straight into the first free seat.
-  void _seatWaitlist(
-      WidgetRef ref, WaitlistEntry e, List<Session> sessions, ({String tableId, int seat})? free) {
+  void _seatWaitlist(BuildContext context, WidgetRef ref, WaitlistEntry e, List<Session> sessions,
+      ({String tableId, int seat})? free) {
     final held = _heldFor(sessions, e.playerUid);
     if (held != null) {
-      unawaited(ref.read(sessionsRepositoryProvider).seatFromHold(held.id));
-      unawaited(ref.read(waitlistRepositoryProvider).markSeated(e.id));
+      unawaited(_surface(context, () async {
+        await ref.read(sessionsRepositoryProvider).seatFromHold(held.id);
+        await ref.read(waitlistRepositoryProvider).markSeated(e.id);
+      }));
     } else if (free != null) {
-      unawaited(ref.read(waitlistRepositoryProvider)
-          .seat(entry: e, tableId: free.tableId, seatNumber: free.seat));
+      unawaited(_surface(context, () => ref.read(waitlistRepositoryProvider)
+          .seat(entry: e, tableId: free.tableId, seatNumber: free.seat)));
     }
   }
 
@@ -631,12 +648,14 @@ class GameDetailScreen extends ConsumerWidget {
               key: Key('seatHeldBtn_${s.id}'),
               label: l10n.seatAction,
               primary: true,
-              onTap: () => unawaited(ref.read(sessionsRepositoryProvider).seatFromHold(s.id))),
+              onTap: () => unawaited(
+                  _surface(context, () => ref.read(sessionsRepositoryProvider).seatFromHold(s.id)))),
           _miniBtn(
               key: Key('relHeldBtn_${s.id}'),
               label: '✕',
               danger: true,
-              onTap: () => unawaited(ref.read(sessionsRepositoryProvider).releaseHold(s.id))),
+              onTap: () => unawaited(
+                  _surface(context, () => ref.read(sessionsRepositoryProvider).releaseHold(s.id)))),
         ],
       ),
     );
@@ -659,7 +678,8 @@ class GameDetailScreen extends ConsumerWidget {
             label: l10n.seatAction,
             onPressed: () {
               final nav = Navigator.of(context);
-              unawaited(ref.read(sessionsRepositoryProvider).seatFromHold(s.id));
+              unawaited(
+                  _surface(context, () => ref.read(sessionsRepositoryProvider).seatFromHold(s.id)));
               nav.pop();
             },
           ),
@@ -670,7 +690,8 @@ class GameDetailScreen extends ConsumerWidget {
             variant: PsButtonVariant.secondary,
             onPressed: () {
               final nav = Navigator.of(context);
-              unawaited(ref.read(sessionsRepositoryProvider).releaseHold(s.id));
+              unawaited(
+                  _surface(context, () => ref.read(sessionsRepositoryProvider).releaseHold(s.id)));
               nav.pop();
             },
           ),
@@ -704,7 +725,7 @@ class GameDetailScreen extends ConsumerWidget {
             variant: PsButtonVariant.secondary,
             onPressed: () {
               final nav = Navigator.of(context);
-              unawaited(ref.read(sessionsRepositoryProvider).end(s.id));
+              unawaited(_surface(context, () => ref.read(sessionsRepositoryProvider).end(s.id)));
               nav.pop();
             },
           ),
@@ -832,26 +853,26 @@ class _SeatPickerSheetState extends ConsumerState<_SeatPickerSheet> {
 
   void _seat(WaitlistEntry e) {
     final nav = Navigator.of(context);
-    unawaited(ref.read(waitlistRepositoryProvider)
-        .seat(entry: e, tableId: widget.table.id, seatNumber: widget.seat));
+    unawaited(_surface(context, () => ref.read(waitlistRepositoryProvider)
+        .seat(entry: e, tableId: widget.table.id, seatNumber: widget.seat)));
     nav.pop();
   }
 
   void _seatUser(AppUser u) {
     final nav = Navigator.of(context);
-    unawaited(ref.read(sessionsRepositoryProvider).seatPlayer(
+    unawaited(_surface(context, () => ref.read(sessionsRepositoryProvider).seatPlayer(
           clubId: widget.clubId, tableId: widget.table.id, seatNumber: widget.seat,
           stakes: widget.table.stakes, playerUid: u.uid,
-          playerName: '${u.firstName} ${u.lastName}'.trim()));
+          playerName: '${u.firstName} ${u.lastName}'.trim())));
     nav.pop();
   }
 
   void _walkIn() {
     final nav = Navigator.of(context);
     final name = _q.text.trim().isEmpty ? AppL10n.of(context).walkInLabel : _q.text.trim();
-    unawaited(ref.read(sessionsRepositoryProvider).seatWalkIn(
+    unawaited(_surface(context, () => ref.read(sessionsRepositoryProvider).seatWalkIn(
           clubId: widget.clubId, tableId: widget.table.id, seatNumber: widget.seat,
-          stakes: widget.table.stakes, playerName: name));
+          stakes: widget.table.stakes, playerName: name)));
     nav.pop();
   }
 
@@ -961,8 +982,8 @@ class _AddToWaitlistSheetState extends ConsumerState<_AddToWaitlistSheet> {
 
   void _join(String playerUid, String name) {
     final nav = Navigator.of(context);
-    unawaited(ref.read(waitlistRepositoryProvider).join(
-          clubId: widget.clubId, playerUid: playerUid, playerName: name, stakes: widget.stakes));
+    unawaited(_surface(context, () => ref.read(waitlistRepositoryProvider).join(
+          clubId: widget.clubId, playerUid: playerUid, playerName: name, stakes: widget.stakes)));
     nav.pop();
   }
 

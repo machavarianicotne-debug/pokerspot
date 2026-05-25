@@ -52,12 +52,13 @@ class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
     final club = ref.watch(clubProvider(widget.clubId)).valueOrNull;
     final tables = ref.watch(tablesProvider(widget.clubId)).valueOrNull ?? const <PokerTable>[];
     final games = {for (final g in club?.games ?? const <ClubGame>[]) g.label: g};
-    // Only a stake with at least one OPEN seat (per the denormalized club stats)
-    // can be reserved — the player can't read other clubs' live sessions.
+    // Reservation is allowed when a stake has an OPEN seat, OR when nobody is on
+    // its waitlist (reservation has priority over a not-yet-formed queue). It is
+    // blocked only when there's no seat AND at least one person is waiting.
     final byLabel = <String, Stakes>{for (final t in tables) t.stakes.label: t.stakes};
     final reservable = <Stakes>[
       for (final e in byLabel.entries)
-        if ((games[e.key]?.openSeats ?? 0) > 0) e.value,
+        if ((games[e.key]?.openSeats ?? 0) > 0 || (games[e.key]?.waiting ?? 0) == 0) e.value,
     ];
     final reservableLabels = reservable.map((s) => s.label).toSet();
     if (_selected != null && !reservableLabels.contains(_selected!.label)) _selected = null;
@@ -107,7 +108,9 @@ class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
                       children: [
                         for (final s in reservable)
                           PsFilterPill(
-                            label: '${s.label} · ${games[s.label]!.openSeats} ${l10n.openShort}',
+                            label: (games[s.label]?.openSeats ?? 0) > 0
+                                ? '${s.label} · ${games[s.label]!.openSeats} ${l10n.openShort}'
+                                : s.label,
                             active: _selected?.label == s.label,
                             onTap: () => setState(() => _selected = s),
                           ),

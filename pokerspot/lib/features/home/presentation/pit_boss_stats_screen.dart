@@ -9,6 +9,7 @@ import 'package:pokerspot/features/home/presentation/player_profile_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_avatar.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
 import 'package:pokerspot/shared/widgets/ps_segmented.dart';
+import 'package:pokerspot/shared/widgets/ps_text_field.dart';
 
 class _Stat {
   _Stat(this.uid, this.name, this.walkIn);
@@ -40,6 +41,13 @@ class PitBossStatsScreen extends ConsumerStatefulWidget {
 
 class _PitBossStatsScreenState extends ConsumerState<PitBossStatsScreen> {
   bool _walkIn = false;
+  final _q = TextEditingController();
+
+  @override
+  void dispose() {
+    _q.dispose();
+    super.dispose();
+  }
 
   String _initials(String s) {
     final parts = s.trim().split(RegExp(r'\s+')).where((p) => p.isNotEmpty).toList();
@@ -73,7 +81,11 @@ class _PitBossStatsScreenState extends ConsumerState<PitBossStatsScreen> {
       stat.sessions += 1;
       stat.minutes += s.elapsedAt(now)?.inMinutes ?? 0;
     }
-    final rows = byPlayer.values.where((s) => s.walkIn == _walkIn).toList()
+    final query = _q.text.trim().toLowerCase();
+    final rows = byPlayer.values
+        .where((s) => s.walkIn == _walkIn)
+        .where((s) => query.isEmpty || s.name.toLowerCase().contains(query))
+        .toList()
       ..sort((a, b) => b.minutes.compareTo(a.minutes));
 
     return ListView(
@@ -86,6 +98,13 @@ class _PitBossStatsScreenState extends ConsumerState<PitBossStatsScreen> {
             PsSegment(true, l10n.walkInLabel),
           ],
           onChanged: (v) => setState(() => _walkIn = v),
+        ),
+        const SizedBox(height: PsSpacing.s3),
+        PsTextField(
+          key: const Key('statsSearch'),
+          controller: _q,
+          hintText: l10n.searchUsersHint,
+          onChanged: (_) => setState(() {}),
         ),
         const SizedBox(height: PsSpacing.s4),
         if (rows.isEmpty)

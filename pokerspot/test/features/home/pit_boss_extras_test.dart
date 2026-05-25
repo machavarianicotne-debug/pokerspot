@@ -41,6 +41,14 @@ void main() {
     expect(find.text('Registered'), findsOneWidget); // segment
     expect(find.text('Nino K'), findsOneWidget);
     expect(find.text('2h'), findsOneWidget); // 120 min → hours + minutes
+
+    // Search filters the leaderboard by name.
+    await tester.enterText(find.byKey(const Key('statsSearch')), 'zzz');
+    await tester.pumpAndSettle();
+    expect(find.text('Nino K'), findsNothing);
+    await tester.enterText(find.byKey(const Key('statsSearch')), 'nino');
+    await tester.pumpAndSettle();
+    expect(find.text('Nino K'), findsOneWidget);
   });
 
   testWidgets('Settings shows availability + notifications + sign-out', (tester) async {

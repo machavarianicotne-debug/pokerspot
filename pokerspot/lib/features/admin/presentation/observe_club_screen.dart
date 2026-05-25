@@ -5,6 +5,7 @@ import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
+import 'package:pokerspot/features/admin/presentation/observe_table_screen.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
 import 'package:pokerspot/shared/widgets/ps_scaffold.dart';
@@ -51,7 +52,7 @@ class ObserveClubScreen extends ConsumerWidget {
                     for (final t in tables)
                       Padding(
                         padding: const EdgeInsets.only(bottom: PsSpacing.s3),
-                        child: _tableCard(l10n, t, sessions, waitlist),
+                        child: _tableCard(context, l10n, t, sessions, waitlist),
                       ),
                 ],
               ),
@@ -62,13 +63,16 @@ class ObserveClubScreen extends ConsumerWidget {
     );
   }
 
-  Widget _tableCard(
-      AppL10n l10n, PokerTable t, List<Session> sessions, List<WaitlistEntry> waitlist) {
+  Widget _tableCard(BuildContext context, AppL10n l10n, PokerTable t, List<Session> sessions,
+      List<WaitlistEntry> waitlist) {
     final occupied = sessions.where((s) => s.tableId == t.id).length;
     final waiting = waitlist.where((e) => e.stakes.label == t.stakes.label).length;
     final cur = t.stakes.currency;
     return PsCard(
       key: Key('observeTable_${t.id}'),
+      onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+        builder: (_) => ObserveTableScreen(clubId: clubId, table: t),
+      )),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

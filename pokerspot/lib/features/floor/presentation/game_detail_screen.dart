@@ -24,7 +24,8 @@ import 'package:pokerspot/shared/widgets/ps_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_text_field.dart';
 
 /// A called/reservation hold lasts 30 minutes (mirrors the mockup).
-const _holdWindow = Duration(minutes: 30);
+/// A called waitlist entry is held for 10 minutes (matches the seat hold).
+const _holdWindow = Duration(minutes: 10);
 
 const _sessionWarn = Duration(hours: 8);
 
@@ -153,28 +154,38 @@ class GameDetailScreen extends ConsumerWidget {
           const SizedBox(height: PsSpacing.s4),
           PsSeatMap(
             seatCount: t.seatCount,
-            filledSeats: bySeat.keys.toSet(),
+            filledSeats: {for (final e in bySeat.entries) if (e.value.isActive) e.key},
+            heldSeats: {for (final e in bySeat.entries) if (e.value.isHeld) e.key},
             warnSeats: {
               for (final e in bySeat.entries)
-                if (_warn(e.value)) e.key,
+                if (e.value.isActive && _warn(e.value)) e.key,
             },
             onSeatTap: (seat) {
               final s = bySeat[seat];
               if (s == null) {
                 _seatPicker(context, ref, tables, t, seat);
+              } else if (s.isHeld) {
+                _heldActions(context, ref, s);
               } else {
                 _endSession(context, ref, s);
               }
             },
           ),
-          if (bySeat.isNotEmpty) ...[
+          // Held seats (red — reserved 30 min / called 10 min) with countdown.
+          for (final seat in (bySeat.keys.where((k) => bySeat[k]!.isHeld).toList()..sort()))
+            Padding(
+              padding: const EdgeInsets.only(top: PsSpacing.s2),
+              child: _heldSeatRow(context, ref, seat, bySeat[seat]!),
+            ),
+          if (bySeat.values.any((s) => s.isActive)) ...[
             const SizedBox(height: PsSpacing.s3),
             Align(
               alignment: Alignment.centerLeft,
-              child: PsOverline('${l10n.seatedLabel} · ${bySeat.length}'),
+              child: PsOverline(
+                  '${l10n.seatedLabel} · ${bySeat.values.where((s) => s.isActive).length}'),
             ),
             const SizedBox(height: PsSpacing.s1),
-            for (final seat in (bySeat.keys.toList()..sort()))
+            for (final seat in (bySeat.keys.where((k) => bySeat[k]!.isActive).toList()..sort()))
               _seatedItem(context, ref, seat, bySeat[seat]!),
           ],
           const SizedBox(height: PsSpacing.s3),
@@ -295,17 +306,13 @@ class GameDetailScreen extends ConsumerWidget {
                     key: Key('callBtn_${waitlist[i].id}'),
                     label: l10n.callAction,
                     primary: true,
-                    onTap: () =>
-                        unawaited(ref.read(waitlistRepositoryProvider).call(waitlist[i].id))),
+                    onTap: () => _callWaitlist(ref, waitlist[i], firstFree)),
                 _miniBtn(
                     key: Key('seatBtn_${waitlist[i].id}'),
                     label: l10n.seatAction,
-                    onTap: firstFree == null
+                    onTap: (_heldFor(sessions, waitlist[i].playerUid) == null && firstFree == null)
                         ? null
-                        : () => unawaited(ref.read(waitlistRepositoryProvider).seat(
-                            entry: waitlist[i],
-                            tableId: firstFree!.tableId,
-                            seatNumber: firstFree.seat))),
+                        : () => _seatWaitlist(ref, waitlist[i], sessions, firstFree)),
                 _miniBtn(
                     key: Key('removeWlBtn_${waitlist[i].id}'),
                     label: '✕',
@@ -317,6 +324,40 @@ class GameDetailScreen extends ConsumerWidget {
           ),
         ),
     ];
+  }
+
+  /// The open held session for [uid] (reserved/called seat), if any.
+  static Session? _heldFor(List<Session> sessions, String uid) {
+    for (final s in sessions) {
+      if (s.playerUid == uid && s.isHeld) return s;
+    }
+    return null;
+  }
+
+  /// Call a waiting player: hold the first free seat for 10 min (red) + mark the
+  /// entry 'called' so the player gets the push.
+  void _callWaitlist(WidgetRef ref, WaitlistEntry e, ({String tableId, int seat})? free) {
+    if (free != null && _heldFor(ref.read(clubSessionsProvider(clubId)).valueOrNull ?? const [], e.playerUid) == null) {
+      unawaited(ref.read(sessionsRepositoryProvider).holdSeat(
+            clubId: clubId, tableId: free.tableId, seatNumber: free.seat, stakes: e.stakes,
+            playerUid: e.playerUid, playerName: e.playerName,
+            holdKind: HoldKind.called, durationMinutes: 10));
+    }
+    unawaited(ref.read(waitlistRepositoryProvider).call(e.id));
+  }
+
+  /// Seat a waiting player: from their held seat if one exists (no double-book),
+  /// otherwise straight into the first free seat.
+  void _seatWaitlist(
+      WidgetRef ref, WaitlistEntry e, List<Session> sessions, ({String tableId, int seat})? free) {
+    final held = _heldFor(sessions, e.playerUid);
+    if (held != null) {
+      unawaited(ref.read(sessionsRepositoryProvider).seatFromHold(held.id));
+      unawaited(ref.read(waitlistRepositoryProvider).markSeated(e.id));
+    } else if (free != null) {
+      unawaited(ref.read(waitlistRepositoryProvider)
+          .seat(entry: e, tableId: free.tableId, seatNumber: free.seat));
+    }
   }
 
   /// Compact uppercase action chip (mockup `.wl-act button` / `.res-act button`).
@@ -534,6 +575,108 @@ class GameDetailScreen extends ConsumerWidget {
 
   void _seatPicker(BuildContext context, WidgetRef ref, List<PokerTable> tables, PokerTable t, int seat) {
     PsSheet.show<void>(context, child: _SeatPickerSheet(clubId: clubId, table: t, seat: seat));
+  }
+
+  /// A held seat (reserved 30 min / called 10 min): holder + live countdown +
+  /// Seat (the player arrived) / release.
+  Widget _heldSeatRow(BuildContext context, WidgetRef ref, int seat, Session s) {
+    final l10n = AppL10n.of(context);
+    return PsCard(
+      key: Key('heldRow_${s.id}'),
+      accentRail: PsColors.statusLive,
+      child: Row(
+        children: [
+          Container(
+            width: 22,
+            height: 22,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: PsColors.statusLive.withValues(alpha: 0.16),
+            ),
+            child: Text('$seat',
+                style: const TextStyle(
+                    fontSize: PsType.micro, fontWeight: PsType.weightBlack, color: PsColors.statusLive)),
+          ),
+          const SizedBox(width: PsSpacing.s3),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(s.playerName.isEmpty ? '—' : s.playerName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                        fontSize: PsType.body, fontWeight: PsType.weightBold, color: PsColors.text)),
+                Row(
+                  children: [
+                    Text(
+                        '${s.holdKind == HoldKind.called ? l10n.callAction : l10n.reservedBadge} · ',
+                        style: const TextStyle(
+                            fontSize: PsType.caption,
+                            fontWeight: PsType.weightBlack,
+                            color: PsColors.statusLive)),
+                    if (s.heldUntil != null)
+                      PsCountdown(
+                          deadline: s.heldUntil!,
+                          style: const TextStyle(
+                              fontSize: PsType.caption, fontWeight: PsType.weightBlack)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          _miniBtn(
+              key: Key('seatHeldBtn_${s.id}'),
+              label: l10n.seatAction,
+              primary: true,
+              onTap: () => unawaited(ref.read(sessionsRepositoryProvider).seatFromHold(s.id))),
+          _miniBtn(
+              key: Key('relHeldBtn_${s.id}'),
+              label: '✕',
+              danger: true,
+              onTap: () => unawaited(ref.read(sessionsRepositoryProvider).releaseHold(s.id))),
+        ],
+      ),
+    );
+  }
+
+  void _heldActions(BuildContext context, WidgetRef ref, Session s) {
+    final l10n = AppL10n.of(context);
+    PsSheet.show<void>(
+      context,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('${s.playerName} · #${s.seatNumber}',
+              style: const TextStyle(
+                  fontSize: PsType.headline, fontWeight: PsType.weightBold, color: PsColors.text)),
+          const SizedBox(height: PsSpacing.s4),
+          PsButton(
+            key: Key('seatHeldSheetBtn_${s.id}'),
+            label: l10n.seatAction,
+            onPressed: () {
+              final nav = Navigator.of(context);
+              unawaited(ref.read(sessionsRepositoryProvider).seatFromHold(s.id));
+              nav.pop();
+            },
+          ),
+          const SizedBox(height: PsSpacing.s2),
+          PsButton(
+            key: Key('relHeldSheetBtn_${s.id}'),
+            label: l10n.cancelWaitlist,
+            variant: PsButtonVariant.secondary,
+            onPressed: () {
+              final nav = Navigator.of(context);
+              unawaited(ref.read(sessionsRepositoryProvider).releaseHold(s.id));
+              nav.pop();
+            },
+          ),
+        ],
+      ),
+    );
   }
 
   /// Add a walk-in to the shared waitlist by typed name (mockup `+ Add`).

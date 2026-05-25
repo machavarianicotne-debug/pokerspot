@@ -55,7 +55,13 @@ class ActivityScreen extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(PsSpacing.s4, PsSpacing.s2, PsSpacing.s4, 96),
       children: [
-        for (final s in sessions)
+        // Held seats first (your seat is reserved/free — arrive before it expires).
+        for (final s in sessions.where((s) => s.isHeld))
+          Padding(
+            padding: const EdgeInsets.only(bottom: PsSpacing.s3),
+            child: _HeldSeatCard(session: s, clubName: clubName[s.clubId] ?? ''),
+          ),
+        for (final s in sessions.where((s) => s.isActive))
           Padding(
             padding: const EdgeInsets.only(bottom: PsSpacing.s3),
             child: _NowPlayingCard(session: s, clubName: clubName[s.clubId] ?? ''),
@@ -73,6 +79,52 @@ class ActivityScreen extends ConsumerWidget {
           _PlaytimeCard(sessions: allSessions, clubName: clubName),
         ],
       ],
+    );
+  }
+}
+
+/// "Your seat is held" card — a reserved (30 min) or called (10 min) seat with a
+/// live countdown; the player must arrive before it expires.
+class _HeldSeatCard extends StatelessWidget {
+  const _HeldSeatCard({required this.session, required this.clubName});
+  final Session session;
+  final String clubName;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    final meta = [if (clubName.isNotEmpty) clubName, session.stakes.label, '#${session.seatNumber}']
+        .join(' · ');
+    return PsCard(
+      accentRail: PsColors.statusLive,
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('🔴 ${l10n.reservedBadge}',
+                    style: const TextStyle(
+                        fontSize: PsType.headline,
+                        fontWeight: PsType.weightBlack,
+                        color: PsColors.text)),
+                const SizedBox(height: 2),
+                Text(meta, style: TextStyle(fontSize: PsType.caption, color: PsColors.textMuted)),
+                const SizedBox(height: 6),
+                Text(l10n.nowPlayingHint,
+                    style: TextStyle(
+                        fontSize: PsType.caption,
+                        fontStyle: FontStyle.italic,
+                        color: PsColors.textFaint)),
+              ],
+            ),
+          ),
+          if (session.heldUntil != null)
+            PsCountdown(
+                deadline: session.heldUntil!,
+                style: const TextStyle(fontSize: PsType.title, fontWeight: PsType.weightBlack)),
+        ],
+      ),
     );
   }
 }

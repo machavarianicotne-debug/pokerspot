@@ -117,6 +117,10 @@ class FirebaseWaitlistRepository implements WaitlistRepository {
       });
 
   @override
+  Future<void> markSeated(String entryId) =>
+      _col.doc(entryId).update({'status': WaitlistStatus.seated.asString});
+
+  @override
   Future<void> seat({
     required WaitlistEntry entry,
     required String tableId,

@@ -165,6 +165,15 @@ class FakeWaitlistRepository implements WaitlistRepository {
   }
 
   @override
+  Future<void> markSeated(String entryId) async {
+    final e = store.waitlist[entryId];
+    if (e != null) {
+      store.waitlist[entryId] = e.copyWith(status: WaitlistStatus.seated);
+      store.notify();
+    }
+  }
+
+  @override
   Future<void> seat({
     required WaitlistEntry entry,
     required String tableId,

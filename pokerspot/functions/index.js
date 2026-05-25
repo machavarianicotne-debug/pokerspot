@@ -216,6 +216,46 @@ exports.notifyPitReservation = onDocumentCreated(
   },
 );
 
+// Reservation -> red held seat: assign the first free seat of the stake and hold
+// it (status held, 30-min) so it shows blocked in the Pit cabinet. The player
+// can't read sessions to pick a seat, so the server does it. No free seat ->
+// stays a pending reservation (shown in the Pit's reservations list).
+exports.onReservationCreate = onDocumentCreated(
+  { document: 'reservations/{id}', region: DB_REGION },
+  async (event) => {
+    const r = event.data && event.data.data();
+    if (!r || r.status !== 'held') return;
+    const key = stakeKey(r);
+    const tablesSnap = await db.collection('clubs').doc(r.clubId).collection('tables').get();
+    const tables = tablesSnap.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .filter((t) => t.open !== false && stakeKey(t) === key);
+    if (tables.length === 0) return;
+    const sessSnap = await db.collection('sessions').where('clubId', '==', r.clubId).get();
+    const open = sessSnap.docs
+      .map((d) => d.data())
+      .filter((s) => s.status === 'active' || s.status === 'held');
+    let chosen = null;
+    for (const t of tables) {
+      const taken = new Set(open.filter((s) => s.tableId === t.id).map((s) => s.seatNumber));
+      for (let n = 1; n <= (t.seatCount || 9); n++) {
+        if (!taken.has(n)) { chosen = { tableId: t.id, seat: n }; break; }
+      }
+      if (chosen) break;
+    }
+    if (!chosen) return; // no free seat -> pending reservation
+    const heldUntilMs =
+      r.heldUntil && r.heldUntil.toMillis ? r.heldUntil.toMillis() : Date.now() + 30 * 60000;
+    await db.collection('sessions').add({
+      clubId: r.clubId, tableId: chosen.tableId, seatNumber: chosen.seat,
+      playerUid: r.playerUid, playerName: r.playerName || '',
+      variant: r.variant, smallBlind: r.smallBlind, bigBlind: r.bigBlind, currency: r.currency,
+      status: 'held', startedAt: null, endedAt: null,
+      holdKind: 'reservation', heldUntil: admin.firestore.Timestamp.fromMillis(heldUntilMs),
+    });
+  },
+);
+
 // Chat: notify the other party on a new message.
 exports.notifyMessage = onDocumentCreated(
   { document: 'messages/{id}', region: DB_REGION },

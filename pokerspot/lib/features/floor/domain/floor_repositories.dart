@@ -50,6 +50,10 @@ abstract interface class WaitlistRepository {
   /// Pit Boss calls a waiting entry (status -> called, stamps calledAt).
   Future<void> call(String entryId);
 
+  /// Mark an entry seated (status -> seated) without creating a session — used
+  /// when the player is seated from an already-held seat.
+  Future<void> markSeated(String entryId);
+
   /// Pit Boss seats a called/waiting entry: creates an active Session at
   /// [tableId]/[seatNumber] and flips the entry to seated (atomic on Firebase).
   Future<void> seat({

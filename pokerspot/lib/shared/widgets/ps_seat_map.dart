@@ -13,6 +13,7 @@ class PsSeatMap extends StatelessWidget {
     required this.seatCount,
     required this.filledSeats,
     this.warnSeats = const {},
+    this.heldSeats = const {},
     this.onSeatTap,
     this.height = 150,
   });
@@ -20,12 +21,15 @@ class PsSeatMap extends StatelessWidget {
   final int seatCount;
   final Set<int> filledSeats;
   final Set<int> warnSeats;
+
+  /// Seats reserved/called for a player (status held) — shown red, blocked.
+  final Set<int> heldSeats;
   final void Function(int seat)? onSeatTap;
   final double height;
 
   @override
   Widget build(BuildContext context) {
-    final open = seatCount - filledSeats.length;
+    final open = seatCount - filledSeats.length - heldSeats.length;
     return LayoutBuilder(
       builder: (context, c) {
         final w = c.maxWidth.isFinite ? c.maxWidth : 320.0;
@@ -95,13 +99,17 @@ class PsSeatMap extends StatelessWidget {
   Widget _positioned(int i, double cx, double cy, double rx, double ry) {
     final seat = i + 1;
     final ang = i / seatCount * 2 * math.pi - math.pi / 2;
+    final held = heldSeats.contains(seat);
     final filled = filledSeats.contains(seat);
     final warn = warnSeats.contains(seat);
-    final color = warn
-        ? PsColors.statusOpen
-        : filled
-            ? PsColors.accentPrimary
-            : PsColors.bg1;
+    final occupied = held || filled || warn;
+    final color = held
+        ? PsColors.statusLive
+        : warn
+            ? PsColors.statusOpen
+            : filled
+                ? PsColors.accentPrimary
+                : PsColors.bg1;
     return Positioned(
       left: cx + rx * math.cos(ang) - 13,
       top: cy + ry * math.sin(ang) - 13,
@@ -115,10 +123,10 @@ class PsSeatMap extends StatelessWidget {
             shape: BoxShape.circle,
             color: color,
             border: Border.all(
-              color: (filled || warn) ? color : PsColors.glassBorder,
+              color: occupied ? color : PsColors.glassBorder,
               width: 2,
             ),
-            boxShadow: (filled || warn)
+            boxShadow: occupied
                 ? [BoxShadow(color: color, blurRadius: 8, spreadRadius: -1)]
                 : null,
           ),

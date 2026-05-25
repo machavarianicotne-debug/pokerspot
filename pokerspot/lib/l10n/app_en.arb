@@ -197,5 +197,6 @@
   "registeredUsers": "Registered users",
   "usersBreakdown": "players / pit bosses / admins",
   "onLabel": "On",
-  "offLabel": "Off"
+  "offLabel": "Off",
+  "playingLabel": "You're seated"
 }

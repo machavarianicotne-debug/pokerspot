@@ -197,5 +197,6 @@
   "registeredUsers": "Зарегистрировано",
   "usersBreakdown": "игроки / pit boss / админы",
   "onLabel": "Вкл.",
-  "offLabel": "Выкл."
+  "offLabel": "Выкл.",
+  "playingLabel": "Вы за столом"
 }

@@ -609,4 +609,7 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get offLabel => 'Выкл.';
+
+  @override
+  String get playingLabel => 'Вы за столом';
 }

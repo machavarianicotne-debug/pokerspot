@@ -197,5 +197,6 @@
   "registeredUsers": "რეგისტრირებული მომხმარებლები",
   "usersBreakdown": "მოთამაშე / pit boss / ადმინი",
   "onLabel": "ჩართ.",
-  "offLabel": "გამორთ."
+  "offLabel": "გამორთ.",
+  "playingLabel": "მაგიდაზე ხარ"
 }

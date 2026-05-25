@@ -6,6 +6,7 @@ import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/chat/domain/message.dart';
 import 'package:pokerspot/features/chat/presentation/inbox_screen.dart';
 import 'package:pokerspot/features/chat/presentation/providers.dart';
+import 'package:pokerspot/features/clubs/presentation/providers.dart';
 import 'package:pokerspot/features/floor/presentation/tables_screen.dart';
 import 'package:pokerspot/features/home/presentation/pit_boss_settings_screen.dart';
 import 'package:pokerspot/features/home/presentation/pit_boss_stats_screen.dart';
@@ -28,21 +29,34 @@ class PitBossHome extends ConsumerWidget {
         ? 0
         : (ref.watch(clubThreadsProvider(clubId)).valueOrNull ?? const <ChatThread>[])
             .fold<int>(0, (a, t) => a + t.unread);
+    final clubName = clubId == null ? null : ref.watch(clubProvider(clubId)).valueOrNull?.name;
+    final title = clubName == null || clubName.isEmpty ? l10n.pitBossHome : clubName;
     return TabShell(
       nav: PsGlassNav(
-        leading: Column(
+        leading: Row(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            PsOverline(l10n.pitBossHome),
-            const SizedBox(height: 2),
-            Text(
-              l10n.tabFloor,
-              style: const TextStyle(
-                fontSize: PsType.title,
-                fontWeight: PsType.weightBlack,
-                letterSpacing: PsType.trackingSnug,
-                color: PsColors.text,
+            _ClubOrb(letter: title.isEmpty ? '?' : title[0].toUpperCase()),
+            const SizedBox(width: PsSpacing.s3),
+            Flexible(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  PsOverline(l10n.tabFloor),
+                  const SizedBox(height: 2),
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      fontSize: PsType.title,
+                      fontWeight: PsType.weightBlack,
+                      letterSpacing: PsType.trackingSnug,
+                      color: PsColors.text,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -60,6 +74,32 @@ class PitBossHome extends ConsumerWidget {
         PitBossStatsScreen(),
         PitBossSettingsScreen(),
       ],
+    );
+  }
+}
+
+/// Small gradient club logo orb shown in the Pit Boss nav (mockup club logo).
+class _ClubOrb extends StatelessWidget {
+  const _ClubOrb({required this.letter});
+  final String letter;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 38,
+      height: 38,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(PsRadii.md),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [PsColors.accentPrimary, PsColors.accentSecondary],
+        ),
+      ),
+      child: Text(letter,
+          style: const TextStyle(
+              fontSize: 18, fontWeight: PsType.weightBlack, color: PsColors.onAccent)),
     );
   }
 }

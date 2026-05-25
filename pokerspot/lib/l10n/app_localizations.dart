@@ -1286,6 +1286,12 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Off'**
   String get offLabel;
+
+  /// No description provided for @playingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re seated'**
+  String get playingLabel;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

@@ -609,4 +609,7 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get offLabel => 'Off';
+
+  @override
+  String get playingLabel => 'You\'re seated';
 }

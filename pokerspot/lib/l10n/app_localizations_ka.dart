@@ -611,4 +611,7 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get offLabel => 'გამორთ.';
+
+  @override
+  String get playingLabel => 'მაგიდაზე ხარ';
 }

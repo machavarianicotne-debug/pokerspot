@@ -12,6 +12,7 @@ import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
 import 'package:pokerspot/features/chat/presentation/chat_thread_screen.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
+import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/stakes.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
@@ -395,6 +396,12 @@ class _GamesSection extends ConsumerWidget {
           .where((e) => e.clubId == club.id))
         e.stakes.label: e,
     };
+    // Stakes the player is already seated at (active session) — can't also join
+    // that stake's waitlist.
+    final mySeated = (ref.watch(mySessionProvider).valueOrNull ?? const <Session>[])
+        .where((s) => s.clubId == club.id)
+        .map((s) => s.stakes.label)
+        .toSet();
 
     // Group the club's open tables by stake (source of truth for what's running).
     final byLabel = <String, List<PokerTable>>{};
@@ -424,6 +431,7 @@ class _GamesSection extends ConsumerWidget {
             tableMinBuyIn: byLabel[label]!.first.minBuyIn,
             tableAvgStack: byLabel[label]!.first.avgStack,
             myEntry: mine[label],
+            seated: mySeated.contains(label),
           ),
       ],
     );
@@ -472,6 +480,7 @@ class _GameCard extends ConsumerWidget {
     required this.tableMinBuyIn,
     required this.tableAvgStack,
     required this.myEntry,
+    this.seated = false,
   });
   final String clubId;
   final Stakes stakes;
@@ -482,6 +491,9 @@ class _GameCard extends ConsumerWidget {
 
   /// The player's own waitlist entry for this stake (null if not waiting).
   final WaitlistEntry? myEntry;
+
+  /// True when the player is already seated (active session) at this stake.
+  final bool seated;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -557,12 +569,21 @@ class _GameCard extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(PsSpacing.s4, 0, PsSpacing.s4, PsSpacing.s4),
               child: PsButton(
                 key: Key('joinGame_${stakes.label}'),
-                // Same button joins, and (when already waiting) leaves the list.
-                label: myEntry != null ? '${l10n.statusWaiting} · ${l10n.cancelWaitlist}' : l10n.joinWaitlist,
-                variant: myEntry != null ? PsButtonVariant.secondary : PsButtonVariant.primary,
-                onPressed: myEntry != null
-                    ? () => unawaited(ref.read(waitlistRepositoryProvider).cancel(myEntry!.id))
-                    : () => _join(context, ref),
+                // Seated players can't join this stake's waitlist; otherwise the
+                // same button joins, and (when waiting) leaves the list.
+                label: seated
+                    ? l10n.playingLabel
+                    : myEntry != null
+                        ? '${l10n.statusWaiting} · ${l10n.cancelWaitlist}'
+                        : l10n.joinWaitlist,
+                variant: seated || myEntry != null
+                    ? PsButtonVariant.secondary
+                    : PsButtonVariant.primary,
+                onPressed: seated
+                    ? null
+                    : myEntry != null
+                        ? () => unawaited(ref.read(waitlistRepositoryProvider).cancel(myEntry!.id))
+                        : () => _join(context, ref),
               ),
             ),
           ],

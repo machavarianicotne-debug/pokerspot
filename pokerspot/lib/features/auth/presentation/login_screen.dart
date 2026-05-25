@@ -24,7 +24,6 @@ const _countries = [
   _Country('🇬🇪', 'Georgia', '995'),
   _Country('🇺🇦', 'Ukraine', '380'),
   _Country('🇷🇺', 'Russia', '7'),
-  _Country('🇰🇿', 'Kazakhstan', '7'),
   _Country('🇦🇿', 'Azerbaijan', '994'),
   _Country('🇹🇷', 'Türkiye', '90'),
   _Country('🇮🇷', 'Iran', '98'),

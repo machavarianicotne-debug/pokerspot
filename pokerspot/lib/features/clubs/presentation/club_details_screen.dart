@@ -390,10 +390,11 @@ class _GamesSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppL10n.of(context);
     final tables = ref.watch(tablesProvider(club.id)).valueOrNull ?? const <PokerTable>[];
-    final mine = (ref.watch(myWaitlistProvider).valueOrNull ?? const <WaitlistEntry>[])
-        .where((e) => e.clubId == club.id)
-        .map((e) => e.stakes.label)
-        .toSet();
+    final mine = <String, WaitlistEntry>{
+      for (final e in (ref.watch(myWaitlistProvider).valueOrNull ?? const <WaitlistEntry>[])
+          .where((e) => e.clubId == club.id))
+        e.stakes.label: e,
+    };
 
     // Group the club's open tables by stake (source of truth for what's running).
     final byLabel = <String, List<PokerTable>>{};
@@ -422,7 +423,7 @@ class _GamesSection extends ConsumerWidget {
             tableCount: byLabel[label]!.length,
             tableMinBuyIn: byLabel[label]!.first.minBuyIn,
             tableAvgStack: byLabel[label]!.first.avgStack,
-            alreadyWaiting: mine.contains(label),
+            myEntry: mine[label],
           ),
       ],
     );
@@ -470,7 +471,7 @@ class _GameCard extends ConsumerWidget {
     required this.tableCount,
     required this.tableMinBuyIn,
     required this.tableAvgStack,
-    required this.alreadyWaiting,
+    required this.myEntry,
   });
   final String clubId;
   final Stakes stakes;
@@ -478,7 +479,9 @@ class _GameCard extends ConsumerWidget {
   final int tableCount;
   final num? tableMinBuyIn;
   final num? tableAvgStack;
-  final bool alreadyWaiting;
+
+  /// The player's own waitlist entry for this stake (null if not waiting).
+  final WaitlistEntry? myEntry;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -554,9 +557,12 @@ class _GameCard extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(PsSpacing.s4, 0, PsSpacing.s4, PsSpacing.s4),
               child: PsButton(
                 key: Key('joinGame_${stakes.label}'),
-                label: alreadyWaiting ? l10n.statusWaiting : l10n.joinWaitlist,
-                variant: alreadyWaiting ? PsButtonVariant.secondary : PsButtonVariant.primary,
-                onPressed: alreadyWaiting ? null : () => _join(context, ref),
+                // Same button joins, and (when already waiting) leaves the list.
+                label: myEntry != null ? '${l10n.statusWaiting} · ${l10n.cancelWaitlist}' : l10n.joinWaitlist,
+                variant: myEntry != null ? PsButtonVariant.secondary : PsButtonVariant.primary,
+                onPressed: myEntry != null
+                    ? () => unawaited(ref.read(waitlistRepositoryProvider).cancel(myEntry!.id))
+                    : () => _join(context, ref),
               ),
             ),
           ],

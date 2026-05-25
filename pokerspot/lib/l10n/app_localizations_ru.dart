@@ -590,6 +590,9 @@ class AppL10nRu extends AppL10n {
   String get ffIos => 'Поддержка iOS';
 
   @override
+  String get playersLabel => 'Игроки';
+
+  @override
   String get systemHealth => 'Состояние системы';
 
   @override

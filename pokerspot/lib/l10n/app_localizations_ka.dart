@@ -592,6 +592,9 @@ class AppL10nKa extends AppL10n {
   String get ffIos => 'iOS მხარდაჭერა';
 
   @override
+  String get playersLabel => 'მოთამაშეები';
+
+  @override
   String get systemHealth => 'სისტემის მდგომარეობა';
 
   @override

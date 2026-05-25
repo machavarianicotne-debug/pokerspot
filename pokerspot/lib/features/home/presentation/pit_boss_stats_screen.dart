@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
+import 'package:pokerspot/features/auth/domain/app_user.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
-import 'package:pokerspot/features/home/presentation/player_profile_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_avatar.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
+import 'package:pokerspot/shared/widgets/ps_overline.dart';
 import 'package:pokerspot/shared/widgets/ps_segmented.dart';
+import 'package:pokerspot/shared/widgets/ps_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_text_field.dart';
 
 class _Stat {
@@ -75,11 +77,13 @@ class _PitBossStatsScreenState extends ConsumerState<PitBossStatsScreen> {
     final sessions = ref.watch(clubSessionsAllProvider(clubId)).valueOrNull ?? const <Session>[];
     final now = DateTime.now();
     final byPlayer = <String, _Stat>{};
+    final byPlayerSessions = <String, List<Session>>{};
     for (final s in sessions) {
       final walkIn = s.playerUid.startsWith('walk-in:');
       final stat = byPlayer.putIfAbsent(s.playerUid, () => _Stat(s.playerUid, s.playerName, walkIn));
       stat.sessions += 1;
       stat.minutes += s.elapsedAt(now)?.inMinutes ?? 0;
+      (byPlayerSessions[s.playerUid] ??= []).add(s);
     }
     final query = _q.text.trim().toLowerCase();
     final rows = byPlayer.values
@@ -118,7 +122,12 @@ class _PitBossStatsScreenState extends ConsumerState<PitBossStatsScreen> {
           for (var i = 0; i < rows.length; i++)
             Padding(
               padding: const EdgeInsets.only(bottom: PsSpacing.s2),
-              child: _StatRow(rank: i + 1, stat: rows[i], initials: _initials(rows[i].name), l10n: l10n),
+              child: _StatRow(
+                  rank: i + 1,
+                  stat: rows[i],
+                  initials: _initials(rows[i].name),
+                  sessions: byPlayerSessions[rows[i].uid] ?? const <Session>[],
+                  l10n: l10n),
             ),
       ],
     );
@@ -126,10 +135,16 @@ class _PitBossStatsScreenState extends ConsumerState<PitBossStatsScreen> {
 }
 
 class _StatRow extends StatelessWidget {
-  const _StatRow({required this.rank, required this.stat, required this.initials, required this.l10n});
+  const _StatRow(
+      {required this.rank,
+      required this.stat,
+      required this.initials,
+      required this.sessions,
+      required this.l10n});
   final int rank;
   final _Stat stat;
   final String initials;
+  final List<Session> sessions;
   final AppL10n l10n;
 
   @override
@@ -137,7 +152,7 @@ class _StatRow extends StatelessWidget {
     final avgMin = stat.sessions == 0 ? 0 : (stat.minutes / stat.sessions).round();
     return PsCard(
       key: Key('statRow_${stat.uid}'),
-      onTap: () => PlayerProfileSheet.show(context, uid: stat.uid, fallbackName: stat.name),
+      onTap: () => _PlayerStatsSheet.show(context, stat: stat, sessions: sessions),
       child: Row(
         children: [
           SizedBox(
@@ -172,6 +187,100 @@ class _StatRow extends StatelessWidget {
                   color: PsColors.accentPrimary)),
         ],
       ),
+    );
+  }
+}
+
+/// Per-player detail (mockup stats drill-down): name + phone, total playtime and
+/// a by-day breakdown. Opened by tapping a leaderboard row.
+class _PlayerStatsSheet extends ConsumerWidget {
+  const _PlayerStatsSheet({required this.stat, required this.sessions});
+  final _Stat stat;
+  final List<Session> sessions;
+
+  static void show(BuildContext context, {required _Stat stat, required List<Session> sessions}) {
+    PsSheet.show<void>(context, child: _PlayerStatsSheet(stat: stat, sessions: sessions));
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppL10n.of(context);
+    final now = DateTime.now();
+    // Group this player's playtime by day (date -> minutes), newest first.
+    final byDay = <DateTime, int>{};
+    var total = 0;
+    for (final s in sessions) {
+      final start = s.startedAt;
+      final mins = s.elapsedAt(now)?.inMinutes ?? 0;
+      if (start == null || mins <= 0) continue;
+      total += mins;
+      final day = DateTime(start.year, start.month, start.day);
+      byDay[day] = (byDay[day] ?? 0) + mins;
+    }
+    final days = byDay.keys.toList()..sort((a, b) => b.compareTo(a));
+
+    // Phone (registered players only).
+    String phone = '';
+    for (final u in ref.watch(allUsersProvider).valueOrNull ?? const <AppUser>[]) {
+      if (u.uid == stat.uid) {
+        phone = u.phone;
+        break;
+      }
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            PsAvatar(initials: stat.name.isEmpty ? '?' : stat.name[0].toUpperCase(), size: 48),
+            const SizedBox(width: PsSpacing.s3),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(stat.name.isEmpty ? '—' : stat.name,
+                      style: const TextStyle(
+                          fontSize: PsType.headline,
+                          fontWeight: PsType.weightBlack,
+                          color: PsColors.text)),
+                  if (phone.isNotEmpty)
+                    Text(phone, style: TextStyle(fontSize: PsType.caption, color: PsColors.textMuted)),
+                ],
+              ),
+            ),
+            Text(_fmtHm(total, l10n),
+                style: const TextStyle(
+                    fontSize: PsType.title,
+                    fontWeight: PsType.weightBlack,
+                    color: PsColors.accentPrimary)),
+          ],
+        ),
+        const SizedBox(height: PsSpacing.s4),
+        PsOverline(l10n.sessionsLabel),
+        const SizedBox(height: PsSpacing.s2),
+        for (final d in days)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 6),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text('${d.day}.${d.month}.${d.year}',
+                      style: const TextStyle(
+                          fontSize: PsType.subhead,
+                          fontWeight: PsType.weightBold,
+                          color: PsColors.text)),
+                ),
+                Text(_fmtHm(byDay[d]!, l10n),
+                    style: const TextStyle(
+                        fontSize: PsType.subhead,
+                        fontWeight: PsType.weightBlack,
+                        color: PsColors.accentPrimary)),
+              ],
+            ),
+          ),
+      ],
     );
   }
 }

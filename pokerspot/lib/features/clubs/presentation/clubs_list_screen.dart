@@ -165,12 +165,9 @@ class _ClubCard extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(PsSpacing.s4, PsSpacing.s1, PsSpacing.s4, PsSpacing.s4),
               child: Row(
                 children: [
-                  if (full)
-                    PsMetric(value: l10n.fullLabel, label: l10n.noSeatsLabel, variant: PsMetricVariant.full)
-                  else
-                    PsMetric(value: '${club.openSeats}', label: l10n.openSeatsLabel, variant: PsMetricVariant.hero),
+                  PsMetric(value: '$tables', label: l10n.tablesMetric, variant: PsMetricVariant.hero),
                   const SizedBox(width: PsSpacing.s3),
-                  PsMetric(value: '$tables', label: l10n.tablesMetric),
+                  PsMetric(value: '${club.players}', label: l10n.playersLabel),
                   const SizedBox(width: PsSpacing.s3),
                   PsMetric(value: '${club.waiting}', label: l10n.waitlistTitle),
                 ],

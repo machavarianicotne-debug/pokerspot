@@ -9,6 +9,7 @@ import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
 import 'package:pokerspot/features/floor/domain/reservation.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
+import 'package:pokerspot/features/floor/domain/stakes.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/ps_avatar.dart';
@@ -539,39 +540,7 @@ class GameDetailScreen extends ConsumerWidget {
   /// Registered-user search is out of scope: rules forbid Pit Bosses reading
   /// the full users collection.
   void _addToWaitlist(BuildContext context, WidgetRef ref, PokerTable t) {
-    final c = TextEditingController();
-    final l10n = AppL10n.of(context);
-    PsSheet.show<void>(
-      context,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(l10n.waitlistTitle,
-              style: const TextStyle(
-                  fontSize: PsType.headline, fontWeight: PsType.weightBold, color: PsColors.text)),
-          const SizedBox(height: PsSpacing.s3),
-          PsTextField(controller: c, hintText: l10n.searchUsersHint, autofocus: true),
-          const SizedBox(height: PsSpacing.s4),
-          PsButton(
-            key: const Key('addWaitlistSaveBtn'),
-            label: '+ ${l10n.addLabel}',
-            onPressed: () {
-              final name = c.text.trim();
-              if (name.isEmpty) return;
-              final nav = Navigator.of(context);
-              unawaited(ref.read(waitlistRepositoryProvider).join(
-                    clubId: clubId,
-                    playerUid: 'walk-in:${DateTime.now().microsecondsSinceEpoch}',
-                    playerName: name,
-                    stakes: t.stakes,
-                  ));
-              nav.pop();
-            },
-          ),
-        ],
-      ),
-    );
+    PsSheet.show<void>(context, child: _AddToWaitlistSheet(clubId: clubId, stakes: t.stakes));
   }
 
   void _endSession(BuildContext context, WidgetRef ref, Session s) {
@@ -824,5 +793,90 @@ class _SeatPickerSheetState extends ConsumerState<_SeatPickerSheet> {
     final b = l.isNotEmpty ? l[0] : (f.length >= 2 ? f[1] : '');
     final s = (a + b).toUpperCase();
     return s.isEmpty ? '?' : s;
+  }
+}
+
+/// Add-to-waitlist sheet: search registered players to add to the stake's
+/// waitlist, or add a walk-in by typed name (mockup `+ Add`).
+class _AddToWaitlistSheet extends ConsumerStatefulWidget {
+  const _AddToWaitlistSheet({required this.clubId, required this.stakes});
+  final String clubId;
+  final Stakes stakes;
+
+  @override
+  ConsumerState<_AddToWaitlistSheet> createState() => _AddToWaitlistSheetState();
+}
+
+class _AddToWaitlistSheetState extends ConsumerState<_AddToWaitlistSheet> {
+  final _q = TextEditingController();
+
+  @override
+  void dispose() {
+    _q.dispose();
+    super.dispose();
+  }
+
+  void _join(String playerUid, String name) {
+    final nav = Navigator.of(context);
+    unawaited(ref.read(waitlistRepositoryProvider).join(
+          clubId: widget.clubId, playerUid: playerUid, playerName: name, stakes: widget.stakes));
+    nav.pop();
+  }
+
+  static String _initials(AppUser u) {
+    final a = u.firstName.trim().isNotEmpty ? u.firstName.trim()[0] : '';
+    final b = u.lastName.trim().isNotEmpty ? u.lastName.trim()[0] : '';
+    final s = (a + b).toUpperCase();
+    return s.isEmpty ? '?' : s;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppL10n.of(context);
+    final query = _q.text.trim().toLowerCase();
+    final registered = (ref.watch(allUsersProvider).valueOrNull ?? const <AppUser>[])
+        .where((u) => u.role == AppRole.player)
+        .where((u) => query.isEmpty ||
+            '${u.firstName} ${u.lastName}'.toLowerCase().contains(query) ||
+            u.phone.toLowerCase().contains(query))
+        .take(6)
+        .toList();
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('${l10n.waitlistTitle} · ${widget.stakes.label}',
+            style: const TextStyle(
+                fontSize: PsType.headline, fontWeight: PsType.weightBold, color: PsColors.text)),
+        const SizedBox(height: PsSpacing.s3),
+        PsTextField(controller: _q, hintText: l10n.searchUsersHint, onChanged: (_) => setState(() {})),
+        const SizedBox(height: PsSpacing.s3),
+        for (final u in registered)
+          Padding(
+            padding: const EdgeInsets.only(bottom: PsSpacing.s2),
+            child: PsCard(
+              key: Key('wlAddUser_${u.uid}'),
+              onTap: () => _join(u.uid, '${u.firstName} ${u.lastName}'.trim()),
+              child: PsListTile(
+                leading: PsAvatar(initials: _initials(u), size: 32),
+                title: '${u.firstName} ${u.lastName}'.trim().isEmpty
+                    ? '—'
+                    : '${u.firstName} ${u.lastName}'.trim(),
+                subtitle: u.phone,
+              ),
+            ),
+          ),
+        PsButton(
+          key: const Key('addWalkInWlBtn'),
+          label: _q.text.trim().isEmpty ? l10n.walkInLabel : '${l10n.walkInLabel}: ${_q.text.trim()}',
+          icon: Icons.directions_walk,
+          variant: PsButtonVariant.secondary,
+          onPressed: () => _join(
+              'walk-in:${DateTime.now().microsecondsSinceEpoch}',
+              _q.text.trim().isEmpty ? l10n.walkInLabel : _q.text.trim()),
+        ),
+      ],
+    );
   }
 }

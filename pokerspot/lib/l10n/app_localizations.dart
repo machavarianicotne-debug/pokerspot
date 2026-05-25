@@ -1245,6 +1245,12 @@ abstract class AppL10n {
   /// **'iOS support'**
   String get ffIos;
 
+  /// No description provided for @playersLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Players'**
+  String get playersLabel;
+
   /// No description provided for @systemHealth.
   ///
   /// In en, this message translates to:

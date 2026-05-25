@@ -66,6 +66,7 @@ class Club {
   // waitlist, so these summary numbers live on the club itself.
   final bool live; // at least one game has players seated
   final int openSeats; // free seats across open tables
+  final int players; // seated players across the club
   final int stakes; // distinct stakes currently running
   final int waiting; // active waitlist entries
   final List<ClubGame> games; // per-stake live scoreboard (function-populated)
@@ -83,6 +84,7 @@ class Club {
     this.languages = const [],
     this.live = false,
     this.openSeats = 0,
+    this.players = 0,
     this.stakes = 0,
     this.waiting = 0,
     this.games = const [],
@@ -101,6 +103,7 @@ class Club {
         languages: (m['languages'] as List?)?.whereType<String>().toList() ?? const [],
         live: (m['live'] ?? false) as bool,
         openSeats: (m['openSeats'] ?? 0) as int,
+        players: (m['players'] ?? 0) as int,
         stakes: (m['stakes'] ?? 0) as int,
         waiting: (m['waiting'] ?? 0) as int,
         games: (m['games'] as List?)
@@ -135,6 +138,7 @@ class Club {
     List<String>? languages,
     bool? live,
     int? openSeats,
+    int? players,
     int? stakes,
     int? waiting,
     List<ClubGame>? games,
@@ -152,6 +156,7 @@ class Club {
         languages: languages ?? this.languages,
         live: live ?? this.live,
         openSeats: openSeats ?? this.openSeats,
+        players: players ?? this.players,
         stakes: stakes ?? this.stakes,
         waiting: waiting ?? this.waiting,
         games: games ?? this.games,
@@ -174,13 +179,15 @@ class Club {
           _listEq(languages, other.languages) &&
           live == other.live &&
           openSeats == other.openSeats &&
+          players == other.players &&
           stakes == other.stakes &&
           waiting == other.waiting &&
           _listEq(games, other.games);
 
   @override
   int get hashCode => Object.hash(id, name, city, address, photoUrl, hoursText, phone, enabled,
-      currency, Object.hashAll(languages), live, openSeats, stakes, waiting, Object.hashAll(games));
+      currency, Object.hashAll(languages), live, openSeats, players, stakes, waiting,
+      Object.hashAll(games));
 
   static bool _listEq(List<Object?> a, List<Object?> b) {
     if (a.length != b.length) return false;

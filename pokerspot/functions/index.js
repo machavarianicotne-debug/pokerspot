@@ -5,7 +5,11 @@
 // Firestore is the eur3 multi-region DB, which 1st-gen Firestore triggers do NOT
 // support — (b)/(c) therefore use the 2nd-gen (Eventarc) API in europe-west1.
 const functions = require('firebase-functions');
-const { onDocumentUpdated, onDocumentWritten } = require('firebase-functions/v2/firestore');
+const {
+  onDocumentCreated,
+  onDocumentUpdated,
+  onDocumentWritten,
+} = require('firebase-functions/v2/firestore');
 const admin = require('firebase-admin');
 
 admin.initializeApp();
@@ -135,6 +139,7 @@ async function recomputeClub(clubId) {
     {
       live: totalOccupied > 0,
       openSeats: gamesArr.reduce((a, g) => a + g.openSeats, 0),
+      players: totalOccupied,
       stakes: gamesArr.length,
       waiting: gamesArr.reduce((a, g) => a + g.waiting, 0),
       games: gamesArr,
@@ -142,6 +147,97 @@ async function recomputeClub(clubId) {
     { merge: true },
   );
 }
+
+// ---- Push helpers + notifications -----------------------------------------
+async function sendToTokens(tokens, title, body, data) {
+  const list = (Array.isArray(tokens) ? tokens : []).filter(Boolean);
+  if (list.length === 0) return;
+  await admin.messaging().sendEachForMulticast({
+    tokens: list,
+    notification: { title, body },
+    data: data || {},
+  });
+}
+
+async function pitBossTokens(clubId) {
+  if (!clubId) return [];
+  const snap = await db.collection('users').where('clubId', '==', clubId).get();
+  const tokens = [];
+  snap.forEach((d) => {
+    const u = d.data();
+    if ((u.role === 'pit_boss' || u.role === 'pitboss') && Array.isArray(u.fcmTokens)) {
+      tokens.push(...u.fcmTokens);
+    }
+  });
+  return tokens;
+}
+
+async function playerTokens(uid) {
+  if (!uid) return [];
+  const s = await db.collection('users').doc(uid).get();
+  return s.exists && Array.isArray(s.data().fcmTokens) ? s.data().fcmTokens : [];
+}
+
+const stakeText = (x) => `${(x.variant || '').toString().toUpperCase()} ${x.smallBlind}/${x.bigBlind}`;
+
+// Pit Boss: a player joined the waitlist.
+exports.notifyPitWaitlist = onDocumentCreated(
+  { document: 'waitlist/{id}', region: DB_REGION },
+  async (event) => {
+    const w = event.data && event.data.data();
+    if (!w) return;
+    await sendToTokens(await pitBossTokens(w.clubId), 'New waitlist join',
+      `${w.playerName || 'A player'} · ${stakeText(w)}`, { clubId: w.clubId || '', type: 'waitlist.join' });
+  },
+);
+
+// Pit Boss: a player made a reservation.
+exports.notifyPitReservation = onDocumentCreated(
+  { document: 'reservations/{id}', region: DB_REGION },
+  async (event) => {
+    const r = event.data && event.data.data();
+    if (!r) return;
+    await sendToTokens(await pitBossTokens(r.clubId), 'New reservation',
+      `${r.playerName || 'A player'} · ${stakeText(r)}`, { clubId: r.clubId || '', type: 'reservation.new' });
+  },
+);
+
+// Chat: notify the other party on a new message.
+exports.notifyMessage = onDocumentCreated(
+  { document: 'messages/{id}', region: DB_REGION },
+  async (event) => {
+    const m = event.data && event.data.data();
+    if (!m) return;
+    if (m.senderRole === 'player') {
+      await sendToTokens(await pitBossTokens(m.clubId), 'New chat message',
+        `${m.playerName || 'Player'}: ${m.text || ''}`, { clubId: m.clubId || '', type: 'chat' });
+    } else {
+      await sendToTokens(await playerTokens(m.playerUid), 'Pit Boss replied',
+        m.text || '', { clubId: m.clubId || '', type: 'chat' });
+    }
+  },
+);
+
+// Players waiting for a stake: a seat opened when a session ended.
+exports.notifySeatOpen = onDocumentUpdated(
+  { document: 'sessions/{id}', region: DB_REGION },
+  async (event) => {
+    const before = event.data.before.data();
+    const after = event.data.after.data();
+    if (before.status === 'ended' || after.status !== 'ended') return;
+    const key = stakeKey(after);
+    const snap = await db.collection('waitlist').where('clubId', '==', after.clubId).get();
+    const tokens = [];
+    for (const d of snap.docs) {
+      const w = d.data();
+      if (w.status === 'waiting' && stakeKey(w) === key) {
+        tokens.push(...(await playerTokens(w.playerUid)));
+      }
+    }
+    await sendToTokens(tokens, 'A seat opened up', `${stakeText(after)} — head over`,
+      { clubId: after.clubId || '', type: 'seat.open' });
+  },
+);
 
 function clubIdOf(event) {
   if (event.params && event.params.clubId) return event.params.clubId; // tables subcollection

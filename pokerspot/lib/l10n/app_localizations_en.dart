@@ -590,6 +590,9 @@ class AppL10nEn extends AppL10n {
   String get ffIos => 'iOS support';
 
   @override
+  String get playersLabel => 'Players';
+
+  @override
   String get systemHealth => 'System health';
 
   @override

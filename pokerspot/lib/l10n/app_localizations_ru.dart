@@ -484,4 +484,11 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get minLabel => 'Мин';
+
+  @override
+  String get newChat => 'Новое сообщение';
+
+  @override
+  String get chatSendFailed =>
+      'Не отправлено — проверьте связь или что вам назначен клуб.';
 }

@@ -1040,6 +1040,18 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Min'**
   String get minLabel;
+
+  /// No description provided for @newChat.
+  ///
+  /// In en, this message translates to:
+  /// **'New message'**
+  String get newChat;
+
+  /// No description provided for @chatSendFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send — check your connection or that a club is assigned to you.'**
+  String get chatSendFailed;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

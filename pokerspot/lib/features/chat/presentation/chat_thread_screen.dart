@@ -57,15 +57,23 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
     final user = ref.read(currentUserProvider).valueOrNull;
     final uid = ref.read(authRepositoryProvider).currentUid;
     if (user == null || uid == null) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final l10n = AppL10n.of(context);
     _input.clear();
-    await ref.read(chatRepositoryProvider).send(
-          clubId: widget.clubId,
-          playerUid: widget.playerUid,
-          playerName: widget.playerName,
-          senderUid: uid,
-          senderRole: user.role,
-          text: text,
-        );
+    try {
+      await ref.read(chatRepositoryProvider).send(
+            clubId: widget.clubId,
+            playerUid: widget.playerUid,
+            playerName: widget.playerName,
+            senderUid: uid,
+            senderRole: user.role,
+            text: text,
+          );
+    } catch (_) {
+      // Don't lose the text on a denied/failed write — restore it and tell the user.
+      _input.text = text;
+      messenger.showSnackBar(SnackBar(content: Text(l10n.chatSendFailed)));
+    }
   }
 
   @override

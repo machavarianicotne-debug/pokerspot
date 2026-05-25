@@ -484,4 +484,11 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get minLabel => 'მინ.';
+
+  @override
+  String get newChat => 'ახალი მესიჯი';
+
+  @override
+  String get chatSendFailed =>
+      'ვერ გაიგზავნა — შეამოწმე კავშირი ან რომ კლუბი გაქვს მინიჭებული.';
 }

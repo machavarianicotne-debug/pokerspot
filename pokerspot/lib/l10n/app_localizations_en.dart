@@ -484,4 +484,11 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get minLabel => 'Min';
+
+  @override
+  String get newChat => 'New message';
+
+  @override
+  String get chatSendFailed =>
+      'Couldn\'t send — check your connection or that a club is assigned to you.';
 }

@@ -156,5 +156,7 @@
   "noGamesTitle": "No games running",
   "noGamesSub": "The floor is open — check back later, or reserve a seat for tonight.",
   "tablesMetric": "Tables",
-  "minLabel": "Min"
+  "minLabel": "Min",
+  "newChat": "New message",
+  "chatSendFailed": "Couldn't send — check your connection or that a club is assigned to you."
 }

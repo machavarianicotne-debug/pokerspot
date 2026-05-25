@@ -61,6 +61,29 @@ class FakeChatRepository implements ChatRepository {
       });
 
   @override
+  Stream<List<ChatThread>> watchPlayerThreads(String playerUid) => _watch(() {
+        final byClub = <String, List<Message>>{};
+        for (final m in _messages.values.where((m) => m.playerUid == playerUid)) {
+          (byClub[m.clubId] ??= []).add(m);
+        }
+        final threads = byClub.entries.map((e) {
+          final msgs = e.value..sort(_byAt);
+          final last = msgs.last;
+          return ChatThread(
+            clubId: e.key,
+            playerUid: playerUid,
+            playerName: last.playerName,
+            lastText: last.text,
+            lastAt: last.at,
+            unread: 0,
+          );
+        }).toList()
+          ..sort((a, b) =>
+              (b.lastAt?.millisecondsSinceEpoch ?? 0).compareTo(a.lastAt?.millisecondsSinceEpoch ?? 0));
+        return threads;
+      });
+
+  @override
   Future<void> send({
     required String clubId,
     required String playerUid,

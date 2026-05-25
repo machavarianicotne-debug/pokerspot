@@ -522,4 +522,7 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get openShort => 'open';
+
+  @override
+  String get tabChat => 'Chat';
 }

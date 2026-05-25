@@ -168,5 +168,6 @@
   "hoursTiny": "h",
   "minutesTiny": "m",
   "noOpenSeats": "No open seats to reserve right now — join the waitlist instead.",
-  "openShort": "open"
+  "openShort": "open",
+  "tabChat": "Chat"
 }

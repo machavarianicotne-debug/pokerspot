@@ -522,4 +522,7 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get openShort => 'своб.';
+
+  @override
+  String get tabChat => 'Чат';
 }

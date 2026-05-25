@@ -10,6 +10,9 @@ abstract interface class ChatRepository {
   /// Live per-player threads for a club (Pit Boss inbox), newest activity first.
   Stream<List<ChatThread>> watchClubThreads(String clubId);
 
+  /// Live per-club threads for one player (player chat inbox), newest first.
+  Stream<List<ChatThread>> watchPlayerThreads(String playerUid);
+
   /// Send a message into a thread.
   Future<void> send({
     required String clubId,

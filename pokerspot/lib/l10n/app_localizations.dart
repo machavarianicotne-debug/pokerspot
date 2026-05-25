@@ -1112,6 +1112,12 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'open'**
   String get openShort;
+
+  /// No description provided for @tabChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
+  String get tabChat;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

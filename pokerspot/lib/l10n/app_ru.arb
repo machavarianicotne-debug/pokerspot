@@ -168,5 +168,6 @@
   "hoursTiny": "ч",
   "minutesTiny": "м",
   "noOpenSeats": "Сейчас нет свободных мест для брони — встаньте в лист ожидания.",
-  "openShort": "своб."
+  "openShort": "своб.",
+  "tabChat": "Чат"
 }

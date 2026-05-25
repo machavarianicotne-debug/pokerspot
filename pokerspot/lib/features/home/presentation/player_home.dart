@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
+import 'package:pokerspot/features/chat/presentation/player_chat_inbox_screen.dart';
 import 'package:pokerspot/features/clubs/presentation/clubs_list_screen.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
 import 'package:pokerspot/features/home/presentation/activity_screen.dart';
@@ -82,10 +83,11 @@ class PlayerHome extends ConsumerWidget {
       ),
       items: [
         PsTabItem(Icons.casino, l10n.tabClubs),
+        PsTabItem(Icons.chat_bubble_outline, l10n.tabChat),
         PsTabItem(Icons.show_chart, l10n.tabActivity),
         PsTabItem(Icons.person, l10n.tabProfile),
       ],
-      tabs: const [ClubsListScreen(), ActivityScreen(), ProfileScreen()],
+      tabs: const [ClubsListScreen(), PlayerChatInboxScreen(), ActivityScreen(), ProfileScreen()],
     );
   }
 

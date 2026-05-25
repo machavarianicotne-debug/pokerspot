@@ -523,4 +523,7 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get openShort => 'თავისუფალი';
+
+  @override
+  String get tabChat => 'ჩატი';
 }

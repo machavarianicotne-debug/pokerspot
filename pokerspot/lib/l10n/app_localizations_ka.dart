@@ -516,4 +516,11 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get minutesTiny => 'წ';
+
+  @override
+  String get noOpenSeats =>
+      'ახლა თავისუფალი ადგილი არ არის დასარეზერვებლად — ჩაეწერე რიგში.';
+
+  @override
+  String get openShort => 'თავისუფალი';
 }

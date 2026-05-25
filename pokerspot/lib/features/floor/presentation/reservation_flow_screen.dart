@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
+import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
 import 'package:pokerspot/features/floor/domain/stakes.dart';
@@ -50,9 +51,17 @@ class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
     final l10n = AppL10n.of(context);
     final club = ref.watch(clubProvider(widget.clubId)).valueOrNull;
     final tables = ref.watch(tablesProvider(widget.clubId)).valueOrNull ?? const <PokerTable>[];
+    final games = {for (final g in club?.games ?? const <ClubGame>[]) g.label: g};
+    // Only a stake with at least one OPEN seat (per the denormalized club stats)
+    // can be reserved — the player can't read other clubs' live sessions.
     final byLabel = <String, Stakes>{for (final t in tables) t.stakes.label: t.stakes};
-    final stakes = byLabel.values.toList();
-    _selected ??= stakes.isNotEmpty ? stakes.first : null;
+    final reservable = <Stakes>[
+      for (final e in byLabel.entries)
+        if ((games[e.key]?.openSeats ?? 0) > 0) e.value,
+    ];
+    final reservableLabels = reservable.map((s) => s.label).toSet();
+    if (_selected != null && !reservableLabels.contains(_selected!.label)) _selected = null;
+    _selected ??= reservable.isNotEmpty ? reservable.first : null;
 
     if (_held) return _success(context, l10n);
 
@@ -88,16 +97,17 @@ class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
                   const SizedBox(height: PsSpacing.s5),
                   PsOverline(l10n.chooseStake),
                   const SizedBox(height: PsSpacing.s3),
-                  if (stakes.isEmpty)
-                    Text(l10n.noStakesYet, style: TextStyle(color: PsColors.textMuted))
+                  if (reservable.isEmpty)
+                    Text(l10n.noOpenSeats,
+                        style: TextStyle(fontSize: PsType.subhead, height: 1.4, color: PsColors.textMuted))
                   else
                     Wrap(
                       spacing: PsSpacing.s2,
                       runSpacing: PsSpacing.s2,
                       children: [
-                        for (final s in stakes)
+                        for (final s in reservable)
                           PsFilterPill(
-                            label: s.label,
+                            label: '${s.label} · ${games[s.label]!.openSeats} ${l10n.openShort}',
                             active: _selected?.label == s.label,
                             onTap: () => setState(() => _selected = s),
                           ),

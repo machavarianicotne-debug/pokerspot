@@ -106,6 +106,7 @@ class _ClubCard extends StatelessWidget {
     final l10n = AppL10n.of(context);
     final closed = !club.enabled;
     final full = club.live && club.openSeats <= 0;
+    final tables = club.games.fold<int>(0, (a, g) => a + g.tables);
     final railColor = closed
         ? PsColors.statusClosed
         : full
@@ -169,7 +170,7 @@ class _ClubCard extends StatelessWidget {
                   else
                     PsMetric(value: '${club.openSeats}', label: l10n.openSeatsLabel, variant: PsMetricVariant.hero),
                   const SizedBox(width: PsSpacing.s3),
-                  PsMetric(value: '${club.stakes}', label: l10n.stakesLabel),
+                  PsMetric(value: '$tables', label: l10n.tablesMetric),
                   const SizedBox(width: PsSpacing.s3),
                   PsMetric(value: '${club.waiting}', label: l10n.waitlistTitle),
                 ],

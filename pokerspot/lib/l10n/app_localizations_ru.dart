@@ -515,4 +515,11 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get minutesTiny => 'м';
+
+  @override
+  String get noOpenSeats =>
+      'Сейчас нет свободных мест для брони — встаньте в лист ожидания.';
+
+  @override
+  String get openShort => 'своб.';
 }

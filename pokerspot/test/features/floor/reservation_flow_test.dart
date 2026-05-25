@@ -12,9 +12,12 @@ import 'package:pokerspot/features/floor/presentation/reservation_flow_screen.da
 const _stakes = Stakes(variant: GameVariant.nlh, smallBlind: 1, bigBlind: 2, currency: 'GEL');
 const _table = PokerTable(
     id: 't1', clubId: 'vake', number: 1, stakes: _stakes, seatCount: 9, open: true);
+const _game = ClubGame(
+    label: 'NLH 1/2 GEL', type: 'NLH', minBuyIn: null, avgStack: null,
+    tables: 1, openSeats: 9, waiting: 0);
 const _vake = Club(
     id: 'vake', name: 'PokerSpot Vake', city: 'Tbilisi', address: 'A', photoUrl: null,
-    hoursText: 'H', phone: 'P', enabled: true);
+    hoursText: 'H', phone: 'P', enabled: true, games: [_game]);
 
 void main() {
   testWidgets('ReservationFlowScreen shows club + stake choices + reserve', (tester) async {
@@ -32,7 +35,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('PokerSpot Vake'), findsOneWidget);
-    expect(find.text('NLH 1/2 GEL'), findsOneWidget); // stake pill
+    // Pill now shows the open-seat count (reserve is gated on an open seat).
+    expect(find.textContaining('NLH 1/2 GEL'), findsWidgets);
+    expect(find.textContaining('9 open'), findsOneWidget);
     await tester.scrollUntilVisible(find.byKey(const Key('reserveNowBtn')), 200,
         scrollable: find.byType(Scrollable).first);
     expect(find.byKey(const Key('reserveNowBtn')), findsOneWidget);

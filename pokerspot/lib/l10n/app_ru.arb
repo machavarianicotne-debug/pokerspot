@@ -166,5 +166,7 @@
   "lifetimeLabel": "Всего",
   "byClubLabel": "По клубам",
   "hoursTiny": "ч",
-  "minutesTiny": "м"
+  "minutesTiny": "м",
+  "noOpenSeats": "Сейчас нет свободных мест для брони — встаньте в лист ожидания.",
+  "openShort": "своб."
 }

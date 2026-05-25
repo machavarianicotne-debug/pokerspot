@@ -20,19 +20,38 @@ const DB_REGION = 'europe-west1';
 exports.expireWaitlist = functions.pubsub
   .schedule('every 5 minutes')
   .onRun(async () => {
-    const cutoff = admin.firestore.Timestamp.fromMillis(
-      Date.now() - CALL_EXPIRY_MIN * 60 * 1000,
-    );
-    const snap = await db
-      .collection('waitlist')
-      .where('status', '==', 'called')
-      .where('calledAt', '<', cutoff)
-      .get();
-    if (snap.empty) return null;
+    const cutoff = Date.now() - CALL_EXPIRY_MIN * 60 * 1000;
+    // Single-field equality query (no composite index); filter the time in code.
+    const snap = await db.collection('waitlist').where('status', '==', 'called').get();
+    const stale = snap.docs.filter((d) => {
+      const t = d.data().calledAt;
+      const ms = t && t.toMillis ? t.toMillis() : 0;
+      return ms > 0 && ms < cutoff;
+    });
+    if (stale.length === 0) return null;
     const batch = db.batch();
-    snap.forEach((d) => batch.update(d.ref, { status: 'cancelled' }));
+    stale.forEach((d) => batch.update(d.ref, { status: 'cancelled' }));
     await batch.commit();
-    console.log(`expireWaitlist: cancelled ${snap.size} stale called entries`);
+    console.log(`expireWaitlist: cancelled ${stale.length} stale called entries`);
+    return null;
+  });
+
+// (a2) Scheduled cleanup — expire held reservations past their 30-min hold (1st-gen).
+exports.expireReservations = functions.pubsub
+  .schedule('every 5 minutes')
+  .onRun(async () => {
+    const now = Date.now();
+    const snap = await db.collection('reservations').where('status', '==', 'held').get();
+    const stale = snap.docs.filter((d) => {
+      const t = d.data().heldUntil;
+      const ms = t && t.toMillis ? t.toMillis() : 0;
+      return ms > 0 && ms < now;
+    });
+    if (stale.length === 0) return null;
+    const batch = db.batch();
+    stale.forEach((d) => batch.update(d.ref, { status: 'expired' }));
+    await batch.commit();
+    console.log(`expireReservations: expired ${stale.length} stale holds`);
     return null;
   });
 

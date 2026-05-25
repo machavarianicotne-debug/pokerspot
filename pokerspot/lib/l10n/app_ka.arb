@@ -166,5 +166,7 @@
   "lifetimeLabel": "სულ",
   "byClubLabel": "კლუბების მიხედვით",
   "hoursTiny": "ს",
-  "minutesTiny": "წ"
+  "minutesTiny": "წ",
+  "noOpenSeats": "ახლა თავისუფალი ადგილი არ არის დასარეზერვებლად — ჩაეწერე რიგში.",
+  "openShort": "თავისუფალი"
 }

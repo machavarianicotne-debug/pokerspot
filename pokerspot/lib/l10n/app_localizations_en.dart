@@ -515,4 +515,11 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get minutesTiny => 'm';
+
+  @override
+  String get noOpenSeats =>
+      'No open seats to reserve right now — join the waitlist instead.';
+
+  @override
+  String get openShort => 'open';
 }

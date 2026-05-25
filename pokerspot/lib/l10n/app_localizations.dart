@@ -1100,6 +1100,18 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'m'**
   String get minutesTiny;
+
+  /// No description provided for @noOpenSeats.
+  ///
+  /// In en, this message translates to:
+  /// **'No open seats to reserve right now — join the waitlist instead.'**
+  String get noOpenSeats;
+
+  /// No description provided for @openShort.
+  ///
+  /// In en, this message translates to:
+  /// **'open'**
+  String get openShort;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

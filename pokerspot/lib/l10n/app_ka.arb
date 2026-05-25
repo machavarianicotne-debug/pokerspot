@@ -158,5 +158,13 @@
   "tablesMetric": "მაგიდები",
   "minLabel": "მინ.",
   "newChat": "ახალი მესიჯი",
-  "chatSendFailed": "ვერ გაიგზავნა — შეამოწმე კავშირი ან რომ კლუბი გაქვს მინიჭებული."
+  "chatSendFailed": "ვერ გაიგზავნა — შეამოწმე კავშირი ან რომ კლუბი გაქვს მინიჭებული.",
+  "nowPlaying": "ახლა თამაშობ",
+  "nowPlayingHint": "დასრულდება, როცა Pit Boss მონიშნავს რომ წახვედი",
+  "myPlaytime": "ჩემი ნათამაშები დრო",
+  "todayLabel": "დღეს",
+  "lifetimeLabel": "სულ",
+  "byClubLabel": "კლუბების მიხედვით",
+  "hoursTiny": "ს",
+  "minutesTiny": "წ"
 }

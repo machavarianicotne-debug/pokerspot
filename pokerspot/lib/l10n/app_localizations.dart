@@ -1052,6 +1052,54 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Couldn\'t send — check your connection or that a club is assigned to you.'**
   String get chatSendFailed;
+
+  /// No description provided for @nowPlaying.
+  ///
+  /// In en, this message translates to:
+  /// **'Currently playing'**
+  String get nowPlaying;
+
+  /// No description provided for @nowPlayingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Ends when the Pit Boss marks you left'**
+  String get nowPlayingHint;
+
+  /// No description provided for @myPlaytime.
+  ///
+  /// In en, this message translates to:
+  /// **'My playtime'**
+  String get myPlaytime;
+
+  /// No description provided for @todayLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get todayLabel;
+
+  /// No description provided for @lifetimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifetime'**
+  String get lifetimeLabel;
+
+  /// No description provided for @byClubLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'By club'**
+  String get byClubLabel;
+
+  /// No description provided for @hoursTiny.
+  ///
+  /// In en, this message translates to:
+  /// **'h'**
+  String get hoursTiny;
+
+  /// No description provided for @minutesTiny.
+  ///
+  /// In en, this message translates to:
+  /// **'m'**
+  String get minutesTiny;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

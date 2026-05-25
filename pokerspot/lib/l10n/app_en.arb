@@ -158,5 +158,13 @@
   "tablesMetric": "Tables",
   "minLabel": "Min",
   "newChat": "New message",
-  "chatSendFailed": "Couldn't send — check your connection or that a club is assigned to you."
+  "chatSendFailed": "Couldn't send — check your connection or that a club is assigned to you.",
+  "nowPlaying": "Currently playing",
+  "nowPlayingHint": "Ends when the Pit Boss marks you left",
+  "myPlaytime": "My playtime",
+  "todayLabel": "Today",
+  "lifetimeLabel": "Lifetime",
+  "byClubLabel": "By club",
+  "hoursTiny": "h",
+  "minutesTiny": "m"
 }

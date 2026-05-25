@@ -158,5 +158,13 @@
   "tablesMetric": "Столы",
   "minLabel": "Мин",
   "newChat": "Новое сообщение",
-  "chatSendFailed": "Не отправлено — проверьте связь или что вам назначен клуб."
+  "chatSendFailed": "Не отправлено — проверьте связь или что вам назначен клуб.",
+  "nowPlaying": "Сейчас играете",
+  "nowPlayingHint": "Завершится, когда Pit Boss отметит ваш уход",
+  "myPlaytime": "Моё игровое время",
+  "todayLabel": "Сегодня",
+  "lifetimeLabel": "Всего",
+  "byClubLabel": "По клубам",
+  "hoursTiny": "ч",
+  "minutesTiny": "м"
 }

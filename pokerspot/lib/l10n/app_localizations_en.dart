@@ -491,4 +491,28 @@ class AppL10nEn extends AppL10n {
   @override
   String get chatSendFailed =>
       'Couldn\'t send — check your connection or that a club is assigned to you.';
+
+  @override
+  String get nowPlaying => 'Currently playing';
+
+  @override
+  String get nowPlayingHint => 'Ends when the Pit Boss marks you left';
+
+  @override
+  String get myPlaytime => 'My playtime';
+
+  @override
+  String get todayLabel => 'Today';
+
+  @override
+  String get lifetimeLabel => 'Lifetime';
+
+  @override
+  String get byClubLabel => 'By club';
+
+  @override
+  String get hoursTiny => 'h';
+
+  @override
+  String get minutesTiny => 'm';
 }

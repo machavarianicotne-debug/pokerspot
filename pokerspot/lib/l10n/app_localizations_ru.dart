@@ -491,4 +491,28 @@ class AppL10nRu extends AppL10n {
   @override
   String get chatSendFailed =>
       'Не отправлено — проверьте связь или что вам назначен клуб.';
+
+  @override
+  String get nowPlaying => 'Сейчас играете';
+
+  @override
+  String get nowPlayingHint => 'Завершится, когда Pit Boss отметит ваш уход';
+
+  @override
+  String get myPlaytime => 'Моё игровое время';
+
+  @override
+  String get todayLabel => 'Сегодня';
+
+  @override
+  String get lifetimeLabel => 'Всего';
+
+  @override
+  String get byClubLabel => 'По клубам';
+
+  @override
+  String get hoursTiny => 'ч';
+
+  @override
+  String get minutesTiny => 'м';
 }

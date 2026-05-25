@@ -491,4 +491,29 @@ class AppL10nKa extends AppL10n {
   @override
   String get chatSendFailed =>
       'ვერ გაიგზავნა — შეამოწმე კავშირი ან რომ კლუბი გაქვს მინიჭებული.';
+
+  @override
+  String get nowPlaying => 'ახლა თამაშობ';
+
+  @override
+  String get nowPlayingHint =>
+      'დასრულდება, როცა Pit Boss მონიშნავს რომ წახვედი';
+
+  @override
+  String get myPlaytime => 'ჩემი ნათამაშები დრო';
+
+  @override
+  String get todayLabel => 'დღეს';
+
+  @override
+  String get lifetimeLabel => 'სულ';
+
+  @override
+  String get byClubLabel => 'კლუბების მიხედვით';
+
+  @override
+  String get hoursTiny => 'ს';
+
+  @override
+  String get minutesTiny => 'წ';
 }

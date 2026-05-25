@@ -69,6 +69,9 @@ abstract interface class SessionsRepository {
   /// Live active sessions for one player.
   Stream<List<Session>> watchByPlayer(String playerUid);
 
+  /// ALL sessions for one player (active + ended) — playtime stats.
+  Stream<List<Session>> watchAllByPlayer(String playerUid);
+
   /// Seat a walk-in (no waitlist / no auth): creates an active Session with a
   /// synthetic `walk-in:<rand>` playerUid.
   Future<void> seatWalkIn({

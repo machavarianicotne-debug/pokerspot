@@ -50,6 +50,13 @@ final mySessionProvider = StreamProvider<List<Session>>((ref) {
   return ref.watch(sessionsRepositoryProvider).watchByPlayer(uid);
 });
 
+/// ALL of the signed-in player's sessions (active + ended) for playtime stats.
+final myAllSessionsProvider = StreamProvider<List<Session>>((ref) {
+  final uid = ref.watch(uidProvider).valueOrNull;
+  if (uid == null) return Stream.value(const <Session>[]);
+  return ref.watch(sessionsRepositoryProvider).watchAllByPlayer(uid);
+});
+
 /// A club's active (held) reservations (Pit Boss view).
 final clubReservationsProvider = StreamProvider.family<List<Reservation>, String>(
     (ref, clubId) => ref.watch(reservationsRepositoryProvider).watchByClub(clubId));

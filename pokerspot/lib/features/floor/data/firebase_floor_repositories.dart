@@ -177,6 +177,12 @@ class FirebaseSessionsRepository implements SessionsRepository {
           .toList());
 
   @override
+  Stream<List<Session>> watchAllByPlayer(String playerUid) => _col
+      .where('playerUid', isEqualTo: playerUid)
+      .snapshots()
+      .map((s) => s.docs.map(_session).toList());
+
+  @override
   Future<void> seatWalkIn({
     required String clubId,
     required String tableId,

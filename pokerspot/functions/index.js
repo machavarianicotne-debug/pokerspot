@@ -140,54 +140,51 @@ async function recomputeClub(clubId) {
     db.collection('waitlist').where('clubId', '==', clubId).get(),
   ]);
 
-  // Group open tables by stake → per-stake game scoreboard.
-  const games = {};
-  const tableStake = {}; // tableId -> stakeKey (so sessions match their table, not a stale stored stake)
+  // One scoreboard entry PER OPEN TABLE (tables are independent, even at the
+  // same stake). Keyed by tableId so the player's per-table card lines up.
+  const games = {}; // tableId -> game accumulator
+  const stakeSet = new Set(); // distinct stakes running (for club.stakes)
   tablesSnap.forEach((d) => {
     const t = d.data();
     if (t.open === false) return;
-    const k = stakeKey(t);
-    tableStake[d.id] = k;
-    if (!games[k]) {
-      games[k] = {
-        label: stakeLabel(t), type: (t.variant || '').toUpperCase(),
-        minBuyIn: t.minBuyIn != null ? t.minBuyIn : null,
-        avgStack: t.avgStack != null ? t.avgStack : null,
-        tables: 0, seats: 0, occupied: 0, waiting: 0,
-      };
-    }
-    const g = games[k];
-    g.tables += 1;
-    g.seats += t.seatCount || 0;
-    if (t.minBuyIn != null) g.minBuyIn = g.minBuyIn == null ? t.minBuyIn : Math.min(g.minBuyIn, t.minBuyIn);
-    if (t.avgStack != null) g.avgStack = t.avgStack;
+    stakeSet.add(stakeKey(t));
+    games[d.id] = {
+      tableId: d.id,
+      label: stakeLabel(t),
+      type: (t.variant || '').toUpperCase(),
+      minBuyIn: t.minBuyIn != null ? t.minBuyIn : null,
+      avgStack: t.avgStack != null ? t.avgStack : null,
+      tables: 1,
+      seats: t.seatCount || 0,
+      occupied: 0,
+      waiting: 0,
+    };
   });
   sessionsSnap.forEach((d) => {
-    // Count against the session's TABLE, not its stored stake — a table's stake
-    // can change (variant edit) after a player is seated, which would otherwise
-    // leave the seat uncounted and the full table looking open.
-    const g = games[tableStake[d.data().tableId]];
+    const g = games[d.data().tableId];
     if (g) g.occupied += 1;
   });
   waitlistSnap.forEach((d) => {
     const w = d.data();
     if (w.status !== 'waiting' && w.status !== 'called') return;
-    const g = games[stakeKey(w)];
+    const g = games[w.tableId];
     if (g) g.waiting += 1;
   });
 
-  const gamesArr = Object.values(games).map((g) => ({
-    label: g.label, type: g.type, minBuyIn: g.minBuyIn, avgStack: g.avgStack,
-    tables: g.tables, openSeats: Math.max(0, g.seats - g.occupied), waiting: g.waiting,
-  }));
+  const gamesArr = Object.values(games)
+    .sort((a, b) => a.tableId.localeCompare(b.tableId))
+    .map((g) => ({
+      label: g.label, tableId: g.tableId, type: g.type, minBuyIn: g.minBuyIn, avgStack: g.avgStack,
+      tables: g.tables, openSeats: Math.max(0, g.seats - g.occupied), waiting: g.waiting,
+    }));
   const totalOccupied = Object.values(games).reduce((a, g) => a + g.occupied, 0);
 
   await db.collection('clubs').doc(clubId).set(
     {
-      live: totalOccupied > 0,
+      live: gamesArr.length > 0,
       openSeats: gamesArr.reduce((a, g) => a + g.openSeats, 0),
       players: totalOccupied,
-      stakes: gamesArr.length,
+      stakes: stakeSet.size,
       waiting: gamesArr.reduce((a, g) => a + g.waiting, 0),
       games: gamesArr,
     },

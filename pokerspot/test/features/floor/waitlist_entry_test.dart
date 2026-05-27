@@ -6,7 +6,7 @@ void main() {
   const stakes = Stakes(variant: GameVariant.nlh, smallBlind: 5, bigBlind: 10, currency: 'GEL');
 
   test('WaitlistEntry round-trips tableId through toMap/fromMap', () {
-    final e = WaitlistEntry(
+    const e = WaitlistEntry(
       id: 'e1', clubId: 'vake', tableId: 't1', playerUid: 'u', playerName: 'Nino',
       stakes: stakes, status: WaitlistStatus.waiting, createdAt: null, calledAt: null);
     final round = WaitlistEntry.fromMap('e1', e.toMap());

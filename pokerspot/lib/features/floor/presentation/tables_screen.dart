@@ -69,7 +69,7 @@ class TablesScreen extends ConsumerWidget {
             t.startAt == null || t.startAt!.isAfter(DateTime.now().subtract(const Duration(hours: 6))))
         .toList();
     int occupied(String tableId) => sessions.where((s) => s.tableId == tableId).length;
-    int waiting(String label) => waitlist.where((e) => e.stakes.label == label).length;
+    int waiting(String tableId) => waitlist.where((e) => e.tableId == tableId).length;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(PsSpacing.s4, PsSpacing.s4, PsSpacing.s4, 96),
@@ -156,7 +156,7 @@ class TablesScreen extends ConsumerWidget {
               child: _TableCard(
                 table: t,
                 occupied: occupied(t.id),
-                waiting: waiting(t.stakes.label),
+                waiting: waiting(t.id),
               ),
             ),
       ],

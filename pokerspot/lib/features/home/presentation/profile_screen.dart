@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
@@ -6,6 +8,7 @@ import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/ps_avatar.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_settings_group.dart';
+import 'package:pokerspot/shared/widgets/ps_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_toggle.dart';
 
 const _langNames = <String, String>{'en': 'English', 'ka': 'ქართული', 'ru': 'Русский'};
@@ -34,6 +37,38 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool _seatCalled = true;
   bool _reservation = true;
   bool _clubNews = false;
+
+  /// Pick the UI language; persists to the user doc so the whole app re-renders
+  /// (MaterialApp.locale is bound to the saved lang via localeProvider).
+  void _pickLanguage(String uid, String current) {
+    PsSheet.show<void>(
+      context,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(AppL10n.of(context).language,
+              style: const TextStyle(
+                  fontSize: PsType.headline, fontWeight: PsType.weightBold, color: PsColors.text)),
+          const SizedBox(height: PsSpacing.s3),
+          PsSettingsGroup(children: [
+            for (final e in _langNames.entries)
+              PsSettingsRow(
+                label: e.value,
+                trailing: e.key == current
+                    ? const Icon(Icons.check, size: 18, color: PsColors.accentPrimary)
+                    : null,
+                onTap: () {
+                  final nav = Navigator.of(context);
+                  unawaited(ref.read(usersRepositoryProvider).setLang(uid, e.key));
+                  nav.pop();
+                },
+              ),
+          ]),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +111,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         PsSettingsGroup.header(l10n.accountHeader),
         PsSettingsGroup(children: [
           PsSettingsRow(label: l10n.phoneNumber, value: user.phone),
-          PsSettingsRow(label: l10n.language, value: langLabel),
+          PsSettingsRow(
+            label: l10n.language,
+            value: langLabel,
+            onTap: () => _pickLanguage(user.uid, user.lang),
+          ),
         ]),
         const SizedBox(height: PsSpacing.s5),
         PsSettingsGroup.header(l10n.notificationsHeader),
@@ -102,7 +141,36 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           variant: PsButtonVariant.secondary,
           onPressed: () => ref.read(authRepositoryProvider).signOut(),
         ),
+        const SizedBox(height: PsSpacing.s2),
+        PsButton(
+          key: const Key('deleteAccountBtn'),
+          label: l10n.deleteAccount,
+          icon: Icons.delete_outline,
+          variant: PsButtonVariant.secondary,
+          onPressed: () => unawaited(_deleteAccount(user.uid)),
+        ),
       ],
     );
+  }
+
+  /// Request permanent account deletion (App Store / GDPR right-to-erasure) after
+  /// a confirm dialog: writes the deletion request (a Cloud Function cascades the
+  /// data + Auth account), then signs out.
+  Future<void> _deleteAccount(String uid) async {
+    final l10n = AppL10n.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.deleteAccount),
+        content: Text(l10n.deleteAccountConfirm),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.cancelWaitlist)),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.deleteAccount)),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await ref.read(usersRepositoryProvider).requestAccountDeletion(uid);
+    await ref.read(authRepositoryProvider).signOut();
   }
 }

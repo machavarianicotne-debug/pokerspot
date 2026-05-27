@@ -73,6 +73,7 @@ class FakeChatRepository implements ChatRepository {
         _messages[entry.key] = Message(
           id: m.id, clubId: m.clubId, playerUid: m.playerUid, playerName: m.playerName,
           senderUid: m.senderUid, senderRole: m.senderRole, text: m.text, at: m.at, read: true,
+          reactions: m.reactions,
         );
       }
     }
@@ -121,6 +122,28 @@ class FakeChatRepository implements ChatRepository {
       senderRole: senderRole,
       text: text,
       at: DateTime.now(),
+    );
+    _changes.add(null);
+  }
+
+  @override
+  Future<void> setReaction({
+    required String messageId,
+    required String uid,
+    required String emoji,
+  }) async {
+    final m = _messages[messageId];
+    if (m == null) return;
+    final next = Map<String, String>.from(m.reactions);
+    if (emoji.isEmpty) {
+      next.remove(uid);
+    } else {
+      next[uid] = emoji;
+    }
+    _messages[messageId] = Message(
+      id: m.id, clubId: m.clubId, playerUid: m.playerUid, playerName: m.playerName,
+      senderUid: m.senderUid, senderRole: m.senderRole, text: m.text, at: m.at, read: m.read,
+      reactions: next,
     );
     _changes.add(null);
   }

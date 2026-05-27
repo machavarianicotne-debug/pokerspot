@@ -61,6 +61,12 @@ class FakeUsersRepository implements UsersRepository {
   }
 
   @override
+  Future<void> setLang(String uid, String lang) async {
+    final u = _store[uid];
+    if (u != null) _push(u.copyWith(lang: lang));
+  }
+
+  @override
   Future<void> setBlocked(String uid, bool blocked) async {
     final u = _store[uid];
     if (u != null) _push(u.copyWith(blocked: blocked));
@@ -89,5 +95,13 @@ class FakeUsersRepository implements UsersRepository {
   @override
   Future<void> addFcmToken(String uid, String token) async {
     (fcmTokens[uid] ??= []).add(token);
+  }
+
+  /// Deletion requests captured for assertions (the real cascade is server-side).
+  final deletionRequests = <String>[];
+
+  @override
+  Future<void> requestAccountDeletion(String uid) async {
+    deletionRequests.add(uid);
   }
 }

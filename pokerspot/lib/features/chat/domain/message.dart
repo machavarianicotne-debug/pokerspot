@@ -21,6 +21,9 @@ class Message {
   /// Read by the recipient (the OTHER party in this 1-on-1 thread).
   final bool read;
 
+  /// Emoji reactions keyed by reactor uid (one emoji per user; '' never stored).
+  final Map<String, String> reactions;
+
   const Message({
     required this.id,
     required this.clubId,
@@ -31,6 +34,7 @@ class Message {
     required this.text,
     required this.at,
     this.read = false,
+    this.reactions = const {},
   });
 
   /// True when this message was sent by the player (vs the Pit Boss / admin).
@@ -46,6 +50,9 @@ class Message {
         text: (m['text'] ?? '') as String,
         at: _date(m['at']),
         read: (m['read'] ?? false) as bool,
+        reactions: (m['reactions'] as Map?)
+                ?.map((k, v) => MapEntry(k as String, '$v')) ??
+            const {},
       );
 
   Map<String, dynamic> toMap() => {
@@ -57,6 +64,7 @@ class Message {
         'text': text,
         'at': at?.millisecondsSinceEpoch,
         'read': read,
+        'reactions': reactions,
       };
 
   @override
@@ -72,11 +80,22 @@ class Message {
           senderRole == other.senderRole &&
           text == other.text &&
           at == other.at &&
-          read == other.read;
+          read == other.read &&
+          _mapEq(reactions, other.reactions);
 
+  // hashCode intentionally omits [reactions] (a Map) — equal messages still hash
+  // equal; differing-reaction messages may collide, which is allowed.
   @override
   int get hashCode =>
       Object.hash(id, clubId, playerUid, playerName, senderUid, senderRole, text, at, read);
+}
+
+bool _mapEq(Map<String, String> a, Map<String, String> b) {
+  if (a.length != b.length) return false;
+  for (final e in a.entries) {
+    if (b[e.key] != e.value) return false;
+  }
+  return true;
 }
 
 /// A grouped conversation (one per player) for the Pit Boss inbox.

@@ -195,6 +195,18 @@ abstract class AppL10n {
   /// **'Sign out'**
   String get signOut;
 
+  /// No description provided for @deleteAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete account'**
+  String get deleteAccount;
+
+  /// No description provided for @deleteAccountConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete your account and data? This can\'t be undone.'**
+  String get deleteAccountConfirm;
+
   /// No description provided for @playerHome.
   ///
   /// In en, this message translates to:
@@ -939,6 +951,12 @@ abstract class AppL10n {
   /// **'App language'**
   String get appLanguage;
 
+  /// No description provided for @reservationHold.
+  ///
+  /// In en, this message translates to:
+  /// **'Reservation hold'**
+  String get reservationHold;
+
   /// No description provided for @languageHeader.
   ///
   /// In en, this message translates to:
@@ -1002,7 +1020,7 @@ abstract class AppL10n {
   /// No description provided for @allCitiesFilter.
   ///
   /// In en, this message translates to:
-  /// **'All cities'**
+  /// **'All Cities'**
   String get allCitiesFilter;
 
   /// No description provided for @liveCountLabel.
@@ -1310,6 +1328,24 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Announce tournament'**
   String get announceTournament;
+
+  /// No description provided for @editTournament.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit tournament'**
+  String get editTournament;
+
+  /// No description provided for @deleteTournament.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete tournament'**
+  String get deleteTournament;
+
+  /// No description provided for @deleteTournamentConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this tournament?'**
+  String get deleteTournamentConfirm;
 
   /// No description provided for @tournamentName.
   ///

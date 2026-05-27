@@ -13,7 +13,7 @@ import 'package:pokerspot/shared/widgets/ps_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_text_field.dart';
 import 'package:pokerspot/shared/widgets/ps_toggle.dart';
 
-const _currencies = ['GEL', 'USD', 'EUR'];
+const _currencies = ['GEL', 'USD'];
 
 /// Create / edit a table. Pass [existing] to edit; null to create.
 class TableEditorSheet extends ConsumerStatefulWidget {
@@ -118,7 +118,7 @@ class _TableEditorSheetState extends ConsumerState<TableEditorSheet> {
           Wrap(
             spacing: PsSpacing.s2,
             children: [
-              for (final v in GameVariant.values)
+              for (final v in pickerGameVariants)
                 PsFilterPill(
                   label: v.label,
                   active: _variant == v,

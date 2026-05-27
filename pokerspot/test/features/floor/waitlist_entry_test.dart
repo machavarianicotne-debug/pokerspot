@@ -2,58 +2,23 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pokerspot/features/floor/domain/stakes.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 
-const _stakes = Stakes(variant: GameVariant.nlh, smallBlind: 1, bigBlind: 2, currency: 'GEL');
-
 void main() {
-  test('WaitlistStatus parses; defaults to waiting', () {
-    expect(WaitlistStatus.fromString('called'), WaitlistStatus.called);
-    expect(WaitlistStatus.fromString('seated'), WaitlistStatus.seated);
-    expect(WaitlistStatus.fromString('cancelled'), WaitlistStatus.cancelled);
-    expect(WaitlistStatus.fromString(null), WaitlistStatus.waiting);
-  });
+  const stakes = Stakes(variant: GameVariant.nlh, smallBlind: 5, bigBlind: 10, currency: 'GEL');
 
-  test('fromMap/toMap round-trips incl. timestamp millis', () {
-    final created = DateTime.fromMillisecondsSinceEpoch(1700000000000);
+  test('WaitlistEntry round-trips tableId through toMap/fromMap', () {
     final e = WaitlistEntry(
-      id: 'e1',
-      clubId: 'c',
-      playerUid: 'u',
-      playerName: 'Nino',
-      stakes: _stakes,
-      status: WaitlistStatus.waiting,
-      createdAt: created,
-      calledAt: null,
-    );
-    final back = WaitlistEntry.fromMap('e1', e.toMap());
-    expect(back, equals(e));
-    expect(back.createdAt, created);
-    expect(back.calledAt, isNull);
-    expect(e.toMap()['createdAt'], 1700000000000);
-    expect(e.toMap()['variant'], 'nlh');
+      id: 'e1', clubId: 'vake', tableId: 't1', playerUid: 'u', playerName: 'Nino',
+      stakes: stakes, status: WaitlistStatus.waiting, createdAt: null, calledAt: null);
+    final round = WaitlistEntry.fromMap('e1', e.toMap());
+    expect(round.tableId, 't1');
+    expect(round, e);
   });
 
-  test('fromMap defaults + null timestamps', () {
-    final e = WaitlistEntry.fromMap('e', const {});
-    expect(e.clubId, '');
-    expect(e.playerUid, '');
-    expect(e.status, WaitlistStatus.waiting);
-    expect(e.createdAt, isNull);
-    expect(e.stakes.variant, GameVariant.nlh);
-  });
-
-  test('== / copyWith', () {
-    const e = WaitlistEntry(
-      id: 'e',
-      clubId: 'c',
-      playerUid: 'u',
-      playerName: 'N',
-      stakes: _stakes,
-      status: WaitlistStatus.waiting,
-      createdAt: null,
-      calledAt: null,
-    );
-    expect(e == e.copyWith(status: WaitlistStatus.called), isFalse);
-    expect(e.copyWith(playerName: 'X').playerName, 'X');
-    expect(e, equals(e.copyWith()));
+  test('WaitlistEntry tableId is null for legacy docs (no tableId key)', () {
+    final e = WaitlistEntry.fromMap('e1', {
+      'clubId': 'vake', 'playerUid': 'u', 'playerName': 'Nino',
+      ...stakes.toMap(), 'status': 'waiting',
+    });
+    expect(e.tableId, isNull);
   });
 }

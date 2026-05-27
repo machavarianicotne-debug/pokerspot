@@ -39,7 +39,7 @@ Widget _wrap(Widget home, List<Override> overrides) => ProviderScope(
     );
 
 void main() {
-  testWidgets('TablesScreen lists the club tables with occupancy + New table', (tester) async {
+  testWidgets('TablesScreen lists the club tables with occupancy + New game', (tester) async {
     await tester.pumpWidget(_wrap(const Scaffold(body: TablesScreen()), [
       currentUserProvider.overrideWith((ref) => Stream.value(_pb())),
       tablesProvider('vake').overrideWith((ref) => Stream.value(const [_table])),
@@ -48,7 +48,8 @@ void main() {
     ]));
     await tester.pumpAndSettle();
 
-    expect(find.byKey(const Key('newTableBtn')), findsOneWidget);
+    expect(find.byKey(const Key('newGameBtn')), findsOneWidget);
+    expect(find.byKey(const Key('newTableBtn')), findsNothing); // hidden — New Game covers it
     expect(find.byKey(const Key('tableCard_t1')), findsOneWidget);
     expect(find.text('Table 1'), findsOneWidget);
     expect(find.text('NLH 1/2 GEL'), findsOneWidget);
@@ -63,12 +64,12 @@ void main() {
 
     expect(find.text('NLH'), findsOneWidget); // type segment
     expect(find.text('GEL'), findsOneWidget); // currency segment
-    expect(find.byType(PsStepper), findsOneWidget); // tables count
     expect(find.text('1/3'), findsOneWidget); // a blind preset pill
-    // openGameBtn lives below the ListView fold (lazy-built) — scroll to it.
+    // The stepper + openGameBtn live below the ListView fold (lazy-built) — scroll down.
     await tester.scrollUntilVisible(find.byKey(const Key('openGameBtn')), 300,
         scrollable: find.byType(Scrollable).first);
     expect(find.byKey(const Key('openGameBtn')), findsOneWidget);
+    expect(find.byType(PsStepper), findsOneWidget); // tables count
   });
 
   testWidgets('TablesScreen shows the empty state with no tables', (tester) async {
@@ -104,7 +105,7 @@ void main() {
     expect(find.text('Nino K'), findsOneWidget); // seated player name
   });
 
-  testWidgets('GameDetailScreen waitlist row has Call + Seat + remove actions', (tester) async {
+  testWidgets('GameDetailScreen waitlist row has Seat + remove actions', (tester) async {
     final entry = WaitlistEntry(
         id: 'e1', clubId: 'vake', playerUid: 'u', playerName: 'Nino K', stakes: _stakes,
         status: WaitlistStatus.waiting, createdAt: DateTime.now(), calledAt: null);
@@ -121,12 +122,13 @@ void main() {
     await tester.pumpAndSettle();
     await tester.scrollUntilVisible(find.byKey(const Key('wlRow_e1')), 200,
         scrollable: find.byType(Scrollable).first);
-    expect(find.byKey(const Key('callBtn_e1')), findsOneWidget);
+    // Call was removed — players are auto-notified when a seat frees.
+    expect(find.byKey(const Key('callBtn_e1')), findsNothing);
     expect(find.byKey(const Key('seatBtn_e1')), findsOneWidget);
     expect(find.byKey(const Key('removeWlBtn_e1')), findsOneWidget);
   });
 
-  testWidgets('GameDetailScreen shows a held reservation with Arrived + reject', (tester) async {
+  testWidgets('GameDetailScreen shows a held reservation with Seat + reject', (tester) async {
     final res = Reservation(
         id: 'r1', clubId: 'vake', playerUid: 'u9', playerName: 'Levan', stakes: _stakes,
         status: ReservationStatus.held,
@@ -145,12 +147,13 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
     await tester.scrollUntilVisible(find.byKey(const Key('resRow_r1')), 200,
         scrollable: find.byType(Scrollable).first);
-    expect(find.byKey(const Key('arrivedBtn_r1')), findsOneWidget);
+    // Reservations are now handled like the waitlist: Seat (+ reject), no Arrived.
+    expect(find.byKey(const Key('resSeatBtn_r1')), findsOneWidget);
     expect(find.byKey(const Key('rejectResBtn_r1')), findsOneWidget);
     expect(find.text('Levan'), findsOneWidget);
   });
 
-  testWidgets('GameDetailScreen shows the shared waitlist with a Call action', (tester) async {
+  testWidgets('GameDetailScreen shows the shared waitlist with a Seat action', (tester) async {
     final entry = WaitlistEntry(
         id: 'e1', clubId: 'vake', playerUid: 'u', playerName: 'Nino K', stakes: _stakes,
         status: WaitlistStatus.waiting, createdAt: DateTime.now(), calledAt: null);
@@ -167,6 +170,6 @@ void main() {
     await tester.scrollUntilVisible(find.byKey(const Key('wlRow_e1')), 200,
         scrollable: find.byType(Scrollable).first);
     expect(find.byKey(const Key('wlRow_e1')), findsOneWidget);
-    expect(find.byKey(const Key('callBtn_e1')), findsOneWidget);
+    expect(find.byKey(const Key('seatBtn_e1')), findsOneWidget);
   });
 }

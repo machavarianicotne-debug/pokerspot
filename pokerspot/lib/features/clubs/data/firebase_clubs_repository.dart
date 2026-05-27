@@ -37,6 +37,10 @@ class FirebaseClubsRepository implements ClubsRepository {
       _col.doc(id).update({'enabled': enabled});
 
   @override
+  Future<void> setReservationMinutes(String id, int minutes) =>
+      _col.doc(id).update({'reservationMinutes': minutes});
+
+  @override
   Stream<Club?> watchClub(String id) => _col.doc(id).snapshots().map(
         (d) => d.exists ? Club.fromMap(d.id, d.data()!) : null,
       );

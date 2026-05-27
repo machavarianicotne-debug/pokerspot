@@ -17,6 +17,12 @@ class PokerTable {
   final num? avgStack;
   final num? minBuyIn;
 
+  /// NLH/PLO mixed-game config (only meaningful when stakes.variant == nlhPlo;
+  /// ignored otherwise). [omahaPerCircle] = Omaha hands per orbit (1 or 2);
+  /// [omahaVariant] = which Omaha is dealt (plo or plo5). Null until set.
+  final int? omahaPerCircle;
+  final GameVariant? omahaVariant;
+
   const PokerTable({
     required this.id,
     required this.clubId,
@@ -26,7 +32,15 @@ class PokerTable {
     required this.open,
     this.avgStack,
     this.minBuyIn,
+    this.omahaPerCircle,
+    this.omahaVariant,
   });
+
+  /// Display suffix for an NLH game with Omaha mixed in, e.g. "x2PLO5" (count +
+  /// Omaha variant). Empty for plain NLH or non-NLH games.
+  String get omahaSuffix => (stakes.variant == GameVariant.nlh && omahaPerCircle != null)
+      ? 'x$omahaPerCircle${(omahaVariant ?? GameVariant.plo).label}'
+      : '';
 
   factory PokerTable.fromMap(String id, String clubId, Map<String, dynamic> m) => PokerTable(
         id: id,
@@ -37,6 +51,9 @@ class PokerTable {
         open: (m['open'] ?? false) as bool,
         avgStack: m['avgStack'] as num?,
         minBuyIn: m['minBuyIn'] as num?,
+        omahaPerCircle: m['omahaPerCircle'] as int?,
+        omahaVariant:
+            m['omahaVariant'] == null ? null : GameVariant.fromString(m['omahaVariant'] as String?),
       );
 
   Map<String, dynamic> toMap() => {
@@ -46,6 +63,8 @@ class PokerTable {
         'open': open,
         'avgStack': avgStack,
         'minBuyIn': minBuyIn,
+        'omahaPerCircle': omahaPerCircle,
+        'omahaVariant': omahaVariant?.asString,
       };
 
   PokerTable copyWith({
@@ -57,6 +76,8 @@ class PokerTable {
     bool? open,
     num? avgStack,
     num? minBuyIn,
+    int? omahaPerCircle,
+    GameVariant? omahaVariant,
   }) =>
       PokerTable(
         id: id ?? this.id,
@@ -67,6 +88,8 @@ class PokerTable {
         open: open ?? this.open,
         avgStack: avgStack ?? this.avgStack,
         minBuyIn: minBuyIn ?? this.minBuyIn,
+        omahaPerCircle: omahaPerCircle ?? this.omahaPerCircle,
+        omahaVariant: omahaVariant ?? this.omahaVariant,
       );
 
   @override
@@ -81,9 +104,11 @@ class PokerTable {
           seatCount == other.seatCount &&
           open == other.open &&
           avgStack == other.avgStack &&
-          minBuyIn == other.minBuyIn;
+          minBuyIn == other.minBuyIn &&
+          omahaPerCircle == other.omahaPerCircle &&
+          omahaVariant == other.omahaVariant;
 
   @override
-  int get hashCode =>
-      Object.hash(id, clubId, number, stakes, seatCount, open, avgStack, minBuyIn);
+  int get hashCode => Object.hash(
+      id, clubId, number, stakes, seatCount, open, avgStack, minBuyIn, omahaPerCircle, omahaVariant);
 }

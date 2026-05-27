@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/widgets.dart' show Locale;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/features/auth/data/firebase_auth_repository.dart';
 import 'package:pokerspot/features/auth/data/firebase_users_repository.dart';
@@ -24,6 +25,15 @@ final currentUserProvider = StreamProvider<AppUser?>((ref) {
   final uid = ref.watch(uidProvider).valueOrNull;
   if (uid == null) return Stream<AppUser?>.value(null);
   return ref.watch(usersRepositoryProvider).watchUser(uid);
+});
+
+/// App UI locale, driven by the signed-in user's saved `lang`. Null → fall back
+/// to the device locale (e.g. signed out, or an unsupported stored value). Bound
+/// to [MaterialApp.locale] so changing the language in settings re-renders live.
+final localeProvider = Provider<Locale?>((ref) {
+  final lang = ref.watch(currentUserProvider).valueOrNull?.lang;
+  const supported = {'en', 'ka', 'ru'};
+  return (lang != null && supported.contains(lang)) ? Locale(lang) : null;
 });
 
 /// Live list of ALL users (Super Admin management). Gated on auth so the query

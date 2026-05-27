@@ -31,6 +31,12 @@ class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
   bool _held = false;
   bool _busy = false;
 
+  /// The club's configured reservation hold length (minutes), capped 1–60.
+  int get _reservationMinutes {
+    final m = ref.read(clubProvider(widget.clubId)).valueOrNull?.reservationMinutes ?? 30;
+    return m.clamp(1, 60);
+  }
+
   Future<void> _reserve(Stakes stakes) async {
     setState(() => _busy = true);
     final uid = ref.read(authRepositoryProvider).currentUid;
@@ -41,6 +47,7 @@ class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
             playerUid: uid,
             playerName: user == null ? '' : '${user.firstName} ${user.lastName}'.trim(),
             stakes: stakes,
+            durationMinutes: _reservationMinutes,
           );
     }
     if (mounted) setState(() => _held = true);
@@ -168,7 +175,7 @@ class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
                         color: PsColors.text)),
                 const SizedBox(height: PsSpacing.s3),
                 PsCountdown(
-                  deadline: DateTime.now().add(const Duration(minutes: 30)),
+                  deadline: DateTime.now().add(Duration(minutes: _reservationMinutes)),
                   color: PsColors.accentPrimary,
                   style: const TextStyle(fontSize: PsType.display2, fontWeight: PsType.weightBlack),
                 ),

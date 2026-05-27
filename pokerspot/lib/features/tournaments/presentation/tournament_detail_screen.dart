@@ -4,15 +4,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
+import 'package:pokerspot/features/auth/domain/app_user.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/tournaments/domain/tournament.dart';
 import 'package:pokerspot/features/tournaments/domain/tournament_registration.dart';
 import 'package:pokerspot/features/tournaments/presentation/providers.dart';
-import 'package:pokerspot/features/tournaments/presentation/tournament_editor_screen.dart' show tournamentTypeLabel;
+import 'package:pokerspot/features/tournaments/presentation/tournament_editor_screen.dart'
+    show tournamentTypeLabel, TournamentEditorScreen;
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
 import 'package:pokerspot/shared/widgets/ps_scaffold.dart';
 import 'package:pokerspot/shared/widgets/ps_settings_group.dart';
+import 'package:pokerspot/shared/widgets/ps_sheet.dart';
 
 String tournamentMoney(String currency, num? v) {
   if (v == null) return '—';
@@ -69,10 +72,115 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
     if (mounted) setState(() => _busy = false);
   }
 
+  /// Pit Boss deletes the tournament after a confirm dialog, then leaves the screen.
+  Future<void> _confirmDelete() async {
+    final l10n = AppL10n.of(context);
+    final nav = Navigator.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l10n.deleteTournament),
+        content: Text(l10n.deleteTournamentConfirm),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(l10n.cancelWaitlist)),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(true), child: Text(l10n.deleteTournament)),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    setState(() => _busy = true);
+    await ref.read(tournamentsRepositoryProvider).delete(t.id);
+    nav.pop(); // leave the (now-deleted) tournament screen
+  }
+
+  void _edit() => Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => TournamentEditorScreen(
+          clubId: t.clubId, currency: t.currency, existing: t)));
+
+  /// Pit Boss taps the "Registered" row to see who's signed up — names + phones,
+  /// oldest first (the first `maxPlayers` are registered, the rest waitlisted).
+  void _showRegisteredPlayers(
+      List<TournamentRegistration> regs, int? max, Map<String, String> phoneByUid) {
+    final l10n = AppL10n.of(context);
+    PsSheet.show<void>(
+      context,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('${l10n.registeredLabel} · ${regs.length}',
+              style: const TextStyle(
+                  fontSize: PsType.headline, fontWeight: PsType.weightBold, color: PsColors.text)),
+          const SizedBox(height: PsSpacing.s3),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxHeight: 420),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  for (var i = 0; i < regs.length; i++)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: PsSpacing.s2),
+                      child: PsCard(
+                        key: Key('regRow_${regs[i].id}'),
+                        child: Row(
+                          children: [
+                            SizedBox(
+                              width: 22,
+                              child: Text('${i + 1}',
+                                  style: const TextStyle(
+                                      fontSize: PsType.body,
+                                      fontWeight: PsType.weightBlack,
+                                      color: PsColors.accentPrimary)),
+                            ),
+                            const SizedBox(width: PsSpacing.s2),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(regs[i].playerName.isEmpty ? '—' : regs[i].playerName,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: const TextStyle(
+                                          fontSize: PsType.body,
+                                          fontWeight: PsType.weightBold,
+                                          color: PsColors.text)),
+                                  if ((phoneByUid[regs[i].playerUid] ?? '').isNotEmpty)
+                                    Text(phoneByUid[regs[i].playerUid]!,
+                                        style: TextStyle(
+                                            fontSize: PsType.caption, color: PsColors.textMuted)),
+                                ],
+                              ),
+                            ),
+                            if (max != null && i >= max)
+                              Text('${l10n.onWaitlistLabel} #${i - max + 1}',
+                                  style: const TextStyle(
+                                      fontSize: PsType.caption,
+                                      fontWeight: PsType.weightBlack,
+                                      color: PsColors.accentPrimary)),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     final cur = t.currency;
+    final isPitBoss = ref.watch(currentUserProvider).valueOrNull?.role == AppRole.pitboss;
+    // Phone numbers for the Pit Boss's registered-players list (only the Pit Boss
+    // may read the users collection, so don't watch it as a plain player).
+    final phoneByUid = isPitBoss
+        ? {for (final u in (ref.watch(allUsersProvider).valueOrNull ?? const <AppUser>[])) u.uid: u.phone}
+        : const <String, String>{};
     final uid = ref.watch(uidProvider).valueOrNull;
     final regs = ref.watch(tournamentRegistrationsProvider(t.id)).valueOrNull ??
         const <TournamentRegistration>[];
@@ -157,40 +265,64 @@ class _TournamentDetailScreenState extends ConsumerState<TournamentDetailScreen>
                     PsSettingsRow(
                         label: l10n.maxPlayersLabel,
                         value: max == null ? l10n.unlimitedLabel : '$max'),
-                    PsSettingsRow(label: l10n.registeredLabel, value: registeredValue),
+                    PsSettingsRow(
+                      label: l10n.registeredLabel,
+                      value: registeredValue,
+                      // Pit Boss taps to see who's signed up (names + phones).
+                      onTap: isPitBoss && total > 0
+                          ? () => _showRegisteredPlayers(regs, max, phoneByUid)
+                          : null,
+                    ),
                     if (waitlistCount > 0)
                       PsSettingsRow(label: l10n.onWaitlistLabel, value: '$waitlistCount'),
                     PsSettingsRow(label: l10n.startsLabel, value: tournamentWhen(t)),
                   ]),
                   const SizedBox(height: PsSpacing.s5),
-                  if (iAmRegistered)
-                    _StatusBanner(
-                      icon: Icons.check_circle,
-                      color: PsColors.statusLive,
-                      title: l10n.youAreRegisteredLabel,
-                    )
-                  else if (iAmWaitlisted)
-                    _StatusBanner(
-                      icon: Icons.hourglass_top,
-                      color: PsColors.accentPrimary,
-                      title: l10n.onWaitlistLabel,
-                      trailing: '#$myWaitlistPos',
+                  if (isPitBoss) ...[
+                    // Pit Boss manages the tournament instead of registering.
+                    // (The registered players are behind the "Registered" row tap.)
+                    PsButton(
+                      key: const Key('editTournamentBtn'),
+                      label: l10n.editTournament,
+                      onPressed: _busy ? null : _edit,
                     ),
-                  if (iAmIn) const SizedBox(height: PsSpacing.s3),
-                  PsButton(
-                    key: const Key('tournamentRegisterBtn'),
-                    label: iAmRegistered
-                        ? l10n.cancelRegistrationBtn
-                        : iAmWaitlisted
-                            ? l10n.leaveWaitlistBtn
-                            : isFull
-                                ? l10n.joinWaitlistBtn
-                                : l10n.registerBtn,
-                    variant: iAmIn ? PsButtonVariant.secondary : PsButtonVariant.primary,
-                    onPressed: _busy
-                        ? null
-                        : () => unawaited(iAmIn ? _unregister() : _register()),
-                  ),
+                    const SizedBox(height: PsSpacing.s2),
+                    PsButton(
+                      key: const Key('deleteTournamentBtn'),
+                      label: l10n.deleteTournament,
+                      variant: PsButtonVariant.secondary,
+                      onPressed: _busy ? null : () => unawaited(_confirmDelete()),
+                    ),
+                  ] else ...[
+                    if (iAmRegistered)
+                      _StatusBanner(
+                        icon: Icons.check_circle,
+                        color: PsColors.statusLive,
+                        title: l10n.youAreRegisteredLabel,
+                      )
+                    else if (iAmWaitlisted)
+                      _StatusBanner(
+                        icon: Icons.hourglass_top,
+                        color: PsColors.accentPrimary,
+                        title: l10n.onWaitlistLabel,
+                        trailing: '#$myWaitlistPos',
+                      ),
+                    if (iAmIn) const SizedBox(height: PsSpacing.s3),
+                    PsButton(
+                      key: const Key('tournamentRegisterBtn'),
+                      label: iAmRegistered
+                          ? l10n.cancelRegistrationBtn
+                          : iAmWaitlisted
+                              ? l10n.leaveWaitlistBtn
+                              : isFull
+                                  ? l10n.joinWaitlistBtn
+                                  : l10n.registerBtn,
+                      variant: iAmIn ? PsButtonVariant.secondary : PsButtonVariant.primary,
+                      onPressed: _busy
+                          ? null
+                          : () => unawaited(iAmIn ? _unregister() : _register()),
+                    ),
+                  ],
                 ],
               ),
             ),

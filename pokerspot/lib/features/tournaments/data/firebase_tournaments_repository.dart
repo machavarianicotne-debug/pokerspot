@@ -29,5 +29,8 @@ class FirebaseTournamentsRepository implements TournamentsRepository {
   Future<void> create(Tournament t) => _col.add(t.toMap());
 
   @override
+  Future<void> update(Tournament t) => _col.doc(t.id).set(t.toMap());
+
+  @override
   Future<void> delete(String id) => _col.doc(id).delete();
 }

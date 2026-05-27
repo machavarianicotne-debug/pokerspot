@@ -3,12 +3,15 @@ import 'package:pokerspot/core/theme/tokens.dart';
 
 /// One entry in a [PsTabBar].
 class PsTabItem {
-  const PsTabItem(this.icon, this.label, {this.badge = 0});
+  const PsTabItem(this.icon, this.label, {this.badge = 0, this.glyph});
   final IconData icon;
   final String label;
 
   /// Unread/notification count shown as a red badge over the icon (0 = none).
   final int badge;
+
+  /// Optional glyph (e.g. a playing-card suit ♠) shown instead of [icon].
+  final String? glyph;
 }
 
 /// Liquid Sport tab bar (`.ps-tabbar`): a floating glass-thick bar with a top
@@ -88,7 +91,11 @@ class PsTabBar extends StatelessWidget {
             Stack(
               clipBehavior: Clip.none,
               children: [
-                Icon(items[i].icon, size: 26, color: color),
+                items[i].glyph != null
+                    ? Text(items[i].glyph!,
+                        style: TextStyle(
+                            fontSize: 24, height: 1.0, color: color, fontWeight: PsType.weightBold))
+                    : Icon(items[i].icon, size: 24, color: color),
                 if (items[i].badge > 0)
                   Positioned(
                     top: -6,
@@ -113,7 +120,7 @@ class PsTabBar extends StatelessWidget {
             Text(
               items[i].label.toUpperCase(),
               style: TextStyle(
-                fontSize: PsType.caption,
+                fontSize: 11,
                 fontWeight: PsType.weightBlack,
                 letterSpacing: 0.3,
                 color: color,

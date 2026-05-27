@@ -46,7 +46,12 @@ service cloud.firestore {
     match /clubs/{clubId} {
       allow read: if signedIn() &&
         (resource.data.enabled == true || isAdmin() || (isPitboss() && myClub() == clubId));
-      allow write: if isAdmin();
+      allow create, delete: if isAdmin();
+      // Admin edits anything; a Pit Boss may change ONLY their own club's
+      // reservationMinutes (the configurable reservation hold length).
+      allow update: if isAdmin()
+        || (isPitboss() && myClub() == clubId
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['reservationMinutes']));
 
       match /tables/{tableId} {
         allow read: if signedIn() && !isBlocked();
@@ -122,6 +127,14 @@ service cloud.firestore {
         || (isPitboss() && resource.data.clubId == myClub())
         || (signedIn() && resource.data.playerUid == request.auth.uid);
       allow delete: if isAdmin();
+    }
+
+    // ---- Account deletion requests (GDPR / App Store) ----------------------
+    // A user requests deletion of their OWN account; the cascade (data + Auth)
+    // runs server-side in the onAccountDeletion function (admin SDK bypasses
+    // rules), so clients may only create their own request.
+    match /deletion_requests/{uid} {
+      allow create: if signedIn() && request.auth.uid == uid;
     }
 
     // ---- Tournaments (announced by a club; everyone signed in may read) ------

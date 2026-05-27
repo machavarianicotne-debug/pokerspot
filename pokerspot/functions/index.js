@@ -46,16 +46,33 @@ exports.expireReservations = functions.pubsub
   .onRun(async () => {
     const now = Date.now();
     const snap = await db.collection('reservations').where('status', '==', 'held').get();
-    const stale = snap.docs.filter((d) => {
-      const t = d.data().heldUntil;
-      const ms = t && t.toMillis ? t.toMillis() : 0;
-      return ms > 0 && ms < now;
+    const stale = [];
+    const warn = []; // ≤5 min left and not yet warned
+    snap.docs.forEach((d) => {
+      const data = d.data();
+      const ms = data.heldUntil && data.heldUntil.toMillis ? data.heldUntil.toMillis() : 0;
+      if (ms <= 0) return;
+      if (ms < now) {
+        stale.push(d);
+      } else if (ms - now <= 5 * 60 * 1000 && data.warned5 !== true) {
+        warn.push(d);
+      }
     });
-    if (stale.length === 0) return null;
-    const batch = db.batch();
-    stale.forEach((d) => batch.update(d.ref, { status: 'expired' }));
-    await batch.commit();
-    console.log(`expireReservations: expired ${stale.length} stale holds`);
+
+    // "5 minutes left" push to the holder (once, flagged so it never repeats).
+    for (const d of warn) {
+      const r = d.data();
+      await sendToTokens(await playerTokens(r.playerUid), 'Reservation ending soon',
+        '5 minutes left on your reservation', { clubId: r.clubId || '', type: 'reservation' });
+      await d.ref.update({ warned5: true });
+    }
+
+    if (stale.length > 0) {
+      const batch = db.batch();
+      stale.forEach((d) => batch.update(d.ref, { status: 'expired' }));
+      await batch.commit();
+    }
+    console.log(`expireReservations: warned ${warn.length}, expired ${stale.length}`);
     return null;
   });
 
@@ -98,8 +115,22 @@ exports.notifyCalled = onDocumentUpdated(
 // other clubs' sessions/waitlist) still see open seats / stakes / waitlist.
 // Recompute on any session / waitlist / table write (2nd-gen).
 const stakeKey = (x) => `${x.variant}-${x.smallBlind}-${x.bigBlind}-${x.currency}`;
+// MUST equal the client's Stakes.label (GameVariant.label + blinds + currency),
+// otherwise the denormalized club.games entries won't line up with what the app
+// looks up and the player sees "—" for open seats / waitlist.
+const variantLabel = (v) =>
+  ({
+    nlh: 'NLH',
+    nlhPlo: 'NLH/PLO',
+    nlhPlo5: 'NLH/PLO5',
+    plo: 'PLO',
+    plo5: 'PLO5',
+    plo6: 'PLO6',
+    dealerChoice: "Dealer's Choice",
+  })[v] || 'NLH';
+const fmtNum = (n) => (typeof n === 'number' && n % 1 === 0 ? String(Math.trunc(n)) : String(n));
 const stakeLabel = (t) =>
-  `${(t.variant || '').toUpperCase()} ${t.smallBlind}/${t.bigBlind} ${t.currency || ''}`.trim();
+  `${variantLabel(t.variant)} ${fmtNum(t.smallBlind)}/${fmtNum(t.bigBlind)} ${t.currency || ''}`.trim();
 
 async function recomputeClub(clubId) {
   if (!clubId) return;
@@ -111,10 +142,12 @@ async function recomputeClub(clubId) {
 
   // Group open tables by stake → per-stake game scoreboard.
   const games = {};
+  const tableStake = {}; // tableId -> stakeKey (so sessions match their table, not a stale stored stake)
   tablesSnap.forEach((d) => {
     const t = d.data();
     if (t.open === false) return;
     const k = stakeKey(t);
+    tableStake[d.id] = k;
     if (!games[k]) {
       games[k] = {
         label: stakeLabel(t), type: (t.variant || '').toUpperCase(),
@@ -130,7 +163,10 @@ async function recomputeClub(clubId) {
     if (t.avgStack != null) g.avgStack = t.avgStack;
   });
   sessionsSnap.forEach((d) => {
-    const g = games[stakeKey(d.data())];
+    // Count against the session's TABLE, not its stored stake — a table's stake
+    // can change (variant edit) after a player is seated, which would otherwise
+    // leave the seat uncounted and the full table looking open.
+    const g = games[tableStake[d.data().tableId]];
     if (g) g.occupied += 1;
   });
   waitlistSnap.forEach((d) => {
@@ -328,5 +364,37 @@ exports.auditSessionEnd = onDocumentUpdated(
       meta: { clubId: after.clubId || '', playerUid: after.playerUid || '' },
       at: admin.firestore.FieldValue.serverTimestamp(),
     });
+  },
+);
+
+// (d) Account deletion (GDPR right-to-erasure / App Store 5.1.1(v)): a user writes
+// deletion_requests/{uid}; cascade-delete their data + Auth account, then clear it.
+exports.onAccountDeletion = onDocumentCreated(
+  { document: 'deletion_requests/{uid}', region: DB_REGION },
+  async (event) => {
+    const uid = event.params.uid;
+    if (!uid) return;
+    const queries = [
+      db.collection('waitlist').where('playerUid', '==', uid),
+      db.collection('reservations').where('playerUid', '==', uid),
+      db.collection('tournament_registrations').where('playerUid', '==', uid),
+      db.collection('sessions').where('playerUid', '==', uid),
+      db.collection('messages').where('playerUid', '==', uid),
+      db.collection('messages').where('senderUid', '==', uid),
+    ];
+    for (const q of queries) {
+      const snap = await q.get();
+      if (snap.empty) continue;
+      const batch = db.batch();
+      snap.forEach((d) => batch.delete(d.ref));
+      await batch.commit();
+    }
+    await db.collection('users').doc(uid).delete().catch(() => {});
+    await db.collection('deletion_requests').doc(uid).delete().catch(() => {});
+    try {
+      await admin.auth().deleteUser(uid);
+    } catch (e) {
+      // The Auth user may already be gone — ignore.
+    }
   },
 );

@@ -7,6 +7,9 @@ abstract interface class TournamentsRepository {
   /// Pit Boss / Admin creates a tournament.
   Future<void> create(Tournament t);
 
+  /// Pit Boss / Admin edits an already-announced tournament ([t.id] must be set).
+  Future<void> update(Tournament t);
+
   /// Pit Boss / Admin cancels a tournament.
   Future<void> delete(String id);
 }

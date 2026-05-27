@@ -27,10 +27,13 @@ String tournamentTypeLabel(TournamentType t, AppL10n l10n) {
 }
 
 /// Pit Boss announces a tournament (type / buy-in / rebuy / add-on / blinds / date).
+/// Pass [existing] to edit an already-announced tournament instead of creating one.
 class TournamentEditorScreen extends ConsumerStatefulWidget {
-  const TournamentEditorScreen({super.key, required this.clubId, this.currency = 'GEL'});
+  const TournamentEditorScreen(
+      {super.key, required this.clubId, this.currency = 'GEL', this.existing});
   final String clubId;
   final String currency;
+  final Tournament? existing;
 
   @override
   ConsumerState<TournamentEditorScreen> createState() => _TournamentEditorScreenState();
@@ -51,9 +54,27 @@ class _TournamentEditorScreenState extends ConsumerState<TournamentEditorScreen>
   @override
   void initState() {
     super.initState();
-    final t = DateTime.now().add(const Duration(days: 1));
-    _start = DateTime(t.year, t.month, t.day, 20, 0);
+    final e = widget.existing;
+    if (e != null) {
+      _name.text = e.name;
+      _buyIn.text = _numText(e.buyIn);
+      _rebuyFee.text = e.rebuyFee == null ? '' : _numText(e.rebuyFee!);
+      _addonFee.text = e.addonFee == null ? '' : _numText(e.addonFee!);
+      _blind.text = '${e.blindMinutes}';
+      _maxPlayers.text = e.maxPlayers == null ? '' : '${e.maxPlayers}';
+      _type = e.type;
+      _addon = e.hasAddon;
+      _start = e.startAt ?? DateTime.now().add(const Duration(days: 1));
+    } else {
+      final t = DateTime.now().add(const Duration(days: 1));
+      _start = DateTime(t.year, t.month, t.day, 20, 0);
+    }
   }
+
+  static String _numText(num n) => n % 1 == 0 ? n.toInt().toString() : '$n';
+
+  /// Editing keeps the tournament's own currency; new ones use the passed one.
+  String get _ccy => widget.existing?.currency ?? widget.currency;
 
   @override
   void dispose() {
@@ -66,7 +87,7 @@ class _TournamentEditorScreenState extends ConsumerState<TournamentEditorScreen>
     super.dispose();
   }
 
-  String _sym() => widget.currency == 'USD' ? '\$' : widget.currency == 'EUR' ? '€' : '₾';
+  String _sym() => _ccy == 'USD' ? '\$' : _ccy == 'EUR' ? '€' : '₾';
 
   Future<void> _pickDate() async {
     final d = await showDatePicker(
@@ -88,20 +109,26 @@ class _TournamentEditorScreenState extends ConsumerState<TournamentEditorScreen>
   Future<void> _save() async {
     setState(() => _busy = true);
     final nav = Navigator.of(context);
-    await ref.read(tournamentsRepositoryProvider).create(Tournament(
-          id: '',
-          clubId: widget.clubId,
-          name: _name.text.trim(),
-          type: _type,
-          startAt: _start,
-          buyIn: num.tryParse(_buyIn.text.trim()) ?? 0,
-          rebuyFee: _type.hasRebuy ? num.tryParse(_rebuyFee.text.trim()) : null,
-          hasAddon: _addon,
-          addonFee: _addon ? num.tryParse(_addonFee.text.trim()) : null,
-          blindMinutes: int.tryParse(_blind.text.trim()) ?? 20,
-          currency: widget.currency,
-          maxPlayers: int.tryParse(_maxPlayers.text.trim()),
-        ));
+    final repo = ref.read(tournamentsRepositoryProvider);
+    final t = Tournament(
+      id: widget.existing?.id ?? '',
+      clubId: widget.clubId,
+      name: _name.text.trim(),
+      type: _type,
+      startAt: _start,
+      buyIn: num.tryParse(_buyIn.text.trim()) ?? 0,
+      rebuyFee: _type.hasRebuy ? num.tryParse(_rebuyFee.text.trim()) : null,
+      hasAddon: _addon,
+      addonFee: _addon ? num.tryParse(_addonFee.text.trim()) : null,
+      blindMinutes: int.tryParse(_blind.text.trim()) ?? 20,
+      currency: _ccy,
+      maxPlayers: int.tryParse(_maxPlayers.text.trim()),
+    );
+    if (widget.existing == null) {
+      await repo.create(t);
+    } else {
+      await repo.update(t);
+    }
     nav.pop();
   }
 
@@ -137,7 +164,7 @@ class _TournamentEditorScreenState extends ConsumerState<TournamentEditorScreen>
                     ),
                   ),
                   const SizedBox(width: PsSpacing.s2),
-                  Text(l10n.newTournament,
+                  Text(widget.existing == null ? l10n.newTournament : l10n.editTournament,
                       style: const TextStyle(
                           fontSize: PsType.title,
                           fontWeight: PsType.weightBlack,
@@ -207,7 +234,7 @@ class _TournamentEditorScreenState extends ConsumerState<TournamentEditorScreen>
                   const SizedBox(height: PsSpacing.s6),
                   PsButton(
                     key: const Key('saveTournamentBtn'),
-                    label: l10n.announceTournament,
+                    label: widget.existing == null ? l10n.announceTournament : l10n.saveLabel,
                     onPressed: _busy ? null : () => unawaited(_save()),
                   ),
                 ],

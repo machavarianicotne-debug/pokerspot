@@ -24,4 +24,7 @@ abstract interface class ClubsRepository {
 
   /// Enable / disable a club (controls player visibility).
   Future<void> setClubEnabled(String id, bool enabled);
+
+  /// Pit Boss / Admin sets the club's reservation hold length (minutes).
+  Future<void> setReservationMinutes(String id, int minutes);
 }

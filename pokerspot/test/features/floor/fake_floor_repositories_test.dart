@@ -132,7 +132,7 @@ void main() {
     final store = FakeFloorStore();
     final res = FakeReservationsRepository(store);
 
-    await res.reserve(clubId: 'c1', playerUid: 'u1', playerName: 'Nino', stakes: _stakes);
+    await res.reserve(clubId: 'c1', playerUid: 'u1', playerName: 'Nino', stakes: _stakes, durationMinutes: 30);
     var mine = await res.watchByPlayer('u1').first;
     expect(mine.length, 1);
     expect(mine.first.status, ReservationStatus.held);
@@ -143,7 +143,7 @@ void main() {
     await res.cancel(id);
     expect(await res.watchByPlayer('u1').first, isEmpty); // cancelled -> off the held list
 
-    await res.reserve(clubId: 'c1', playerUid: 'u1', playerName: 'Nino', stakes: _stakes);
+    await res.reserve(clubId: 'c1', playerUid: 'u1', playerName: 'Nino', stakes: _stakes, durationMinutes: 30);
     final id2 = (await res.watchByClub('c1').first).first.id;
     await res.markArrived(id2);
     expect(await res.watchByClub('c1').first, isEmpty); // arrived -> off the held list

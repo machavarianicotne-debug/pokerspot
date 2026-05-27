@@ -421,24 +421,28 @@ class _GamesSection extends ConsumerWidget {
       return _emptyState(l10n);
     }
 
-    final labels = byLabel.keys.toList();
+    // One card PER open table (identical-stake tables show as separate cards),
+    // sorted by number. No "N tables" count.
+    final openTables = tables.where((t) => t.open).toList()
+      ..sort((a, b) => a.number.compareTo(b.number));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: PsSpacing.s3),
-          child: PsOverline('${l10n.liveGamesTitle} · ${labels.length} ${l10n.stakesLabel.toLowerCase()}'),
+          child: PsOverline('${l10n.liveGamesTitle} · ${byLabel.length} ${l10n.stakesLabel.toLowerCase()}'),
         ),
-        for (final label in labels)
+        for (final t in openTables)
           _GameCard(
             clubId: club.id,
-            stakes: byLabel[label]!.first.stakes,
-            game: gamesByLabel[label],
-            tableCount: byLabel[label]!.length,
-            tableMinBuyIn: byLabel[label]!.first.minBuyIn,
-            tableAvgStack: byLabel[label]!.first.avgStack,
-            myEntry: mine[label],
-            seated: mySeated.contains(label),
+            tableId: t.id,
+            stakes: t.stakes,
+            game: gamesByLabel[t.stakes.label],
+            seatCount: t.seatCount,
+            tableMinBuyIn: t.minBuyIn,
+            tableAvgStack: t.avgStack,
+            myEntry: mine[t.stakes.label],
+            seated: mySeated.contains(t.stakes.label),
           ),
       ],
     );
@@ -481,18 +485,20 @@ class _GamesSection extends ConsumerWidget {
 class _GameCard extends ConsumerWidget {
   const _GameCard({
     required this.clubId,
+    required this.tableId,
     required this.stakes,
     required this.game,
-    required this.tableCount,
+    required this.seatCount,
     required this.tableMinBuyIn,
     required this.tableAvgStack,
     required this.myEntry,
     this.seated = false,
   });
   final String clubId;
+  final String tableId; // one card per physical table
   final Stakes stakes;
   final ClubGame? game;
-  final int tableCount;
+  final int seatCount; // seats per table (e.g. 8max / 9max)
   final num? tableMinBuyIn;
   final num? tableAvgStack;
 
@@ -506,7 +512,6 @@ class _GameCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppL10n.of(context);
     final cur = stakes.currency;
-    final tables = game?.tables ?? tableCount;
     final minBuyIn = game?.minBuyIn ?? tableMinBuyIn;
     final avgStack = game?.avgStack ?? tableAvgStack;
     final openSeats = game?.openSeats; // null until syncClubStats runs
@@ -517,7 +522,7 @@ class _GameCard extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: PsSpacing.s4),
       child: PsCard(
-        key: Key('gameCard_${stakes.label}'),
+        key: Key('gameCard_$tableId'),
         accentRail: full ? PsColors.statusFull : PsColors.accentPrimary,
         padding: EdgeInsets.zero,
         child: Column(
@@ -542,11 +547,11 @@ class _GameCard extends ConsumerWidget {
                         Text(
                           '$type · ${l10n.minLabel} ${_money(cur, minBuyIn)} · '
                           '${l10n.avgStackLabel} ${_money(cur, avgStack)} · '
-                          '$tables ${l10n.tablesMetric.toLowerCase()}',
-                          style: TextStyle(
+                          '${seatCount}max',
+                          style: const TextStyle(
                               fontSize: PsType.caption,
-                              fontWeight: PsType.weightMedium,
-                              color: PsColors.textMuted),
+                              fontWeight: PsType.weightBold,
+                              color: PsColors.accentSecondary),
                         ),
                       ],
                     ),
@@ -566,8 +571,6 @@ class _GameCard extends ConsumerWidget {
                         label: l10n.openSeatsLabel,
                         variant: PsMetricVariant.hero),
                   const SizedBox(width: PsSpacing.s3),
-                  PsMetric(value: '$tables', label: l10n.tablesMetric),
-                  const SizedBox(width: PsSpacing.s3),
                   PsMetric(value: waiting?.toString() ?? '—', label: l10n.waitlistTitle),
                 ],
               ),
@@ -575,7 +578,7 @@ class _GameCard extends ConsumerWidget {
             Padding(
               padding: const EdgeInsets.fromLTRB(PsSpacing.s4, 0, PsSpacing.s4, PsSpacing.s4),
               child: PsButton(
-                key: Key('joinGame_${stakes.label}'),
+                key: Key('joinGame_$tableId'),
                 // Seated players can't join this stake's waitlist; otherwise the
                 // same button joins, and (when waiting) leaves the list.
                 label: seated
@@ -586,11 +589,16 @@ class _GameCard extends ConsumerWidget {
                 variant: seated || myEntry != null
                     ? PsButtonVariant.secondary
                     : PsButtonVariant.primary,
+                // Join the waitlist only when the game is FULL; with open seats
+                // there's nothing to wait for, so the button is inactive. An
+                // existing entry can always be cancelled.
                 onPressed: seated
                     ? null
                     : myEntry != null
                         ? () => unawaited(ref.read(waitlistRepositoryProvider).cancel(myEntry!.id))
-                        : () => _join(context, ref),
+                        : full
+                            ? () => _join(context, ref)
+                            : null,
               ),
             ),
           ],

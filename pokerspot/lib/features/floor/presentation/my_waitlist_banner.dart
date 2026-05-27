@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
+import 'package:pokerspot/features/clubs/presentation/providers.dart';
 import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
@@ -46,6 +47,7 @@ class _MyWaitlistRow extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppL10n.of(context);
     final called = entry.status == WaitlistStatus.called;
+    final clubName = ref.watch(clubProvider(entry.clubId)).valueOrNull?.name ?? '';
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: PsSpacing.s1),
       child: Row(
@@ -54,8 +56,9 @@ class _MyWaitlistRow extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Which club's waitlist, then the stake + status.
                 Text(
-                  entry.stakes.label,
+                  clubName.isEmpty ? entry.stakes.label : clubName,
                   style: const TextStyle(
                     fontSize: PsType.body,
                     fontWeight: PsType.weightBold,
@@ -64,7 +67,9 @@ class _MyWaitlistRow extends ConsumerWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  called ? l10n.statusCalled : l10n.statusWaiting,
+                  clubName.isEmpty
+                      ? (called ? l10n.statusCalled : l10n.statusWaiting)
+                      : '${entry.stakes.label} · ${called ? l10n.statusCalled : l10n.statusWaiting}',
                   style: TextStyle(
                     fontSize: PsType.subhead,
                     fontWeight: called ? PsType.weightBold : PsType.weightMedium,

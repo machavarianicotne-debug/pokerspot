@@ -6,6 +6,7 @@
 /// sessions/waitlist — still see the scoreboard on the club-details screen).
 class ClubGame {
   final String label; // e.g. "NLH 1/2 GEL"
+  final String tableId;
   final String type; // variant short label, e.g. "NLH"
   final num? minBuyIn;
   final num? avgStack;
@@ -15,6 +16,7 @@ class ClubGame {
 
   const ClubGame({
     required this.label,
+    this.tableId = '',
     required this.type,
     required this.minBuyIn,
     required this.avgStack,
@@ -25,6 +27,7 @@ class ClubGame {
 
   factory ClubGame.fromMap(Map<String, dynamic> m) => ClubGame(
         label: (m['label'] ?? '') as String,
+        tableId: (m['tableId'] ?? '') as String,
         type: (m['type'] ?? '') as String,
         minBuyIn: m['minBuyIn'] as num?,
         avgStack: m['avgStack'] as num?,
@@ -38,6 +41,7 @@ class ClubGame {
       identical(this, other) ||
       other is ClubGame &&
           label == other.label &&
+          tableId == other.tableId &&
           type == other.type &&
           minBuyIn == other.minBuyIn &&
           avgStack == other.avgStack &&
@@ -46,7 +50,7 @@ class ClubGame {
           waiting == other.waiting;
 
   @override
-  int get hashCode => Object.hash(label, type, minBuyIn, avgStack, tables, openSeats, waiting);
+  int get hashCode => Object.hash(label, tableId, type, minBuyIn, avgStack, tables, openSeats, waiting);
 }
 
 class Club {
@@ -60,6 +64,10 @@ class Club {
   final bool enabled;
   final String currency; // default stake currency (GEL/USD/EUR)
   final List<String> languages; // supported languages (ka/en/ru)
+
+  /// Pit-Boss-configurable reservation hold length, in minutes (default 30,
+  /// capped at 60). A player's reservation at this club holds for this long.
+  final int reservationMinutes;
 
   // ---- Denormalized live aggregates (written by the syncClubStats Cloud
   // Function). Players may read a club doc but not other clubs' sessions /
@@ -82,6 +90,7 @@ class Club {
     required this.enabled,
     this.currency = 'GEL',
     this.languages = const [],
+    this.reservationMinutes = 30,
     this.live = false,
     this.openSeats = 0,
     this.players = 0,
@@ -101,6 +110,7 @@ class Club {
         enabled: (m['enabled'] ?? false) as bool,
         currency: (m['currency'] ?? 'GEL') as String,
         languages: (m['languages'] as List?)?.whereType<String>().toList() ?? const [],
+        reservationMinutes: (m['reservationMinutes'] ?? 30) as int,
         live: (m['live'] ?? false) as bool,
         openSeats: (m['openSeats'] ?? 0) as int,
         players: (m['players'] ?? 0) as int,
@@ -123,6 +133,7 @@ class Club {
         'enabled': enabled,
         'currency': currency,
         'languages': languages,
+        'reservationMinutes': reservationMinutes,
       };
 
   Club copyWith({
@@ -136,6 +147,7 @@ class Club {
     bool? enabled,
     String? currency,
     List<String>? languages,
+    int? reservationMinutes,
     bool? live,
     int? openSeats,
     int? players,
@@ -154,6 +166,7 @@ class Club {
         enabled: enabled ?? this.enabled,
         currency: currency ?? this.currency,
         languages: languages ?? this.languages,
+        reservationMinutes: reservationMinutes ?? this.reservationMinutes,
         live: live ?? this.live,
         openSeats: openSeats ?? this.openSeats,
         players: players ?? this.players,
@@ -177,6 +190,7 @@ class Club {
           enabled == other.enabled &&
           currency == other.currency &&
           _listEq(languages, other.languages) &&
+          reservationMinutes == other.reservationMinutes &&
           live == other.live &&
           openSeats == other.openSeats &&
           players == other.players &&
@@ -186,8 +200,8 @@ class Club {
 
   @override
   int get hashCode => Object.hash(id, name, city, address, photoUrl, hoursText, phone, enabled,
-      currency, Object.hashAll(languages), live, openSeats, players, stakes, waiting,
-      Object.hashAll(games));
+      currency, Object.hashAll(languages), reservationMinutes, live, openSeats, players, stakes,
+      waiting, Object.hashAll(games));
 
   static bool _listEq(List<Object?> a, List<Object?> b) {
     if (a.length != b.length) return false;

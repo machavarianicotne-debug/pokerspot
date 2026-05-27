@@ -59,6 +59,13 @@ class AppL10nEn extends AppL10n {
   String get signOut => 'Sign out';
 
   @override
+  String get deleteAccount => 'Delete account';
+
+  @override
+  String get deleteAccountConfirm =>
+      'Permanently delete your account and data? This can\'t be undone.';
+
+  @override
   String get playerHome => 'Player';
 
   @override
@@ -434,6 +441,9 @@ class AppL10nEn extends AppL10n {
   String get appLanguage => 'App language';
 
   @override
+  String get reservationHold => 'Reservation hold';
+
+  @override
   String get languageHeader => 'Language';
 
   @override
@@ -464,7 +474,7 @@ class AppL10nEn extends AppL10n {
   String get floorOpenEmpty => 'Floor open — no games running yet tonight.';
 
   @override
-  String get allCitiesFilter => 'All cities';
+  String get allCitiesFilter => 'All Cities';
 
   @override
   String get liveCountLabel => 'LIVE';
@@ -621,6 +631,15 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get announceTournament => 'Announce tournament';
+
+  @override
+  String get editTournament => 'Edit tournament';
+
+  @override
+  String get deleteTournament => 'Delete tournament';
+
+  @override
+  String get deleteTournamentConfirm => 'Delete this tournament?';
 
   @override
   String get tournamentName => 'Name (optional)';

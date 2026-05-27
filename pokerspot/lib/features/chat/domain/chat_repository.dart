@@ -30,4 +30,11 @@ abstract interface class ChatRepository {
     required AppRole senderRole,
     required String text,
   });
+
+  /// Set (or, with an empty [emoji], clear) the caller's emoji reaction on a message.
+  Future<void> setReaction({
+    required String messageId,
+    required String uid,
+    required String emoji,
+  });
 }

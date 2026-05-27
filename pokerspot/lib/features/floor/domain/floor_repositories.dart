@@ -127,12 +127,13 @@ abstract interface class ReservationsRepository {
   /// A club's active (held) reservations (Pit Boss view).
   Stream<List<Reservation>> watchByClub(String clubId);
 
-  /// Player reserves a seat — instant 30-minute hold.
+  /// Player reserves a seat — instant hold for [durationMinutes] (per-club, 30 default).
   Future<void> reserve({
     required String clubId,
     required String playerUid,
     required String playerName,
     required Stakes stakes,
+    required int durationMinutes,
   });
 
   /// Player cancels (status -> cancelled).

@@ -221,6 +221,7 @@ class FakeReservationsRepository implements ReservationsRepository {
     required String playerUid,
     required String playerName,
     required Stakes stakes,
+    required int durationMinutes,
   }) async {
     final id = store.nextId('res');
     store.reservations[id] = Reservation(
@@ -230,7 +231,7 @@ class FakeReservationsRepository implements ReservationsRepository {
       playerName: playerName,
       stakes: stakes,
       status: ReservationStatus.held,
-      heldUntil: DateTime.now().add(const Duration(minutes: 30)),
+      heldUntil: DateTime.now().add(Duration(minutes: durationMinutes)),
       createdAt: DateTime.now(),
     );
     store.notify();

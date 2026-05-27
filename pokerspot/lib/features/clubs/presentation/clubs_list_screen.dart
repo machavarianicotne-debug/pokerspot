@@ -10,6 +10,8 @@ import 'package:pokerspot/shared/widgets/ps_card.dart';
 import 'package:pokerspot/shared/widgets/ps_filter_pill.dart';
 import 'package:pokerspot/shared/widgets/ps_metric.dart';
 import 'package:pokerspot/shared/widgets/ps_overline.dart';
+import 'package:pokerspot/shared/widgets/ps_settings_group.dart';
+import 'package:pokerspot/shared/widgets/ps_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_status_badge.dart';
 import 'package:pokerspot/shared/widgets/ps_toggle.dart';
 
@@ -27,6 +29,7 @@ class ClubsListScreen extends ConsumerStatefulWidget {
 
 class _ClubsListScreenState extends ConsumerState<ClubsListScreen> {
   bool _openOnly = false;
+  String? _city; // null = All Cities
 
   @override
   Widget build(BuildContext context) {
@@ -46,11 +49,14 @@ class _ClubsListScreenState extends ConsumerState<ClubsListScreen> {
           ),
         ),
         data: (all) {
-          final clubs = _openOnly ? all.where((c) => c.enabled).toList() : all;
+          final clubs = all
+              .where((c) => !_openOnly || c.enabled)
+              .where((c) => _city == null || c.city == _city)
+              .toList();
           return ListView(
             padding: const EdgeInsets.fromLTRB(PsSpacing.s4, PsSpacing.s4, PsSpacing.s4, 96),
             children: [
-              _filters(l10n),
+              _filters(l10n, all),
               const SizedBox(height: PsSpacing.s5),
               if (clubs.isEmpty)
                 Padding(
@@ -73,17 +79,15 @@ class _ClubsListScreenState extends ConsumerState<ClubsListScreen> {
     );
   }
 
-  Widget _filters(AppL10n l10n) => Row(
+  Widget _filters(AppL10n l10n, List<Club> all) => Row(
         children: [
           Expanded(
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  PsFilterPill(label: l10n.allCitiesFilter, active: true),
-                  const SizedBox(width: PsSpacing.s2),
-                  const PsFilterPill(label: 'NLH · PLO'),
-                ],
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: PsFilterPill(
+                label: (_city ?? l10n.allCitiesFilter).toUpperCase(),
+                active: true,
+                onTap: () => _pickCity(l10n, all),
               ),
             ),
           ),
@@ -95,6 +99,37 @@ class _ClubsListScreenState extends ConsumerState<ClubsListScreen> {
           ),
         ],
       );
+
+  /// City filter: "All Cities" + the distinct cities of the loaded clubs.
+  void _pickCity(AppL10n l10n, List<Club> all) {
+    final cities = all.map((c) => c.city).where((s) => s.isNotEmpty).toSet().toList()..sort();
+    PsSheet.show<void>(
+      context,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(l10n.allCitiesFilter,
+              style: const TextStyle(
+                  fontSize: PsType.headline, fontWeight: PsType.weightBold, color: PsColors.text)),
+          const SizedBox(height: PsSpacing.s3),
+          PsSettingsGroup(children: [
+            for (final entry in <(String?, String)>[(null, l10n.allCitiesFilter), for (final c in cities) (c, c)])
+              PsSettingsRow(
+                label: entry.$2.toUpperCase(),
+                trailing: _city == entry.$1
+                    ? const Icon(Icons.check, size: 18, color: PsColors.accentPrimary)
+                    : null,
+                onTap: () {
+                  setState(() => _city = entry.$1);
+                  Navigator.of(context).pop();
+                },
+              ),
+          ]),
+        ],
+      ),
+    );
+  }
 }
 
 class _ClubCard extends StatelessWidget {

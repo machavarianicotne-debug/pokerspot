@@ -5,11 +5,24 @@ import 'package:pokerspot/core/theme/tokens.dart';
 /// accent-primary (on-accent text), incoming are glass; the tail corner is
 /// squared. [time] shows below.
 class PsChatBubble extends StatelessWidget {
-  const PsChatBubble({super.key, required this.text, required this.outgoing, this.time});
+  const PsChatBubble({
+    super.key,
+    required this.text,
+    required this.outgoing,
+    this.time,
+    this.reactions = const [],
+    this.onLongPress,
+  });
 
   final String text;
   final bool outgoing;
   final String? time;
+
+  /// Distinct emoji reactions to show under the bubble (e.g. ['👍','❤️']).
+  final List<String> reactions;
+
+  /// Long-press the bubble (used to open the reaction picker).
+  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -18,31 +31,48 @@ class PsChatBubble extends StatelessWidget {
       child: Column(
         crossAxisAlignment: outgoing ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
-          ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 280),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
-              decoration: BoxDecoration(
-                color: outgoing ? PsColors.accentPrimary : PsColors.glassRegular,
-                border: outgoing ? null : Border.all(color: PsColors.glassBorder),
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(18),
-                  topRight: const Radius.circular(18),
-                  bottomLeft: Radius.circular(outgoing ? 18 : 5),
-                  bottomRight: Radius.circular(outgoing ? 5 : 18),
+          GestureDetector(
+            onLongPress: onLongPress,
+            behavior: HitTestBehavior.opaque,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 280),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 10),
+                decoration: BoxDecoration(
+                  color: outgoing ? PsColors.accentPrimary : PsColors.glassRegular,
+                  border: outgoing ? null : Border.all(color: PsColors.glassBorder),
+                  borderRadius: BorderRadius.only(
+                    topLeft: const Radius.circular(18),
+                    topRight: const Radius.circular(18),
+                    bottomLeft: Radius.circular(outgoing ? 18 : 5),
+                    bottomRight: Radius.circular(outgoing ? 5 : 18),
+                  ),
                 ),
-              ),
-              child: Text(
-                text,
-                style: TextStyle(
-                  fontSize: PsType.body,
-                  height: 1.35,
-                  fontWeight: outgoing ? PsType.weightMedium : PsType.weightRegular,
-                  color: outgoing ? PsColors.onAccent : PsColors.text,
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: PsType.body,
+                    height: 1.35,
+                    fontWeight: outgoing ? PsType.weightMedium : PsType.weightRegular,
+                    color: outgoing ? PsColors.onAccent : PsColors.text,
+                  ),
                 ),
               ),
             ),
           ),
+          if (reactions.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 3),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                decoration: BoxDecoration(
+                  color: PsColors.glassRegular,
+                  borderRadius: BorderRadius.circular(PsRadii.full),
+                  border: Border.all(color: PsColors.glassBorder),
+                ),
+                child: Text(reactions.join(' '), style: const TextStyle(fontSize: 16)),
+              ),
+            ),
           if (time != null)
             Padding(
               padding: const EdgeInsets.only(top: 3),
@@ -62,11 +92,15 @@ class PsComposer extends StatelessWidget {
     required this.controller,
     required this.onSend,
     this.hintText = 'Message…',
+    this.onEmoji,
   });
 
   final TextEditingController controller;
   final VoidCallback onSend;
   final String hintText;
+
+  /// Tapped to open the emoji picker (no button shown when null).
+  final VoidCallback? onEmoji;
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +117,15 @@ class PsComposer extends StatelessWidget {
             top: false,
             child: Row(
               children: [
+                if (onEmoji != null) ...[
+                  GestureDetector(
+                    onTap: onEmoji,
+                    behavior: HitTestBehavior.opaque,
+                    child: Icon(Icons.emoji_emotions_outlined,
+                        size: 26, color: PsColors.textMuted),
+                  ),
+                  const SizedBox(width: PsSpacing.s2),
+                ],
                 Expanded(
                   child: Container(
                     constraints: const BoxConstraints(minHeight: 42),

@@ -122,4 +122,14 @@ class FirebaseChatRepository implements ChatRepository {
       'at': FieldValue.serverTimestamp(),
     });
   }
+
+  @override
+  Future<void> setReaction({
+    required String messageId,
+    required String uid,
+    required String emoji,
+  }) =>
+      _col.doc(messageId).update({
+        'reactions.$uid': emoji.isEmpty ? FieldValue.delete() : emoji,
+      });
 }

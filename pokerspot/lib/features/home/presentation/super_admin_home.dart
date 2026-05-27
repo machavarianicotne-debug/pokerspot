@@ -31,7 +31,7 @@ class SuperAdminHome extends StatelessWidget {
       ),
       items: [
         PsTabItem(Icons.dashboard, l10n.tabOverview),
-        PsTabItem(Icons.casino, l10n.tabClubs),
+        PsTabItem(Icons.casino, l10n.tabClubs, glyph: '♠'),
         PsTabItem(Icons.badge, l10n.tabPitBosses),
         PsTabItem(Icons.group, l10n.tabUsers),
         PsTabItem(Icons.settings, l10n.tabSettings),

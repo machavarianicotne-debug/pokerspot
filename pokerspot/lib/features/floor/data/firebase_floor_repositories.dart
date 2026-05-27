@@ -308,6 +308,7 @@ class FirebaseReservationsRepository implements ReservationsRepository {
     required String playerUid,
     required String playerName,
     required Stakes stakes,
+    required int durationMinutes,
   }) {
     return _col.add({
       'clubId': clubId,
@@ -315,8 +316,8 @@ class FirebaseReservationsRepository implements ReservationsRepository {
       'playerName': playerName,
       ...stakes.toMap(),
       'status': ReservationStatus.held.asString,
-      // 30-minute hold; a Cloud Function expires it (Wave 6).
-      'heldUntil': Timestamp.fromDate(DateTime.now().add(const Duration(minutes: 30))),
+      // Per-club hold length; a Cloud Function expires it (Wave 6).
+      'heldUntil': Timestamp.fromDate(DateTime.now().add(Duration(minutes: durationMinutes))),
       'createdAt': FieldValue.serverTimestamp(),
     });
   }

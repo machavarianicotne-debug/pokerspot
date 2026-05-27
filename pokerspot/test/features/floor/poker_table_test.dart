@@ -43,4 +43,20 @@ void main() {
     expect(t.copyWith(open: false).open, isFalse);
     expect(t, equals(t.copyWith()));
   });
+
+  test('NLH/PLO mixed-game config round-trips through toMap/fromMap', () {
+    const s = Stakes(variant: GameVariant.nlhPlo, smallBlind: 1, bigBlind: 2, currency: 'GEL');
+    const t = PokerTable(
+      id: 't', clubId: 'c', number: 1, stakes: s, seatCount: 9, open: true,
+      omahaPerCircle: 2, omahaVariant: GameVariant.plo5,
+    );
+    final back = PokerTable.fromMap('t', 'c', t.toMap());
+    expect(back.stakes.variant, GameVariant.nlhPlo);
+    expect(back.omahaPerCircle, 2);
+    expect(back.omahaVariant, GameVariant.plo5);
+    // Defaults to null when absent (e.g. a plain NLH table).
+    final plain = PokerTable.fromMap('t', 'c', const {'variant': 'nlh'});
+    expect(plain.omahaPerCircle, isNull);
+    expect(plain.omahaVariant, isNull);
+  });
 }

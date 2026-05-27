@@ -53,6 +53,9 @@ class FirebaseUsersRepository implements UsersRepository {
       _doc(uid).update({'role': role.asString});
 
   @override
+  Future<void> setLang(String uid, String lang) => _doc(uid).update({'lang': lang});
+
+  @override
   Future<void> setBlocked(String uid, bool blocked) =>
       _doc(uid).update({'blocked': blocked});
 
@@ -63,4 +66,10 @@ class FirebaseUsersRepository implements UsersRepository {
   @override
   Future<void> addFcmToken(String uid, String token) =>
       _doc(uid).set({'fcmTokens': FieldValue.arrayUnion([token])}, SetOptions(merge: true));
+
+  @override
+  Future<void> requestAccountDeletion(String uid) => _firestore
+      .collection('deletion_requests')
+      .doc(uid)
+      .set({'requestedAt': FieldValue.serverTimestamp()});
 }

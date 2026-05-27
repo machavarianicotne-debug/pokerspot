@@ -4,18 +4,27 @@ import 'package:pokerspot/core/constants/business_rules.dart';
 
 enum GameVariant {
   nlh,
+  nlhPlo, // mixed: NLH + PLO  (the Omaha leg is PLO)
+  nlhPlo5, // mixed: NLH + PLO5 (a flavour of NLH/PLO, picked via its sub-choice)
   plo,
   plo5,
-  plo6;
+  plo6,
+  dealerChoice;
 
   static GameVariant fromString(String? raw) {
     switch (raw) {
+      case 'nlhPlo':
+        return GameVariant.nlhPlo;
+      case 'nlhPlo5':
+        return GameVariant.nlhPlo5;
       case 'plo':
         return GameVariant.plo;
       case 'plo5':
         return GameVariant.plo5;
       case 'plo6':
         return GameVariant.plo6;
+      case 'dealerChoice':
+        return GameVariant.dealerChoice;
       default:
         return GameVariant.nlh;
     }
@@ -33,9 +42,26 @@ enum GameVariant {
         return 'PLO5';
       case GameVariant.plo6:
         return 'PLO6';
+      case GameVariant.nlhPlo:
+        return 'NLH/PLO';
+      case GameVariant.nlhPlo5:
+        return 'NLH/PLO5';
+      case GameVariant.dealerChoice:
+        return "Dealer's Choice";
     }
   }
 }
+
+/// Variants offered directly in the game picker. NLH/PLO5 is intentionally absent:
+/// it's reached through the NLH/PLO Omaha sub-choice (PLO → NLH/PLO, PLO5 → NLH/PLO5).
+const pickerGameVariants = <GameVariant>[
+  GameVariant.nlh,
+  GameVariant.nlhPlo,
+  GameVariant.plo,
+  GameVariant.plo5,
+  GameVariant.plo6,
+  GameVariant.dealerChoice,
+];
 
 /// A stake = game variant + blinds + currency. Serializes to flat keys
 /// (`variant`, `smallBlind`, `bigBlind`, `currency`) so it can be embedded in

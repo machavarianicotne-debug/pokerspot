@@ -59,6 +59,13 @@ class AppL10nRu extends AppL10n {
   String get signOut => 'Выйти';
 
   @override
+  String get deleteAccount => 'Удалить аккаунт';
+
+  @override
+  String get deleteAccountConfirm =>
+      'Удалить аккаунт и все данные навсегда? Это необратимо.';
+
+  @override
   String get playerHome => 'Игрок';
 
   @override
@@ -434,6 +441,9 @@ class AppL10nRu extends AppL10n {
   String get appLanguage => 'Язык приложения';
 
   @override
+  String get reservationHold => 'Длительность брони';
+
+  @override
   String get languageHeader => 'Язык';
 
   @override
@@ -621,6 +631,15 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get announceTournament => 'Объявить турнир';
+
+  @override
+  String get editTournament => 'Редактировать турнир';
+
+  @override
+  String get deleteTournament => 'Удалить турнир';
+
+  @override
+  String get deleteTournamentConfirm => 'Удалить этот турнир?';
 
   @override
   String get tournamentName => 'Название (необязательно)';

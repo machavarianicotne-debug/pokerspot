@@ -14,8 +14,9 @@ import 'package:pokerspot/shared/widgets/ps_scaffold.dart';
 import 'package:pokerspot/shared/widgets/ps_segmented.dart';
 import 'package:pokerspot/shared/widgets/ps_stepper.dart';
 import 'package:pokerspot/shared/widgets/ps_text_field.dart';
+import 'package:pokerspot/shared/widgets/ps_toggle.dart';
 
-const _currencies = ['GEL', 'USD', 'EUR'];
+const _currencies = ['GEL', 'USD'];
 const _blindPresets = ['1/3', '2/5', '5/5', '5/10'];
 String _symbol(String c) => c == 'USD' ? '\$' : c == 'EUR' ? '€' : '₾';
 
@@ -36,8 +37,11 @@ class _NewGameScreenState extends ConsumerState<NewGameScreen> {
   final _customBlinds = TextEditingController();
   final _minBuyIn = TextEditingController();
   final _avgStack = TextEditingController();
+  final _seats = TextEditingController(text: '9');
+  final _startNumber = TextEditingController(); // empty = auto-number
   String _currency = 'GEL';
   int _tables = 1;
+  bool _open = true;
   bool _busy = false;
 
   @override
@@ -45,8 +49,14 @@ class _NewGameScreenState extends ConsumerState<NewGameScreen> {
     _customBlinds.dispose();
     _minBuyIn.dispose();
     _avgStack.dispose();
+    _seats.dispose();
+    _startNumber.dispose();
     super.dispose();
   }
+
+  /// Next free table number across the club (used as the auto default).
+  int _autoNumber(List<PokerTable> existing) =>
+      existing.fold<int>(0, (m, t) => t.number > m ? t.number : m) + 1;
 
   (num, num) _parseBlinds() {
     final raw = _custom ? _customBlinds.text.trim() : _blinds;
@@ -56,19 +66,22 @@ class _NewGameScreenState extends ConsumerState<NewGameScreen> {
     return (sb, bb);
   }
 
-  Future<void> _open() async {
+  Future<void> _openGame() async {
     setState(() => _busy = true);
     final (sb, bb) = _parseBlinds();
     final stakes = Stakes(variant: _variant, smallBlind: sb, bigBlind: bb, currency: _currency);
     final repo = ref.read(tablesRepositoryProvider);
     final existing = ref.read(tablesProvider(widget.clubId)).valueOrNull ?? const <PokerTable>[];
-    var next = existing.fold<int>(0, (m, t) => t.number > m ? t.number : m) + 1;
+    // Manual start number if typed, otherwise auto. Multiple tables number up
+    // sequentially from there.
+    var next = int.tryParse(_startNumber.text.trim()) ?? _autoNumber(existing);
+    final seats = int.tryParse(_seats.text.trim()) ?? 9;
     final minBuyIn = num.tryParse(_minBuyIn.text.trim());
     final avgStack = num.tryParse(_avgStack.text.trim());
     final nav = Navigator.of(context);
     for (var i = 0; i < _tables; i++) {
       await repo.createTable(
-          clubId: widget.clubId, number: next++, stakes: stakes, seatCount: 9, open: true,
+          clubId: widget.clubId, number: next++, stakes: stakes, seatCount: seats, open: _open,
           minBuyIn: minBuyIn, avgStack: avgStack);
     }
     nav.pop();
@@ -88,6 +101,7 @@ class _NewGameScreenState extends ConsumerState<NewGameScreen> {
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
     final sym = _symbol(_currency);
+    final existing = ref.watch(tablesProvider(widget.clubId)).valueOrNull ?? const <PokerTable>[];
     return PsScaffold(
       body: SafeArea(
         child: Column(
@@ -119,10 +133,20 @@ class _NewGameScreenState extends ConsumerState<NewGameScreen> {
                 padding: const EdgeInsets.fromLTRB(PsSpacing.s5, 0, PsSpacing.s5, PsSpacing.s8),
                 children: [
                   _label(l10n.gameLabel),
-                  PsSegmented<GameVariant>(
-                    value: _variant,
-                    segments: [for (final v in GameVariant.values) PsSegment(v, v.label)],
-                    onChanged: (v) => setState(() => _variant = v),
+                  // Pills (not a segmented row) so all six variants keep readable
+                  // labels — "NLH/PLO" / "Dealer's Choice" would truncate in equal
+                  // segments.
+                  Wrap(
+                    spacing: PsSpacing.s2,
+                    runSpacing: PsSpacing.s2,
+                    children: [
+                      for (final v in pickerGameVariants)
+                        PsFilterPill(
+                          label: v.label,
+                          active: _variant == v,
+                          onTap: () => setState(() => _variant = v),
+                        ),
+                    ],
                   ),
                   _label(l10n.blindsLabel),
                   Wrap(
@@ -159,13 +183,51 @@ class _NewGameScreenState extends ConsumerState<NewGameScreen> {
                   PsMoneyField(symbol: sym, controller: _minBuyIn, hintText: '200'),
                   _label(l10n.avgStackLabel),
                   PsMoneyField(symbol: sym, controller: _avgStack, hintText: '—'),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _label(l10n.seatsLabel),
+                            PsTextField(
+                                controller: _seats,
+                                keyboardType: TextInputType.number,
+                                hintText: '9'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: PsSpacing.s3),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _label(l10n.tableNumberLabel),
+                            PsTextField(
+                                controller: _startNumber,
+                                keyboardType: TextInputType.number,
+                                hintText: '${_autoNumber(existing)}'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: PsSpacing.s4),
+                    child: PsToggle(
+                      value: _open,
+                      onChanged: (v) => setState(() => _open = v),
+                      label: l10n.openLabel.toUpperCase(),
+                    ),
+                  ),
                   _label(l10n.tablesToOpenLabel),
                   PsStepper(value: _tables, min: 1, max: 3, onChanged: (n) => setState(() => _tables = n)),
                   const SizedBox(height: PsSpacing.s6),
                   PsButton(
                     key: const Key('openGameBtn'),
                     label: l10n.openGameBtn,
-                    onPressed: _busy ? null : () => unawaited(_open()),
+                    onPressed: _busy ? null : () => unawaited(_openGame()),
                   ),
                 ],
               ),

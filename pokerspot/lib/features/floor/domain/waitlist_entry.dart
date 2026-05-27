@@ -33,6 +33,7 @@ DateTime? _date(dynamic millis) =>
 class WaitlistEntry {
   final String id;
   final String clubId;
+  final String? tableId;
   final String playerUid;
   final String playerName;
   final Stakes stakes;
@@ -43,6 +44,7 @@ class WaitlistEntry {
   const WaitlistEntry({
     required this.id,
     required this.clubId,
+    this.tableId,
     required this.playerUid,
     required this.playerName,
     required this.stakes,
@@ -54,6 +56,7 @@ class WaitlistEntry {
   factory WaitlistEntry.fromMap(String id, Map<String, dynamic> m) => WaitlistEntry(
         id: id,
         clubId: (m['clubId'] ?? '') as String,
+        tableId: m['tableId'] as String?,
         playerUid: (m['playerUid'] ?? '') as String,
         playerName: (m['playerName'] ?? '') as String,
         stakes: Stakes.fromMap(m),
@@ -64,6 +67,7 @@ class WaitlistEntry {
 
   Map<String, dynamic> toMap() => {
         'clubId': clubId,
+        'tableId': tableId,
         'playerUid': playerUid,
         'playerName': playerName,
         ...stakes.toMap(),
@@ -75,6 +79,7 @@ class WaitlistEntry {
   WaitlistEntry copyWith({
     String? id,
     String? clubId,
+    String? tableId,
     String? playerUid,
     String? playerName,
     Stakes? stakes,
@@ -85,6 +90,7 @@ class WaitlistEntry {
       WaitlistEntry(
         id: id ?? this.id,
         clubId: clubId ?? this.clubId,
+        tableId: tableId ?? this.tableId,
         playerUid: playerUid ?? this.playerUid,
         playerName: playerName ?? this.playerName,
         stakes: stakes ?? this.stakes,
@@ -100,6 +106,7 @@ class WaitlistEntry {
           runtimeType == other.runtimeType &&
           id == other.id &&
           clubId == other.clubId &&
+          tableId == other.tableId &&
           playerUid == other.playerUid &&
           playerName == other.playerName &&
           stakes == other.stakes &&
@@ -109,5 +116,5 @@ class WaitlistEntry {
 
   @override
   int get hashCode => Object.hash(
-      id, clubId, playerUid, playerName, stakes, status, createdAt, calledAt);
+      id, clubId, tableId, playerUid, playerName, stakes, status, createdAt, calledAt);
 }

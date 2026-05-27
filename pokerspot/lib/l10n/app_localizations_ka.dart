@@ -59,6 +59,13 @@ class AppL10nKa extends AppL10n {
   String get signOut => 'გასვლა';
 
   @override
+  String get deleteAccount => 'ანგარიშის წაშლა';
+
+  @override
+  String get deleteAccountConfirm =>
+      'სამუდამოდ წავშალოთ თქვენი ანგარიში და მონაცემები? ამის გაუქმება შეუძლებელია.';
+
+  @override
   String get playerHome => 'მოთამაშე';
 
   @override
@@ -434,6 +441,9 @@ class AppL10nKa extends AppL10n {
   String get appLanguage => 'აპლიკაციის ენა';
 
   @override
+  String get reservationHold => 'რეზერვაციის ხანგრძლივობა';
+
+  @override
   String get languageHeader => 'ენა';
 
   @override
@@ -623,6 +633,15 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get announceTournament => 'ტურნირის გამოცხადება';
+
+  @override
+  String get editTournament => 'ტურნირის რედაქტირება';
+
+  @override
+  String get deleteTournament => 'ტურნირის წაშლა';
+
+  @override
+  String get deleteTournamentConfirm => 'წავშალო ეს ტურნირი?';
 
   @override
   String get tournamentName => 'სახელი (არასავალდებულო)';

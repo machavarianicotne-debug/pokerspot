@@ -84,6 +84,17 @@ class FakeClubsRepository implements ClubsRepository {
   }
 
   @override
+  Future<void> setReservationMinutes(String id, int minutes) async {
+    final c = _store[id];
+    if (c != null) {
+      final updated = c.copyWith(reservationMinutes: minutes);
+      _store[id] = updated;
+      _broadcast();
+      _ctrl(id).add(updated);
+    }
+  }
+
+  @override
   Stream<List<Club>> watchEnabledClubs() {
     final out = StreamController<List<Club>>();
     StreamSubscription<List<Club>>? sub;

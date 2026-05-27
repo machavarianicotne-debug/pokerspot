@@ -32,6 +32,7 @@ DateTime? _date(dynamic millis) =>
 class Reservation {
   final String id;
   final String clubId;
+  final String? tableId;
   final String playerUid;
   final String playerName;
   final Stakes stakes;
@@ -42,6 +43,7 @@ class Reservation {
   const Reservation({
     required this.id,
     required this.clubId,
+    this.tableId,
     required this.playerUid,
     required this.playerName,
     required this.stakes,
@@ -53,6 +55,7 @@ class Reservation {
   factory Reservation.fromMap(String id, Map<String, dynamic> m) => Reservation(
         id: id,
         clubId: (m['clubId'] ?? '') as String,
+        tableId: m['tableId'] as String?,
         playerUid: (m['playerUid'] ?? '') as String,
         playerName: (m['playerName'] ?? '') as String,
         stakes: Stakes.fromMap(m),
@@ -63,6 +66,7 @@ class Reservation {
 
   Map<String, dynamic> toMap() => {
         'clubId': clubId,
+        'tableId': tableId,
         'playerUid': playerUid,
         'playerName': playerName,
         ...stakes.toMap(),
@@ -74,6 +78,7 @@ class Reservation {
   Reservation copyWith({ReservationStatus? status, DateTime? heldUntil}) => Reservation(
         id: id,
         clubId: clubId,
+        tableId: tableId,
         playerUid: playerUid,
         playerName: playerName,
         stakes: stakes,
@@ -89,6 +94,7 @@ class Reservation {
           runtimeType == other.runtimeType &&
           id == other.id &&
           clubId == other.clubId &&
+          tableId == other.tableId &&
           playerUid == other.playerUid &&
           playerName == other.playerName &&
           stakes == other.stakes &&
@@ -98,5 +104,5 @@ class Reservation {
 
   @override
   int get hashCode =>
-      Object.hash(id, clubId, playerUid, playerName, stakes, status, heldUntil, createdAt);
+      Object.hash(id, clubId, tableId, playerUid, playerName, stakes, status, heldUntil, createdAt);
 }

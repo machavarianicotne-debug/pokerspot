@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
@@ -9,10 +11,14 @@ import 'package:pokerspot/features/floor/domain/waitlist_entry.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
 import 'package:pokerspot/features/floor/presentation/game_detail_screen.dart';
 import 'package:pokerspot/features/floor/presentation/new_game_screen.dart';
+import 'package:pokerspot/features/tournaments/domain/tournament.dart';
+import 'package:pokerspot/features/tournaments/presentation/providers.dart';
+import 'package:pokerspot/features/tournaments/presentation/tournament_detail_screen.dart'
+    show TournamentDetailScreen, tournamentWhen;
 import 'package:pokerspot/features/tournaments/presentation/tournament_editor_screen.dart';
-import 'package:pokerspot/features/floor/presentation/table_editor_sheet.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_card.dart';
+import 'package:pokerspot/shared/widgets/ps_overline.dart';
 
 /// Pit Boss "Tables" tab — the table-centric floor (mockup `pit-boss-live-floor`):
 /// numbered table cards with a mini seat row, occupancy and per-stake waiting
@@ -35,37 +41,50 @@ class TablesScreen extends ConsumerWidget {
       );
     }
 
-    final tables = ref.watch(tablesProvider(clubId)).valueOrNull ?? const <PokerTable>[];
+    final tablesAsync = ref.watch(tablesProvider(clubId));
+    final tables = tablesAsync.valueOrNull ?? const <PokerTable>[];
     final sessions = ref.watch(clubSessionsProvider(clubId)).valueOrNull ?? const <Session>[];
     final waitlist = ref.watch(clubWaitlistProvider(clubId)).valueOrNull ?? const <WaitlistEntry>[];
+
+    // Self-heal: end any open session whose table no longer exists (an orphan from
+    // a table deleted before sessions were auto-ended, or any future gap). Only
+    // once tables have actually loaded — never during the initial load, when the
+    // list is briefly empty — and after the frame so we don't mutate during build.
+    if (tablesAsync.hasValue) {
+      final ids = tables.map((t) => t.id).toSet();
+      final orphans = sessions.where((s) => !ids.contains(s.tableId)).toList();
+      if (orphans.isNotEmpty) {
+        final repo = ref.read(sessionsRepositoryProvider);
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          for (final s in orphans) {
+            unawaited(repo.end(s.id));
+          }
+        });
+      }
+    }
+    // Upcoming tournaments the Pit Boss can tap to edit/delete (keeps just-started
+    // ones briefly, like the player club view).
+    final tournaments = (ref.watch(clubTournamentsProvider(clubId)).valueOrNull ?? const <Tournament>[])
+        .where((t) =>
+            t.startAt == null || t.startAt!.isAfter(DateTime.now().subtract(const Duration(hours: 6))))
+        .toList();
     int occupied(String tableId) => sessions.where((s) => s.tableId == tableId).length;
     int waiting(String label) => waitlist.where((e) => e.stakes.label == label).length;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(PsSpacing.s4, PsSpacing.s4, PsSpacing.s4, 96),
       children: [
-        Row(
-          children: [
-            Expanded(
-              child: PsButton(
-                key: const Key('newGameBtn'),
-                label: l10n.newGame,
-                icon: Icons.add,
-                onPressed: () => Navigator.of(context).push(
-                  MaterialPageRoute<void>(builder: (_) => NewGameScreen(clubId: clubId)),
-                ),
-              ),
-            ),
-            const SizedBox(width: PsSpacing.s2),
-            Expanded(
-              child: PsButton(
-                key: const Key('newTableBtn'),
-                label: l10n.newTable,
-                variant: PsButtonVariant.secondary,
-                onPressed: () => TableEditorSheet.show(context, clubId: clubId),
-              ),
-            ),
-          ],
+        // New Table is intentionally hidden: New Game now covers every table
+        // control (seat count / table number / open state), so a separate
+        // single-table editor is redundant. TableEditorSheet stays in the
+        // codebase, just no longer wired to a button.
+        PsButton(
+          key: const Key('newGameBtn'),
+          label: l10n.newGame,
+          icon: Icons.add,
+          onPressed: () => Navigator.of(context).push(
+            MaterialPageRoute<void>(builder: (_) => NewGameScreen(clubId: clubId)),
+          ),
         ),
         const SizedBox(height: PsSpacing.s2),
         PsButton(
@@ -78,6 +97,51 @@ class TablesScreen extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: PsSpacing.s4),
+        // Upcoming tournaments at the TOP — tap to edit / delete.
+        if (tournaments.isNotEmpty) ...[
+          Padding(
+            padding: const EdgeInsets.only(left: 4, bottom: PsSpacing.s3),
+            child: PsOverline(l10n.upcomingTournaments),
+          ),
+          for (final t in tournaments)
+            Padding(
+              padding: const EdgeInsets.only(bottom: PsSpacing.s2),
+              child: PsCard(
+                key: Key('pbTournamentCard_${t.id}'),
+                accentRail: PsColors.accentSecondary,
+                onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                    builder: (_) => TournamentDetailScreen(tournament: t))),
+                child: Row(
+                  children: [
+                    const Text('🏆', style: TextStyle(fontSize: 22)),
+                    const SizedBox(width: PsSpacing.s3),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(t.name.isEmpty ? tournamentTypeLabel(t.type, l10n) : t.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                  fontSize: PsType.body,
+                                  fontWeight: PsType.weightBold,
+                                  color: PsColors.text)),
+                          const SizedBox(height: 2),
+                          Text(tournamentWhen(t),
+                              style: const TextStyle(
+                                  fontSize: PsType.caption,
+                                  fontWeight: PsType.weightBold,
+                                  color: PsColors.accentPrimary)),
+                        ],
+                      ),
+                    ),
+                    Icon(Icons.chevron_right, size: 18, color: PsColors.textFaint),
+                  ],
+                ),
+              ),
+            ),
+          const SizedBox(height: PsSpacing.s5),
+        ],
         if (tables.isEmpty)
           Padding(
             padding: const EdgeInsets.only(top: PsSpacing.s8),
@@ -129,7 +193,10 @@ class _TableCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(table.stakes.label,
+                    Text(
+                        table.omahaSuffix.isEmpty
+                            ? table.stakes.label
+                            : '${table.stakes.label} · ${table.omahaSuffix}',
                         style: const TextStyle(
                             fontSize: PsType.headline,
                             fontWeight: PsType.weightBlack,

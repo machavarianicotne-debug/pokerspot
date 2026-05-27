@@ -42,6 +42,13 @@ class FakeTournamentsRepository implements TournamentsRepository {
   }
 
   @override
+  Future<void> update(Tournament t) async {
+    if (t.id.isEmpty) return;
+    _items[t.id] = t;
+    _changes.add(null);
+  }
+
+  @override
   Future<void> delete(String id) async {
     _items.remove(id);
     _changes.add(null);

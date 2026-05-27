@@ -87,7 +87,7 @@ class PlayerHome extends ConsumerWidget {
         ],
       ),
       items: [
-        PsTabItem(Icons.casino, l10n.tabClubs),
+        PsTabItem(Icons.casino, l10n.tabClubs, glyph: '♠'),
         PsTabItem(Icons.chat_bubble_outline, l10n.tabChat, badge: unread),
         PsTabItem(Icons.show_chart, l10n.tabActivity),
         PsTabItem(Icons.person, l10n.tabProfile),

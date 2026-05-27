@@ -40,6 +40,23 @@ void main() {
     expect(list, isEmpty);
   });
 
+  test('fake repo: update edits the announced tournament in place', () async {
+    final repo = FakeTournamentsRepository();
+    await repo.create(_t());
+    final created = (await repo.watchByClub('c1').first).first;
+    await repo.update(Tournament(
+      id: created.id, clubId: 'c1', name: 'Monday Deep', type: created.type,
+      startAt: created.startAt, buyIn: 250, rebuyFee: null, hasAddon: false,
+      addonFee: null, blindMinutes: 30, currency: 'GEL', maxPlayers: 80,
+    ));
+    final after = await repo.watchByClub('c1').first;
+    expect(after.length, 1); // edited, not added
+    expect(after.first.id, created.id);
+    expect(after.first.name, 'Monday Deep');
+    expect(after.first.buyIn, 250);
+    expect(after.first.maxPlayers, 80);
+  });
+
   test('Tournament keeps maxPlayers through fromMap/toMap', () {
     final t = _t(id: 'x', maxPlayers: 30);
     expect(Tournament.fromMap('x', t.toMap()).maxPlayers, 30);

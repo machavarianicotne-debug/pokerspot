@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
@@ -110,7 +112,38 @@ class _PitBossSettingsScreenState extends ConsumerState<PitBossSettingsScreen> {
                 for (final (code, label) in _langs)
                   Padding(
                     padding: const EdgeInsets.only(left: 6),
-                    child: _langPill(label, active: lang == code, onTap: () => setState(() => _lang = code)),
+                    child: _langPill(label, active: lang == code, onTap: () {
+                      setState(() => _lang = code);
+                      final uid = user?.uid;
+                      if (uid != null) {
+                        unawaited(ref.read(usersRepositoryProvider).setLang(uid, code));
+                      }
+                    }),
+                  ),
+              ],
+            ),
+          ),
+        ]),
+        const SizedBox(height: PsSpacing.s5),
+
+        // ---- reservation hold length (30 / 45 / 60 min) ----------------------
+        PsSettingsGroup.header(l10n.reservationHold),
+        PsSettingsGroup(children: [
+          PsSettingsRow(
+            label: l10n.reservationHold,
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (final m in const [30, 45, 60])
+                  Padding(
+                    padding: const EdgeInsets.only(left: 6),
+                    child: _langPill('${m}m',
+                        active: (club?.reservationMinutes ?? 30) == m, onTap: () {
+                      final cid = user?.clubId;
+                      if (cid != null) {
+                        unawaited(ref.read(clubsRepositoryProvider).setReservationMinutes(cid, m));
+                      }
+                    }),
                   ),
               ],
             ),

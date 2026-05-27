@@ -103,8 +103,8 @@ void main() {
       ),
     ));
     await tester.pumpAndSettle();
-    expect(find.byKey(const Key('gameCard_NLH 1/2 GEL')), findsOneWidget);
-    expect(find.byKey(const Key('joinGame_NLH 1/2 GEL')), findsOneWidget);
+    expect(find.byKey(const Key('gameCard_t1')), findsOneWidget);
+    expect(find.byKey(const Key('joinGame_t1')), findsOneWidget);
   });
 
   testWidgets('unknown club id shows the empty/not-found state', (tester) async {
@@ -128,7 +128,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 50));
 
     // Per-card Join button joins that stake directly (mockup).
-    await tester.tap(find.byKey(const Key('joinGame_NLH 1/2 GEL')));
+    await tester.tap(find.byKey(const Key('joinGame_t1')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 

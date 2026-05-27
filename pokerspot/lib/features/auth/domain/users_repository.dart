@@ -22,6 +22,9 @@ abstract interface class UsersRepository {
   /// Set a user's role (promote/demote).
   Future<void> updateRole(String uid, AppRole role);
 
+  /// Change the user's UI language ('en' | 'ka' | 'ru').
+  Future<void> setLang(String uid, String lang);
+
   /// Block / unblock a user.
   Future<void> setBlocked(String uid, bool blocked);
 
@@ -30,4 +33,8 @@ abstract interface class UsersRepository {
 
   /// Register a Web Push (FCM) token for this user (read by notifyCalled).
   Future<void> addFcmToken(String uid, String token);
+
+  /// Request permanent account deletion — writes deletion_requests/{uid}; a Cloud
+  /// Function then cascades the user's data + Auth account. Sign out afterward.
+  Future<void> requestAccountDeletion(String uid);
 }

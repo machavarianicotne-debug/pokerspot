@@ -258,11 +258,11 @@ exports.onReservationCreate = onDocumentCreated(
   async (event) => {
     const r = event.data && event.data.data();
     if (!r || r.status !== 'held') return;
-    const key = stakeKey(r);
+    // The player reserved a SPECIFIC table — only seat them there.
     const tablesSnap = await db.collection('clubs').doc(r.clubId).collection('tables').get();
     const tables = tablesSnap.docs
       .map((d) => ({ id: d.id, ...d.data() }))
-      .filter((t) => t.open !== false && stakeKey(t) === key);
+      .filter((t) => t.open !== false && (r.tableId == null || t.id === r.tableId));
     if (tables.length === 0) return;
     const sessSnap = await db.collection('sessions').where('clubId', '==', r.clubId).get();
     const open = sessSnap.docs
@@ -312,12 +312,14 @@ exports.notifySeatOpen = onDocumentUpdated(
     const before = event.data.before.data();
     const after = event.data.after.data();
     if (before.status === 'ended' || after.status !== 'ended') return;
-    const key = stakeKey(after);
     const snap = await db.collection('waitlist').where('clubId', '==', after.clubId).get();
     const tokens = [];
     for (const d of snap.docs) {
       const w = d.data();
-      if (w.status === 'waiting' && stakeKey(w) === key) {
+      // Notify players waiting for THIS table (legacy entries with no tableId
+      // fall back to a stake match so they still hear about an opening).
+      const sameTable = w.tableId != null ? w.tableId === after.tableId : stakeKey(w) === stakeKey(after);
+      if (w.status === 'waiting' && sameTable) {
         tokens.push(...(await playerTokens(w.playerUid)));
       }
     }

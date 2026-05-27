@@ -13,7 +13,7 @@ const _stakes = Stakes(variant: GameVariant.nlh, smallBlind: 1, bigBlind: 2, cur
 const _table = PokerTable(
     id: 't1', clubId: 'vake', number: 1, stakes: _stakes, seatCount: 9, open: true);
 const _game = ClubGame(
-    label: 'NLH 1/2 GEL', type: 'NLH', minBuyIn: null, avgStack: null,
+    tableId: 't1', label: 'NLH 1/2 GEL', type: 'NLH', minBuyIn: null, avgStack: null,
     tables: 1, openSeats: 9, waiting: 0);
 const _vake = Club(
     id: 'vake', name: 'PokerSpot Vake', city: 'Tbilisi', address: 'A', photoUrl: null,

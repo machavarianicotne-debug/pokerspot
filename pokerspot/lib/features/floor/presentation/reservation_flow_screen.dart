@@ -8,7 +8,6 @@ import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
-import 'package:pokerspot/features/floor/domain/stakes.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_countdown.dart';
@@ -27,7 +26,7 @@ class ReservationFlowScreen extends ConsumerStatefulWidget {
 }
 
 class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
-  Stakes? _selected;
+  PokerTable? _selected;
   bool _held = false;
   bool _busy = false;
 
@@ -37,16 +36,17 @@ class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
     return m.clamp(1, 60);
   }
 
-  Future<void> _reserve(Stakes stakes) async {
+  Future<void> _reserve(PokerTable table) async {
     setState(() => _busy = true);
     final uid = ref.read(authRepositoryProvider).currentUid;
     final user = ref.read(currentUserProvider).valueOrNull;
     if (uid != null) {
       await ref.read(reservationsRepositoryProvider).reserve(
             clubId: widget.clubId,
+            tableId: table.id,
             playerUid: uid,
             playerName: user == null ? '' : '${user.firstName} ${user.lastName}'.trim(),
-            stakes: stakes,
+            stakes: table.stakes,
             durationMinutes: _reservationMinutes,
           );
     }
@@ -58,17 +58,16 @@ class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
     final l10n = AppL10n.of(context);
     final club = ref.watch(clubProvider(widget.clubId)).valueOrNull;
     final tables = ref.watch(tablesProvider(widget.clubId)).valueOrNull ?? const <PokerTable>[];
-    final games = {for (final g in club?.games ?? const <ClubGame>[]) g.label: g};
-    // Reservation is allowed when a stake has an OPEN seat, OR when nobody is on
-    // its waitlist (reservation has priority over a not-yet-formed queue). It is
-    // blocked only when there's no seat AND at least one person is waiting.
-    final byLabel = <String, Stakes>{for (final t in tables) t.stakes.label: t.stakes};
-    final reservable = <Stakes>[
-      for (final e in byLabel.entries)
-        if ((games[e.key]?.openSeats ?? 0) > 0 || (games[e.key]?.waiting ?? 0) == 0) e.value,
+    final gamesByTableId = {for (final g in club?.games ?? const <ClubGame>[]) g.tableId: g};
+    // A table is reservable when it has an OPEN seat, OR nobody is waiting for it
+    // (a reservation has priority over a not-yet-formed queue). Blocked only when
+    // there is no seat AND at least one person waits for that table.
+    final reservable = <PokerTable>[
+      for (final t in tables.where((t) => t.open))
+        if ((gamesByTableId[t.id]?.openSeats ?? 0) > 0 || (gamesByTableId[t.id]?.waiting ?? 0) == 0) t,
     ];
-    final reservableLabels = reservable.map((s) => s.label).toSet();
-    if (_selected != null && !reservableLabels.contains(_selected!.label)) _selected = null;
+    final reservableIds = reservable.map((t) => t.id).toSet();
+    if (_selected != null && !reservableIds.contains(_selected!.id)) _selected = null;
     _selected ??= reservable.isNotEmpty ? reservable.first : null;
 
     if (_held) return _success(context, l10n);
@@ -113,13 +112,13 @@ class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
                       spacing: PsSpacing.s2,
                       runSpacing: PsSpacing.s2,
                       children: [
-                        for (final s in reservable)
+                        for (final t in reservable)
                           PsFilterPill(
-                            label: (games[s.label]?.openSeats ?? 0) > 0
-                                ? '${s.label} · ${games[s.label]!.openSeats} ${l10n.openShort}'
-                                : s.label,
-                            active: _selected?.label == s.label,
-                            onTap: () => setState(() => _selected = s),
+                            label: (gamesByTableId[t.id]?.openSeats ?? 0) > 0
+                                ? '${l10n.tableLabel} ${t.number} · ${t.stakes.label} · ${gamesByTableId[t.id]!.openSeats} ${l10n.openShort}'
+                                : '${l10n.tableLabel} ${t.number} · ${t.stakes.label}',
+                            active: _selected?.id == t.id,
+                            onTap: () => setState(() => _selected = t),
                           ),
                       ],
                     ),

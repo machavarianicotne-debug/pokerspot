@@ -398,51 +398,47 @@ class _GamesSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppL10n.of(context);
     final tables = ref.watch(tablesProvider(club.id)).valueOrNull ?? const <PokerTable>[];
-    final mine = <String, WaitlistEntry>{
+    final mine = <String?, WaitlistEntry>{
       for (final e in (ref.watch(myWaitlistProvider).valueOrNull ?? const <WaitlistEntry>[])
           .where((e) => e.clubId == club.id))
-        e.stakes.label: e,
+        e.tableId: e,
     };
-    // Stakes the player is already seated at (active session) — can't also join
-    // that stake's waitlist.
+    // Tables the player is already seated at (active session) — can't also join
+    // that table's waitlist.
     final mySeated = (ref.watch(mySessionProvider).valueOrNull ?? const <Session>[])
         .where((s) => s.clubId == club.id)
-        .map((s) => s.stakes.label)
+        .map((s) => s.tableId)
         .toSet();
 
-    // Group the club's open tables by stake (source of truth for what's running).
-    final byLabel = <String, List<PokerTable>>{};
-    for (final t in tables.where((t) => t.open)) {
-      byLabel.putIfAbsent(t.stakes.label, () => []).add(t);
-    }
-    final gamesByLabel = {for (final g in club.games) g.label: g};
+    final gamesByTableId = {for (final g in club.games) g.tableId: g};
 
-    if (byLabel.isEmpty) {
+    // One card PER open table — identical-stake tables are fully independent,
+    // each with its own scoreboard entry / waitlist. Sorted by table number.
+    final openTables = tables.where((t) => t.open).toList()
+      ..sort((a, b) => a.number.compareTo(b.number));
+
+    if (openTables.isEmpty) {
       return _emptyState(l10n);
     }
 
-    // One card PER open table (identical-stake tables show as separate cards),
-    // sorted by number. No "N tables" count.
-    final openTables = tables.where((t) => t.open).toList()
-      ..sort((a, b) => a.number.compareTo(b.number));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 4, bottom: PsSpacing.s3),
-          child: PsOverline('${l10n.liveGamesTitle} · ${byLabel.length} ${l10n.stakesLabel.toLowerCase()}'),
+          child: PsOverline('${l10n.liveGamesTitle} · ${openTables.length}'),
         ),
         for (final t in openTables)
           _GameCard(
             clubId: club.id,
             tableId: t.id,
             stakes: t.stakes,
-            game: gamesByLabel[t.stakes.label],
+            game: gamesByTableId[t.id],
             seatCount: t.seatCount,
             tableMinBuyIn: t.minBuyIn,
             tableAvgStack: t.avgStack,
-            myEntry: mine[t.stakes.label],
-            seated: mySeated.contains(t.stakes.label),
+            myEntry: mine[t.id],
+            seated: mySeated.contains(t.id),
           ),
       ],
     );
@@ -615,6 +611,7 @@ class _GameCard extends ConsumerWidget {
     final user = ref.read(currentUserProvider).valueOrNull;
     unawaited(ref.read(waitlistRepositoryProvider).join(
           clubId: clubId,
+          tableId: tableId,
           playerUid: uid,
           playerName: user == null ? '' : '${user.firstName} ${user.lastName}'.trim(),
           stakes: stakes,

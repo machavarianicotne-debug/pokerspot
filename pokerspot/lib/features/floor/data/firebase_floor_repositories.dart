@@ -91,12 +91,14 @@ class FirebaseWaitlistRepository implements WaitlistRepository {
   @override
   Future<void> join({
     required String clubId,
+    String? tableId,
     required String playerUid,
     required String playerName,
     required Stakes stakes,
   }) {
     return _col.add({
       'clubId': clubId,
+      'tableId': tableId,
       'playerUid': playerUid,
       'playerName': playerName,
       ...stakes.toMap(),

@@ -36,9 +36,10 @@ abstract interface class WaitlistRepository {
   /// Live active entries for one player (across clubs).
   Stream<List<WaitlistEntry>> watchByPlayer(String playerUid);
 
-  /// Player joins a club's waitlist for a stake.
+  /// Player joins a specific table's waitlist.
   Future<void> join({
     required String clubId,
+    String? tableId,
     required String playerUid,
     required String playerName,
     required Stakes stakes,

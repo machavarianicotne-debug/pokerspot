@@ -127,6 +127,7 @@ class FakeWaitlistRepository implements WaitlistRepository {
   @override
   Future<void> join({
     required String clubId,
+    String? tableId,
     required String playerUid,
     required String playerName,
     required Stakes stakes,
@@ -135,6 +136,7 @@ class FakeWaitlistRepository implements WaitlistRepository {
     store.waitlist[id] = WaitlistEntry(
       id: id,
       clubId: clubId,
+      tableId: tableId,
       playerUid: playerUid,
       playerName: playerName,
       stakes: stakes,

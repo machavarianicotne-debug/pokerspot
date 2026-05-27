@@ -177,4 +177,14 @@ void main() {
     expect(seen.first, 0);
     expect(seen.last, 1);
   });
+
+  test('FakeWaitlistRepository.join stores the tableId', () async {
+    final store = FakeFloorStore();
+    final repo = FakeWaitlistRepository(store);
+    await repo.join(
+      clubId: 'vake', tableId: 't1', playerUid: 'u', playerName: 'Nino',
+      stakes: const Stakes(variant: GameVariant.nlh, smallBlind: 5, bigBlind: 10, currency: 'GEL'));
+    final entry = store.waitlist.values.single;
+    expect(entry.tableId, 't1');
+  });
 }

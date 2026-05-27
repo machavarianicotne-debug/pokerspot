@@ -85,7 +85,7 @@ void main() {
 
   testWidgets('GameDetailScreen (game-centric) shows the table seat map + seated timer', (tester) async {
     await tester.pumpWidget(_wrap(
-      const GameDetailScreen(clubId: 'vake', stakeLabel: 'NLH 1/2 GEL'),
+      const GameDetailScreen(clubId: 'vake', tableId: 't1'),
       [
         currentUserProvider.overrideWith((ref) => Stream.value(_pb())),
         tablesProvider('vake').overrideWith((ref) => Stream.value(const [_table])),
@@ -107,10 +107,10 @@ void main() {
 
   testWidgets('GameDetailScreen waitlist row has Seat + remove actions', (tester) async {
     final entry = WaitlistEntry(
-        id: 'e1', clubId: 'vake', playerUid: 'u', playerName: 'Nino K', stakes: _stakes,
+        id: 'e1', clubId: 'vake', tableId: 't1', playerUid: 'u', playerName: 'Nino K', stakes: _stakes,
         status: WaitlistStatus.waiting, createdAt: DateTime.now(), calledAt: null);
     await tester.pumpWidget(_wrap(
-      const GameDetailScreen(clubId: 'vake', stakeLabel: 'NLH 1/2 GEL'),
+      const GameDetailScreen(clubId: 'vake', tableId: 't1'),
       [
         currentUserProvider.overrideWith((ref) => Stream.value(_pb())),
         tablesProvider('vake').overrideWith((ref) => Stream.value(const [_table])),
@@ -130,11 +130,11 @@ void main() {
 
   testWidgets('GameDetailScreen shows a held reservation with Seat + reject', (tester) async {
     final res = Reservation(
-        id: 'r1', clubId: 'vake', playerUid: 'u9', playerName: 'Levan', stakes: _stakes,
+        id: 'r1', clubId: 'vake', tableId: 't1', playerUid: 'u9', playerName: 'Levan', stakes: _stakes,
         status: ReservationStatus.held,
         heldUntil: DateTime.now().add(const Duration(minutes: 30)), createdAt: DateTime.now());
     await tester.pumpWidget(_wrap(
-      const GameDetailScreen(clubId: 'vake', stakeLabel: 'NLH 1/2 GEL'),
+      const GameDetailScreen(clubId: 'vake', tableId: 't1'),
       [
         currentUserProvider.overrideWith((ref) => Stream.value(_pb())),
         tablesProvider('vake').overrideWith((ref) => Stream.value(const [_table])),
@@ -155,15 +155,16 @@ void main() {
 
   testWidgets('GameDetailScreen shows the shared waitlist with a Seat action', (tester) async {
     final entry = WaitlistEntry(
-        id: 'e1', clubId: 'vake', playerUid: 'u', playerName: 'Nino K', stakes: _stakes,
+        id: 'e1', clubId: 'vake', tableId: 't1', playerUid: 'u', playerName: 'Nino K', stakes: _stakes,
         status: WaitlistStatus.waiting, createdAt: DateTime.now(), calledAt: null);
     await tester.pumpWidget(_wrap(
-      const GameDetailScreen(clubId: 'vake', stakeLabel: 'NLH 1/2 GEL'),
+      const GameDetailScreen(clubId: 'vake', tableId: 't1'),
       [
         currentUserProvider.overrideWith((ref) => Stream.value(_pb())),
         tablesProvider('vake').overrideWith((ref) => Stream.value(const [_table])),
         clubSessionsProvider('vake').overrideWith((ref) => Stream.value(const <Session>[])),
         clubWaitlistProvider('vake').overrideWith((ref) => Stream.value([entry])),
+        clubReservationsProvider('vake').overrideWith((ref) => Stream.value(const <Reservation>[])),
       ],
     ));
     await tester.pumpAndSettle();

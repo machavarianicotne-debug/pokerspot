@@ -179,7 +179,7 @@ class _TableCard extends StatelessWidget {
       accentRail: table.open ? PsColors.accentPrimary : PsColors.statusClosed,
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute<void>(
-          builder: (_) => GameDetailScreen(clubId: table.clubId, stakeLabel: table.stakes.label),
+          builder: (_) => GameDetailScreen(clubId: table.clubId, tableId: table.id),
         ),
       ),
       child: Column(

@@ -45,93 +45,85 @@ Future<void> _surface(BuildContext context, Future<void> Function() run) async {
   }
 }
 
-/// Game-centric Pit Boss detail (mockup `pit-boss-table-detail`): every table of
-/// one stake shown together, a **shared** waitlist, and editable blinds/avg/min
-/// that mirror across all same-stake tables. Tables 2+ note they share the list.
+/// Pit Boss detail for a single physical table (mockup `pit-boss-table-detail`):
+/// one table identified by [tableId], its own waitlist, and its own reservations.
 class GameDetailScreen extends ConsumerWidget {
-  const GameDetailScreen({super.key, required this.clubId, required this.stakeLabel});
+  const GameDetailScreen({super.key, required this.clubId, required this.tableId});
   final String clubId;
-  final String stakeLabel;
+  final String tableId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppL10n.of(context);
     final allTables = ref.watch(tablesProvider(clubId)).valueOrNull ?? const <PokerTable>[];
-    final tables = allTables.where((t) => t.stakes.label == stakeLabel).toList()
-      ..sort((a, b) => a.number.compareTo(b.number));
+    PokerTable? table;
+    for (final t in allTables) {
+      if (t.id == tableId) { table = t; break; }
+    }
+    // Table missing = still loading, or it was just deleted. Show a spinner; the
+    // delete flow pops the screen itself.
+    if (table == null) {
+      return const PsScaffold(body: SafeArea(child: Center(child: CircularProgressIndicator())));
+    }
+    final t = table;
+    final tables = [t]; // helpers below take a list; this game is exactly one table
     final sessions = ref.watch(clubSessionsProvider(clubId)).valueOrNull ?? const <Session>[];
     final waitlist = (ref.watch(clubWaitlistProvider(clubId)).valueOrNull ?? const <WaitlistEntry>[])
-        .where((e) => e.stakes.label == stakeLabel)
+        .where((e) => e.tableId == tableId)
         .toList();
     final reservations =
         (ref.watch(clubReservationsProvider(clubId)).valueOrNull ?? const <Reservation>[])
-            .where((r) => r.stakes.label == stakeLabel && r.status == ReservationStatus.held)
+            .where((r) => r.tableId == tableId && r.status == ReservationStatus.held)
             .toList();
 
     return PsScaffold(
       body: SafeArea(
         child: Column(
           children: [
-            _nav(context, '$stakeLabel · ${tables.length}'),
-            if (tables.isEmpty)
-              // On a game-detail screen the table set is only ever empty while a
-              // stake edit relabels the tables (or the stream is still loading) —
-              // never a real "no tables" state — so show a spinner instead of the
-              // jarring "no tables yet" message.
-              const Expanded(child: Center(child: CircularProgressIndicator()))
-            else
-              Expanded(
-                child: ListView(
-                  padding: const EdgeInsets.all(PsSpacing.s5),
-                  children: [
-                    for (var i = 0; i < tables.length; i++)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: PsSpacing.s4),
-                        child: _tableCard(context, ref, tables, i, sessions),
+            _nav(context, '${t.stakes.label} · ${l10n.tableLabel} ${t.number}'),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(PsSpacing.s5),
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: PsSpacing.s4),
+                    child: _tableCard(context, ref, tables, 0, sessions),
+                  ),
+                  const SizedBox(height: PsSpacing.s2),
+                  Row(
+                    children: [
+                      PsOverline('${l10n.waitlistTitle} · ${waitlist.length}'),
+                      const Spacer(),
+                      GestureDetector(
+                        key: const Key('addWaitlistBtn'),
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => _addToWaitlist(context, ref, t),
+                        child: Text('+ ${l10n.addLabel}'.toUpperCase(),
+                            style: const TextStyle(
+                                fontSize: PsType.caption,
+                                fontWeight: PsType.weightBlack,
+                                letterSpacing: PsType.trackingWide,
+                                color: PsColors.accentPrimary)),
                       ),
-                    const SizedBox(height: PsSpacing.s2),
-                    Row(
-                      children: [
-                        PsOverline('${l10n.waitlistTitle} · ${waitlist.length}'),
-                        const Spacer(),
-                        GestureDetector(
-                          key: const Key('addWaitlistBtn'),
-                          behavior: HitTestBehavior.opaque,
-                          onTap: tables.isEmpty ? null : () => _addToWaitlist(context, ref, tables.first),
-                          child: Text('+ ${l10n.addLabel}'.toUpperCase(),
-                              style: const TextStyle(
-                                  fontSize: PsType.caption,
-                                  fontWeight: PsType.weightBlack,
-                                  letterSpacing: PsType.trackingWide,
-                                  color: PsColors.accentPrimary)),
-                        ),
-                      ],
+                    ],
+                  ),
+                  const SizedBox(height: PsSpacing.s3),
+                  ..._waitlistRows(context, ref, tables, waitlist, sessions),
+                  if (reservations.isNotEmpty) ...[
+                    const SizedBox(height: PsSpacing.s4),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: PsOverline(
+                          '${l10n.reservationsTitle} · ${reservations.length} ${l10n.heldLabel}'),
                     ),
                     const SizedBox(height: PsSpacing.s3),
-                    ..._waitlistRows(context, ref, tables, waitlist, sessions),
-                    if (reservations.isNotEmpty) ...[
-                      const SizedBox(height: PsSpacing.s4),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: PsOverline(
-                            '${l10n.reservationsTitle} · ${reservations.length} ${l10n.heldLabel}'),
-                      ),
-                      const SizedBox(height: PsSpacing.s3),
-                      for (final r in reservations)
-                        _reservationRow(
-                            context, ref, tables, sessions, _firstFreeSeat(tables, sessions), r),
-                    ],
-                    const SizedBox(height: PsSpacing.s4),
-                    PsButton(
-                      key: const Key('addTableBtn'),
-                      label: l10n.newTable,
-                      icon: Icons.add,
-                      variant: PsButtonVariant.secondary,
-                      onPressed: () => _addTable(ref, tables),
-                    ),
+                    for (final r in reservations)
+                      _reservationRow(
+                          context, ref, tables, sessions, _firstFreeSeat(tables, sessions), r),
                   ],
-                ),
+                ],
               ),
+            ),
           ],
         ),
       ),
@@ -219,15 +211,6 @@ class GameDetailScreen extends ConsumerWidget {
               (v) => _updateAll(ref, tables, avg: num.tryParse(v))),
           _metaRow(context, ref, tables, l10n.minBuyInLabel, t.minBuyIn == null ? '—' : _fmt(t.minBuyIn!),
               (v) => _updateAll(ref, tables, min: num.tryParse(v))),
-          if (i > 0)
-            Padding(
-              padding: const EdgeInsets.only(top: PsSpacing.s2),
-              child: Text('${l10n.waitlistTitle} · ${l10n.tableLabel} ${tables.first.number}',
-                  style: TextStyle(
-                      fontSize: PsType.caption,
-                      fontStyle: FontStyle.italic,
-                      color: PsColors.textFaint)),
-            ),
         ],
       ),
     );
@@ -601,13 +584,10 @@ class GameDetailScreen extends ConsumerWidget {
     final sb = parts.isNotEmpty ? num.tryParse(parts[0].trim()) : null;
     final bb = parts.length > 1 ? num.tryParse(parts[1].trim()) : null;
     if (sb == null || bb == null || tables.isEmpty) return;
-    final newLabel = tables.first.stakes.copyWith(smallBlind: sb, bigBlind: bb).label;
-    final nav = Navigator.of(context);
     for (final t in tables) {
       await ref.read(tablesRepositoryProvider)
           .updateTable(t.copyWith(stakes: t.stakes.copyWith(smallBlind: sb, bigBlind: bb)));
     }
-    _reopenWithLabel(nav, newLabel);
   }
 
   void _updateAll(WidgetRef ref, List<PokerTable> tables, {num? avg, num? min}) {
@@ -617,22 +597,12 @@ class GameDetailScreen extends ConsumerWidget {
     }
   }
 
-  /// A blinds/variant edit changes the stake LABEL — this screen's identity — so
-  /// the relabeled tables stop matching [stakeLabel] and the screen would fall to
-  /// "no tables yet". Re-open the screen on the new label so it follows the game.
-  void _reopenWithLabel(NavigatorState nav, String newLabel) {
-    if (newLabel == stakeLabel) return;
-    nav.pushReplacement(MaterialPageRoute<void>(
-        builder: (_) => GameDetailScreen(clubId: clubId, stakeLabel: newLabel)));
-  }
-
-  /// Confirm before removing a table. Deleting the game's last table empties this
-  /// screen, so leave it afterwards (it would otherwise sit on the spinner).
+  /// Confirm before removing this table. Deleting the table always leaves the
+  /// screen — its own waitlist is always orphaned so cancel those entries.
   Future<void> _confirmDeleteTable(
       BuildContext context, WidgetRef ref, List<PokerTable> tables, PokerTable t) async {
     final l10n = AppL10n.of(context);
     final nav = Navigator.of(context);
-    final wasLast = tables.length <= 1;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -645,13 +615,11 @@ class GameDetailScreen extends ConsumerWidget {
       ),
     );
     if (ok != true) return;
-    // When this is the stake's LAST table, its shared waitlist is now orphaned —
-    // cancel those entries so players stop showing as "in the waitlist".
-    final waitlistToCancel = wasLast
-        ? (ref.read(clubWaitlistProvider(clubId)).valueOrNull ?? const <WaitlistEntry>[])
-            .where((e) => e.stakes.label == stakeLabel)
-            .toList()
-        : const <WaitlistEntry>[];
+    // This table's own waitlist is now orphaned — cancel those entries.
+    final waitlistToCancel =
+        (ref.read(clubWaitlistProvider(clubId)).valueOrNull ?? const <WaitlistEntry>[])
+            .where((e) => e.tableId == t.id)
+            .toList();
     await deleteTableAndEndSessions(
       tablesRepo: ref.read(tablesRepositoryProvider),
       sessionsRepo: ref.read(sessionsRepositoryProvider),
@@ -661,7 +629,7 @@ class GameDetailScreen extends ConsumerWidget {
       clubId: clubId,
       tableId: t.id,
     );
-    if (wasLast) nav.pop();
+    nav.pop();
   }
 
   /// End the table's open sessions (players stop showing as "playing"), cancel
@@ -796,7 +764,6 @@ class GameDetailScreen extends ConsumerWidget {
                   finalVariant =
                       omahaVar == GameVariant.plo5 ? GameVariant.nlhPlo5 : GameVariant.nlhPlo;
                 }
-                final newLabel = tables.first.stakes.copyWith(variant: finalVariant).label;
                 final nav = Navigator.of(ctx);
                 for (final tt in tables) {
                   await ref.read(tablesRepositoryProvider).updateTable(PokerTable(
@@ -813,28 +780,12 @@ class GameDetailScreen extends ConsumerWidget {
                       ));
                 }
                 nav.pop(); // close the sheet
-                _reopenWithLabel(nav, newLabel);
               },
             ),
           ],
         ),
       ),
     );
-  }
-
-  void _addTable(WidgetRef ref, List<PokerTable> tables) {
-    if (tables.isEmpty) return;
-    final first = tables.first;
-    final next = tables.fold<int>(0, (m, t) => t.number > m ? t.number : m) + 1;
-    unawaited(ref.read(tablesRepositoryProvider).createTable(
-          clubId: clubId,
-          number: next,
-          stakes: first.stakes,
-          seatCount: first.seatCount,
-          open: true,
-          avgStack: first.avgStack,
-          minBuyIn: first.minBuyIn,
-        ));
   }
 
   void _editMeta(BuildContext context, String title, String value, void Function(String) onSave) {
@@ -988,11 +939,11 @@ class GameDetailScreen extends ConsumerWidget {
     );
   }
 
-  /// Add a walk-in to the shared waitlist by typed name (mockup `+ Add`).
+  /// Add a walk-in to this table's waitlist by typed name (mockup `+ Add`).
   /// Registered-user search is out of scope: rules forbid Pit Bosses reading
   /// the full users collection.
   void _addToWaitlist(BuildContext context, WidgetRef ref, PokerTable t) {
-    PsSheet.show<void>(context, child: _AddToWaitlistSheet(clubId: clubId, stakes: t.stakes));
+    PsSheet.show<void>(context, child: _AddToWaitlistSheet(clubId: clubId, tableId: t.id, stakes: t.stakes));
   }
 
   void _endSession(BuildContext context, WidgetRef ref, Session s) {
@@ -1181,7 +1132,7 @@ class _SeatPickerSheetState extends ConsumerState<_SeatPickerSheet> {
     // them from both lists so Pit Boss can't double-seat the same table.
     final sessions = ref.watch(clubSessionsProvider(widget.clubId)).valueOrNull ?? const <Session>[];
     final waiting = (ref.watch(clubWaitlistProvider(widget.clubId)).valueOrNull ?? const <WaitlistEntry>[])
-        .where((e) => e.stakes.label == widget.table.stakes.label)
+        .where((e) => e.tableId == widget.table.id)
         .where((e) => query.isEmpty || e.playerName.toLowerCase().contains(query))
         .where((e) => !GameDetailScreen.seatedAtTable(sessions, e.playerUid, widget.table.id))
         .toList();
@@ -1262,11 +1213,12 @@ class _SeatPickerSheetState extends ConsumerState<_SeatPickerSheet> {
   }
 }
 
-/// Add-to-waitlist sheet: search registered players to add to the stake's
+/// Add-to-waitlist sheet: search registered players to add to this table's
 /// waitlist, or add a walk-in by typed name (mockup `+ Add`).
 class _AddToWaitlistSheet extends ConsumerStatefulWidget {
-  const _AddToWaitlistSheet({required this.clubId, required this.stakes});
+  const _AddToWaitlistSheet({required this.clubId, required this.tableId, required this.stakes});
   final String clubId;
+  final String tableId;
   final Stakes stakes;
 
   @override
@@ -1285,7 +1237,8 @@ class _AddToWaitlistSheetState extends ConsumerState<_AddToWaitlistSheet> {
   void _join(String playerUid, String name) {
     final nav = Navigator.of(context);
     unawaited(_surface(context, () => ref.read(waitlistRepositoryProvider).join(
-          clubId: widget.clubId, playerUid: playerUid, playerName: name, stakes: widget.stakes)));
+          clubId: widget.clubId, tableId: widget.tableId, playerUid: playerUid, playerName: name,
+          stakes: widget.stakes)));
     nav.pop();
   }
 

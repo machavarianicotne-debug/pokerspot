@@ -220,6 +220,7 @@ class FakeReservationsRepository implements ReservationsRepository {
   @override
   Future<void> reserve({
     required String clubId,
+    String? tableId,
     required String playerUid,
     required String playerName,
     required Stakes stakes,
@@ -229,6 +230,7 @@ class FakeReservationsRepository implements ReservationsRepository {
     store.reservations[id] = Reservation(
       id: id,
       clubId: clubId,
+      tableId: tableId,
       playerUid: playerUid,
       playerName: playerName,
       stakes: stakes,

@@ -187,4 +187,14 @@ void main() {
     final entry = store.waitlist.values.single;
     expect(entry.tableId, 't1');
   });
+
+  test('FakeReservationsRepository.reserve stores the tableId', () async {
+    final store = FakeFloorStore();
+    final repo = FakeReservationsRepository(store);
+    await repo.reserve(
+      clubId: 'vake', tableId: 't2', playerUid: 'u', playerName: 'Levan',
+      stakes: const Stakes(variant: GameVariant.nlh, smallBlind: 5, bigBlind: 10, currency: 'GEL'),
+      durationMinutes: 30);
+    expect(store.reservations.values.single.tableId, 't2');
+  });
 }

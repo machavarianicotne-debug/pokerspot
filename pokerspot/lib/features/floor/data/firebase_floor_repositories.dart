@@ -307,6 +307,7 @@ class FirebaseReservationsRepository implements ReservationsRepository {
   @override
   Future<void> reserve({
     required String clubId,
+    String? tableId,
     required String playerUid,
     required String playerName,
     required Stakes stakes,
@@ -314,11 +315,11 @@ class FirebaseReservationsRepository implements ReservationsRepository {
   }) {
     return _col.add({
       'clubId': clubId,
+      'tableId': tableId,
       'playerUid': playerUid,
       'playerName': playerName,
       ...stakes.toMap(),
       'status': ReservationStatus.held.asString,
-      // Per-club hold length; a Cloud Function expires it (Wave 6).
       'heldUntil': Timestamp.fromDate(DateTime.now().add(Duration(minutes: durationMinutes))),
       'createdAt': FieldValue.serverTimestamp(),
     });

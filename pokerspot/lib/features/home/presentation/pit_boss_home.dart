@@ -4,8 +4,9 @@ import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/chat/domain/message.dart';
-import 'package:pokerspot/features/chat/presentation/inbox_screen.dart';
+import 'package:pokerspot/features/chat/presentation/chat_hub_screen.dart';
 import 'package:pokerspot/features/chat/presentation/providers.dart';
+import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
 import 'package:pokerspot/features/floor/presentation/tables_screen.dart';
 import 'package:pokerspot/features/home/presentation/pit_boss_settings_screen.dart';
@@ -68,11 +69,19 @@ class PitBossHome extends ConsumerWidget {
         PsTabItem(Icons.bar_chart, l10n.tabStats),
         PsTabItem(Icons.settings, l10n.tabSettings),
       ],
-      tabs: const [
-        TablesScreen(),
-        InboxScreen(),
-        PitBossStatsScreen(),
-        PitBossSettingsScreen(),
+      tabs: [
+        const TablesScreen(),
+        Consumer(builder: (context, ref, _) {
+          final user = ref.watch(currentUserProvider).valueOrNull;
+          final clubId = user?.clubId ?? '';
+          final club = ref.watch(clubProvider(clubId)).valueOrNull ??
+              const Club(
+                id: '', name: '', city: '', address: '',
+                photoUrl: null, hoursText: '', phone: '', enabled: false);
+          return PitChatHubScreen(clubId: clubId, clubName: club.name);
+        }),
+        const PitBossStatsScreen(),
+        const PitBossSettingsScreen(),
       ],
     );
   }

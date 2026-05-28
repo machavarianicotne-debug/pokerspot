@@ -1514,6 +1514,12 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Delete'**
   String get deleteLabel;
+
+  /// No description provided for @inboxTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Inbox'**
+  String get inboxTab;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

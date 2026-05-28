@@ -236,5 +236,6 @@
   "clubChatEmpty": "ჯერ პოსტი არ არის.",
   "clubChatPostHint": "დაწერე კლუბის ჩატში…",
   "editLabel": "რედაქტირება",
-  "deleteLabel": "წაშლა"
+  "deleteLabel": "წაშლა",
+  "inboxTab": "Inbox"
 }

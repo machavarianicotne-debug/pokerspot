@@ -724,4 +724,7 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get deleteLabel => 'Delete';
+
+  @override
+  String get inboxTab => 'Inbox';
 }

@@ -726,4 +726,7 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get deleteLabel => 'წაშლა';
+
+  @override
+  String get inboxTab => 'Inbox';
 }

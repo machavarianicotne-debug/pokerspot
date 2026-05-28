@@ -86,25 +86,6 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
   bool _sameDay(DateTime a, DateTime b) =>
       a.year == b.year && a.month == b.month && a.day == b.day;
 
-  String _dayLabel(DateTime at, AppL10n l10n) {
-    final now = DateTime.now();
-    final d = DateTime(at.year, at.month, at.day);
-    final today = DateTime(now.year, now.month, now.day);
-    if (d == today) return l10n.dayToday;
-    if (d == today.subtract(const Duration(days: 1))) return l10n.dayYesterday;
-    return '${at.day}.${at.month}';
-  }
-
-  Widget _daySep(String label) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: PsSpacing.s2),
-        child: Text(label.toUpperCase(),
-            style: TextStyle(
-                fontSize: PsType.micro,
-                fontWeight: PsType.weightBlack,
-                letterSpacing: PsType.trackingWide,
-                color: PsColors.textFaint)),
-      );
-
   Future<void> _send() async {
     final text = _input.text.trim();
     if (text.isEmpty) return;
@@ -306,7 +287,7 @@ class _ChatThreadScreenState extends ConsumerState<ChatThreadScreen> {
                         );
                         if (!showDay) return bubble;
                         return Column(
-                          children: [_daySep(_dayLabel(m.at!, l10n)), bubble],
+                          children: [PsChatDaySeparator(date: m.at!), bubble],
                         );
                       },
                     ),

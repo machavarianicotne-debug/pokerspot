@@ -24,9 +24,19 @@ const _quickReactions = ['👍', '❤️', '😂', '🙏'];
 /// body without its own Scaffold/navbar — meant to live inside a parent screen
 /// (the chat hub) that owns the chrome.
 class ClubChatScreen extends ConsumerStatefulWidget {
-  const ClubChatScreen({super.key, required this.clubId, required this.isStaff});
+  const ClubChatScreen({
+    super.key,
+    required this.clubId,
+    required this.isStaff,
+    this.bottomPadding = 0,
+  });
   final String clubId;
   final bool isStaff;
+
+  /// Extra space reserved below the composer for a floating bottom nav.
+  /// `PitChatHubScreen` passes ~96 to clear the TabShell's floating PsTabBar;
+  /// the player path (full-screen pushed route) leaves it at 0.
+  final double bottomPadding;
 
   @override
   ConsumerState<ClubChatScreen> createState() => _ClubChatScreenState();
@@ -46,6 +56,9 @@ class _ClubChatScreenState extends ConsumerState<ClubChatScreen> {
     if (at == null) return '';
     return '${at.hour.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}';
   }
+
+  bool _sameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
 
   Future<void> _send() async {
     final text = _input.text.trim();
@@ -97,8 +110,9 @@ class _ClubChatScreenState extends ConsumerState<ClubChatScreen> {
                 style: const TextStyle(color: PsColors.statusLive)),
             onTap: () {
               Navigator.of(context).pop();
-              unawaited(
-                  ref.read(announcementsRepositoryProvider).delete(a.id));
+              unawaited(ref
+                  .read(announcementsRepositoryProvider)
+                  .delete(clubId: a.clubId, announcementId: a.id));
             },
           ),
         ],
@@ -129,8 +143,8 @@ class _ClubChatScreenState extends ConsumerState<ClubChatScreen> {
               final next = ctl.text.trim();
               Navigator.of(context).pop();
               if (next.isEmpty || next == a.text) return;
-              unawaited(ref.read(announcementsRepositoryProvider)
-                  .edit(announcementId: a.id, newText: next));
+              unawaited(ref.read(announcementsRepositoryProvider).edit(
+                  clubId: a.clubId, announcementId: a.id, newText: next));
             },
             child: Text(AppL10n.of(context).saveLabel),
           ),
@@ -143,8 +157,11 @@ class _ClubChatScreenState extends ConsumerState<ClubChatScreen> {
     void pick(String e) {
       final nav = Navigator.of(context);
       final next = a.reactions[myUid] == e ? '' : e;
-      unawaited(ref.read(announcementsRepositoryProvider)
-          .setReaction(announcementId: a.id, uid: myUid, emoji: next));
+      unawaited(ref.read(announcementsRepositoryProvider).setReaction(
+          clubId: a.clubId,
+          announcementId: a.id,
+          uid: myUid,
+          emoji: next));
       nav.pop();
     }
 
@@ -243,7 +260,13 @@ class _ClubChatScreenState extends ConsumerState<ClubChatScreen> {
                     itemCount: reversed.length,
                     itemBuilder: (context, i) {
                       final a = reversed[i];
-                      return Padding(
+                      // reversed[i+1] is the next-older post; show a day label
+                      // above this one if its day differs (or it's the first).
+                      final older = i + 1 < reversed.length ? reversed[i + 1] : null;
+                      final showDay = a.createdAt != null &&
+                          (older?.createdAt == null ||
+                              !_sameDay(a.createdAt!, older!.createdAt!));
+                      final bubble = Padding(
                         key: Key('annBubble_${a.id}'),
                         padding: const EdgeInsets.only(bottom: PsSpacing.s2),
                         child: PsChatBubble(
@@ -255,6 +278,10 @@ class _ClubChatScreenState extends ConsumerState<ClubChatScreen> {
                           reactions: a.reactions.values.toSet().toList(),
                           onLongPress: myUid == null ? null : () => _bubbleActions(a, myUid),
                         ),
+                      );
+                      if (!showDay) return bubble;
+                      return Column(
+                        children: [PsChatDaySeparator(date: a.createdAt!), bubble],
                       );
                     },
                   ),
@@ -268,6 +295,7 @@ class _ClubChatScreenState extends ConsumerState<ClubChatScreen> {
             onSend: () => unawaited(_send()),
             onEmoji: () => setState(() => _showEmoji = !_showEmoji),
           ),
+        if (widget.bottomPadding > 0) SizedBox(height: widget.bottomPadding),
       ],
     );
   }

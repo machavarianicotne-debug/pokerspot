@@ -1520,6 +1520,18 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'Inbox'**
   String get inboxTab;
+
+  /// No description provided for @clubChatsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Club Chats'**
+  String get clubChatsSection;
+
+  /// No description provided for @directMessagesSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Direct messages'**
+  String get directMessagesSection;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

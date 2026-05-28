@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
 
 /// Liquid Sport chat bubble (mockup `.msg`/`.bubble`). Outgoing bubbles fill
@@ -82,6 +83,67 @@ class PsChatBubble extends StatelessWidget {
       ),
     );
   }
+}
+
+/// WhatsApp-style day separator shown above the first bubble of each day in a
+/// chat feed. Renders the day as "Today" / "Yesterday" / "April 1" (current
+/// year) / "April 1, 2024" (older), localized via the current locale's month
+/// names.
+class PsChatDaySeparator extends StatelessWidget {
+  const PsChatDaySeparator({super.key, required this.date});
+  final DateTime date;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: PsSpacing.s2),
+      child: Center(
+        child: Text(psChatDayLabel(context, date).toUpperCase(),
+            style: TextStyle(
+                fontSize: PsType.micro,
+                fontWeight: PsType.weightBlack,
+                letterSpacing: PsType.trackingWide,
+                color: PsColors.textFaint)),
+      ),
+    );
+  }
+}
+
+/// Build the localized day label used by [PsChatDaySeparator]. Exposed so day
+/// boundary detection in feeds can reuse the exact same formatting.
+String psChatDayLabel(BuildContext context, DateTime at) {
+  final l10n = AppL10n.of(context);
+  final now = DateTime.now();
+  final d = DateTime(at.year, at.month, at.day);
+  final today = DateTime(now.year, now.month, now.day);
+  if (d == today) return l10n.dayToday;
+  if (d == today.subtract(const Duration(days: 1))) return l10n.dayYesterday;
+  final code = Localizations.localeOf(context).languageCode;
+  final month = _monthName(code, at.month);
+  if (at.year == now.year) return '$month ${at.day}';
+  return '$month ${at.day}, ${at.year}';
+}
+
+const _monthsEn = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+];
+const _monthsKa = [
+  'იანვარი', 'თებერვალი', 'მარტი', 'აპრილი', 'მაისი', 'ივნისი',
+  'ივლისი', 'აგვისტო', 'სექტემბერი', 'ოქტომბერი', 'ნოემბერი', 'დეკემბერი',
+];
+const _monthsRu = [
+  'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+  'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь',
+];
+
+String _monthName(String langCode, int month) {
+  final names = switch (langCode) {
+    'ka' => _monthsKa,
+    'ru' => _monthsRu,
+    _ => _monthsEn,
+  };
+  return names[month - 1];
 }
 
 /// Liquid Sport chat composer (mockup `.composer`): a glass-thick bar with a

@@ -237,5 +237,7 @@
   "clubChatPostHint": "Post to your club…",
   "editLabel": "Edit",
   "deleteLabel": "Delete",
-  "inboxTab": "Inbox"
+  "inboxTab": "Inbox",
+  "clubChatsSection": "Club Chats",
+  "directMessagesSection": "Direct messages"
 }

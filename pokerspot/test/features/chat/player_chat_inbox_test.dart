@@ -34,7 +34,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byKey(const Key('myThread_vake')), findsOneWidget);
-    expect(find.text('PokerSpot Vake'), findsOneWidget); // resolved club name
     expect(find.text('See you tonight'), findsOneWidget); // last message
   });
 
@@ -51,12 +50,22 @@ void main() {
     expect(find.text('3'), findsOneWidget); // unread badge
   });
 
-  testWidgets('player chat inbox shows the empty state with no threads', (tester) async {
+  testWidgets('player chat inbox shows the empty state with no threads or clubs', (tester) async {
     await tester.pumpWidget(_wrap([
       myThreadsProvider.overrideWith((ref) => Stream.value(const <ChatThread>[])),
       clubsListProvider.overrideWith((ref) => Stream.value(const <Club>[])),
     ]));
     await tester.pumpAndSettle();
     expect(find.text('No conversations yet'), findsOneWidget);
+  });
+
+  testWidgets('player chat inbox lists a Club Chat entry per club', (tester) async {
+    await tester.pumpWidget(_wrap([
+      myThreadsProvider.overrideWith((ref) => Stream.value(const <ChatThread>[])),
+      clubsListProvider.overrideWith((ref) => Stream.value(const [_vake])),
+    ]));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('clubChat_vake')), findsOneWidget);
+    expect(find.text('PokerSpot Vake'), findsOneWidget);
   });
 }

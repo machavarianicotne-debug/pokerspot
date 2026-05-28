@@ -237,5 +237,7 @@
   "clubChatPostHint": "დაწერე კლუბის ჩატში…",
   "editLabel": "რედაქტირება",
   "deleteLabel": "წაშლა",
-  "inboxTab": "Inbox"
+  "inboxTab": "Inbox",
+  "clubChatsSection": "კლუბების ჩატი",
+  "directMessagesSection": "პირადი მესიჯები"
 }

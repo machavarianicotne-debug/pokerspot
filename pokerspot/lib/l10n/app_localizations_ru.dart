@@ -727,4 +727,10 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get inboxTab => 'Входящие';
+
+  @override
+  String get clubChatsSection => 'Чаты клубов';
+
+  @override
+  String get directMessagesSection => 'Личные сообщения';
 }

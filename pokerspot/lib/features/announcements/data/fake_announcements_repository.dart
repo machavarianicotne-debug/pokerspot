@@ -56,7 +56,11 @@ class FakeAnnouncementsRepository implements AnnouncementsRepository {
   }
 
   @override
-  Future<void> edit({required String announcementId, required String newText}) async {
+  Future<void> edit({
+    required String clubId,
+    required String announcementId,
+    required String newText,
+  }) async {
     final a = _items[announcementId];
     if (a == null) return;
     _items[announcementId] = Announcement(
@@ -73,13 +77,14 @@ class FakeAnnouncementsRepository implements AnnouncementsRepository {
   }
 
   @override
-  Future<void> delete(String announcementId) async {
+  Future<void> delete({required String clubId, required String announcementId}) async {
     _items.remove(announcementId);
     _changes.add(null);
   }
 
   @override
   Future<void> setReaction({
+    required String clubId,
     required String announcementId,
     required String uid,
     required String emoji,

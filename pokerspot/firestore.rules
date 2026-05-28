@@ -61,9 +61,20 @@ service cloud.firestore {
       match /announcements/{id} {
         // Any signed-in user may read a club's announcements (broadcast feed).
         allow read: if signedIn() && !isBlocked();
-        // Only the club's Pit Boss (or Admin) may post / edit / delete.
-        allow create, update, delete: if isAdmin()
+        // Only the club's Pit Boss (or Admin) may post / delete.
+        allow create, delete: if isAdmin()
           || (isPitboss() && myClub() == clubId);
+        // Pit Boss / Admin: any update. Otherwise: any signed-in non-blocked
+        // user may update the `reactions` map, but only their own uid within
+        // it (set/clear). This is what lets players react to a Pit Boss post.
+        allow update: if isAdmin()
+          || (isPitboss() && myClub() == clubId)
+          || (signedIn() && !isBlocked()
+              && request.resource.data.diff(resource.data)
+                   .affectedKeys().hasOnly(['reactions'])
+              && request.resource.data.reactions
+                   .diff(resource.data.get('reactions', {}))
+                   .affectedKeys().hasOnly([request.auth.uid]));
       }
     }
 

@@ -3,14 +3,18 @@ import 'package:pokerspot/features/announcements/domain/announcement.dart';
 import 'package:pokerspot/features/announcements/domain/announcements_repository.dart';
 
 /// Firestore-backed [AnnouncementsRepository]. One subcollection per club
-/// (`clubs/{clubId}/announcements`). Sort done client-side so no composite
-/// index is needed; reactions are nested under a single `reactions.{uid}` field.
+/// (`clubs/{clubId}/announcements`). All writes target the direct doc path
+/// using the caller-supplied [clubId] — no collectionGroup lookups (those
+/// would need a separate collectionGroup rule + an index just to map id→ref).
 class FirebaseAnnouncementsRepository implements AnnouncementsRepository {
   FirebaseAnnouncementsRepository(this._db);
   final FirebaseFirestore _db;
 
   CollectionReference<Map<String, dynamic>> _col(String clubId) =>
       _db.collection('clubs').doc(clubId).collection('announcements');
+
+  DocumentReference<Map<String, dynamic>> _doc(String clubId, String id) =>
+      _col(clubId).doc(id);
 
   Announcement _row(DocumentSnapshot<Map<String, dynamic>> d) {
     final m = Map<String, dynamic>.from(d.data()!);
@@ -47,39 +51,26 @@ class FirebaseAnnouncementsRepository implements AnnouncementsRepository {
       });
 
   @override
-  Future<void> edit({required String announcementId, required String newText}) async {
-    final ref = await _findDocRef(announcementId);
-    if (ref == null) return;
-    await ref.update({'text': newText, 'editedAt': FieldValue.serverTimestamp()});
-  }
+  Future<void> edit({
+    required String clubId,
+    required String announcementId,
+    required String newText,
+  }) =>
+      _doc(clubId, announcementId)
+          .update({'text': newText, 'editedAt': FieldValue.serverTimestamp()});
 
   @override
-  Future<void> delete(String announcementId) async {
-    final ref = await _findDocRef(announcementId);
-    if (ref == null) return;
-    await ref.delete();
-  }
+  Future<void> delete({required String clubId, required String announcementId}) =>
+      _doc(clubId, announcementId).delete();
 
   @override
   Future<void> setReaction({
+    required String clubId,
     required String announcementId,
     required String uid,
     required String emoji,
-  }) async {
-    final ref = await _findDocRef(announcementId);
-    if (ref == null) return;
-    await ref.update({
-      'reactions.$uid': emoji.isEmpty ? FieldValue.delete() : emoji,
-    });
-  }
-
-  /// Find an announcement doc by id via a collection-group lookup. Since ids
-  /// are globally unique (Firestore-generated), one document matches.
-  Future<DocumentReference<Map<String, dynamic>>?> _findDocRef(String id) async {
-    final snap = await _db.collectionGroup('announcements').get();
-    for (final d in snap.docs) {
-      if (d.id == id) return d.reference;
-    }
-    return null;
-  }
+  }) =>
+      _doc(clubId, announcementId).update({
+        'reactions.$uid': emoji.isEmpty ? FieldValue.delete() : emoji,
+      });
 }

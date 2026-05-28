@@ -729,4 +729,10 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get inboxTab => 'Inbox';
+
+  @override
+  String get clubChatsSection => 'კლუბების ჩატი';
+
+  @override
+  String get directMessagesSection => 'პირადი მესიჯები';
 }

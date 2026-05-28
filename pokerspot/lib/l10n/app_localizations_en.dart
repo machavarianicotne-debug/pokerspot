@@ -727,4 +727,10 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get inboxTab => 'Inbox';
+
+  @override
+  String get clubChatsSection => 'Club Chats';
+
+  @override
+  String get directMessagesSection => 'Direct messages';
 }

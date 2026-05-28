@@ -10,7 +10,7 @@ import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
-import 'package:pokerspot/features/chat/presentation/chat_hub_screen.dart';
+import 'package:pokerspot/features/chat/presentation/chat_thread_screen.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
 import 'package:pokerspot/features/floor/domain/session.dart';
 import 'package:pokerspot/features/floor/domain/stakes.dart';
@@ -166,11 +166,12 @@ class _ChatEntry extends ConsumerWidget {
         final user = ref.read(currentUserProvider).valueOrNull;
         final name = user == null ? '' : '${user.firstName} ${user.lastName}'.trim();
         Navigator.of(context).push(MaterialPageRoute<void>(
-          builder: (_) => PlayerChatHubScreen(
+          builder: (_) => ChatThreadScreen(
             clubId: club.id,
             playerUid: uid,
             playerName: name,
-            clubName: club.name,
+            title: club.name,
+            subtitle: l10n.chatPeerStatus,
           ),
         ));
       },
@@ -200,9 +201,6 @@ class _ChatEntry extends ConsumerWidget {
                         fontSize: PsType.body,
                         fontWeight: PsType.weightBold,
                         color: PsColors.text)),
-                const SizedBox(height: 2),
-                Text(l10n.chatEntrySub,
-                    style: TextStyle(fontSize: PsType.caption, color: PsColors.textMuted)),
               ],
             ),
           ),

@@ -25,7 +25,7 @@ void main() {
     final repo = FakeAnnouncementsRepository();
     await repo.post(clubId: 'vake', senderUid: 'pb1', senderName: 'Pit', text: 'Old');
     final id = (await repo.watchByClub('vake').first).single.id;
-    await repo.edit(announcementId: id, newText: 'New');
+    await repo.edit(clubId: 'vake', announcementId: id, newText: 'New');
     final list = await repo.watchByClub('vake').first;
     expect(list.single.text, 'New');
     expect(list.single.editedAt, isNotNull);
@@ -35,7 +35,7 @@ void main() {
     final repo = FakeAnnouncementsRepository();
     await repo.post(clubId: 'vake', senderUid: 'pb1', senderName: 'Pit', text: 'Bye');
     final id = (await repo.watchByClub('vake').first).single.id;
-    await repo.delete(id);
+    await repo.delete(clubId: 'vake', announcementId: id);
     final list = await repo.watchByClub('vake').first;
     expect(list, isEmpty);
   });
@@ -44,9 +44,9 @@ void main() {
     final repo = FakeAnnouncementsRepository();
     await repo.post(clubId: 'vake', senderUid: 'pb1', senderName: 'Pit', text: 'React');
     final id = (await repo.watchByClub('vake').first).single.id;
-    await repo.setReaction(announcementId: id, uid: 'u1', emoji: '👍');
+    await repo.setReaction(clubId: 'vake', announcementId: id, uid: 'u1', emoji: '👍');
     expect((await repo.watchByClub('vake').first).single.reactions['u1'], '👍');
-    await repo.setReaction(announcementId: id, uid: 'u1', emoji: '');
+    await repo.setReaction(clubId: 'vake', announcementId: id, uid: 'u1', emoji: '');
     expect((await repo.watchByClub('vake').first).single.reactions.containsKey('u1'), false);
   });
 }

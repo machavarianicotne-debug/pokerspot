@@ -237,5 +237,7 @@
   "clubChatPostHint": "Сообщение в чат клуба…",
   "editLabel": "Изменить",
   "deleteLabel": "Удалить",
-  "inboxTab": "Входящие"
+  "inboxTab": "Входящие",
+  "clubChatsSection": "Чаты клубов",
+  "directMessagesSection": "Личные сообщения"
 }

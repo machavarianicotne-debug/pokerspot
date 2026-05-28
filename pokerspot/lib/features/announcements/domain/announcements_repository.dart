@@ -15,13 +15,18 @@ abstract interface class AnnouncementsRepository {
   });
 
   /// Pit Boss edits their own post. Stamps editedAt.
-  Future<void> edit({required String announcementId, required String newText});
+  Future<void> edit({
+    required String clubId,
+    required String announcementId,
+    required String newText,
+  });
 
   /// Pit Boss deletes their own post.
-  Future<void> delete(String announcementId);
+  Future<void> delete({required String clubId, required String announcementId});
 
   /// Set (or, with empty [emoji], clear) the caller's emoji reaction.
   Future<void> setReaction({
+    required String clubId,
     required String announcementId,
     required String uid,
     required String emoji,

@@ -14,3 +14,19 @@ final clubAnnouncementsProvider =
   if (ref.watch(uidProvider).valueOrNull == null) return Stream.value(const <Announcement>[]);
   return ref.watch(announcementsRepositoryProvider).watchByClub(clubId);
 });
+
+/// Unread Club Chat count for a given club: announcements with createdAt newer
+/// than the current user's `lastSeenClubChats[clubId]`. A missing key counts
+/// every announcement as unread. Signed-out → 0.
+final clubChatUnreadCountProvider = Provider.family<int, String>((ref, clubId) {
+  final list = ref.watch(clubAnnouncementsProvider(clubId)).valueOrNull ??
+      const <Announcement>[];
+  if (list.isEmpty) return 0;
+  final user = ref.watch(currentUserProvider).valueOrNull;
+  final lastSeen = user?.lastSeenClubChats[clubId];
+  return list.where((a) {
+    final at = a.createdAt;
+    if (at == null) return false;
+    return lastSeen == null || at.isAfter(lastSeen);
+  }).length;
+});

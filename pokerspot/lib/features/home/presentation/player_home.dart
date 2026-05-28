@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
+import 'package:pokerspot/features/announcements/presentation/providers.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/chat/domain/message.dart';
 import 'package:pokerspot/features/chat/presentation/player_chat_inbox_screen.dart';
 import 'package:pokerspot/features/chat/presentation/providers.dart';
+import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/clubs_list_screen.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
 import 'package:pokerspot/features/home/presentation/activity_screen.dart';
@@ -76,8 +78,13 @@ class PlayerHome extends ConsumerWidget {
         .length;
     final user = ref.watch(currentUserProvider).valueOrNull;
     final initials = _initials(user == null ? '' : '${user.firstName} ${user.lastName}');
-    final unread = (ref.watch(myThreadsProvider).valueOrNull ?? const <ChatThread>[])
+    final dmUnread = (ref.watch(myThreadsProvider).valueOrNull ?? const <ChatThread>[])
         .fold<int>(0, (a, t) => a + t.unread);
+    // Each club's Club Chat unread badge also rolls up into the top-nav badge,
+    // so a fresh announcement in any club flags the Chat tab too.
+    final clubChatUnread = (ref.watch(clubsListProvider).valueOrNull ?? const <Club>[])
+        .fold<int>(0, (a, c) => a + ref.watch(clubChatUnreadCountProvider(c.id)));
+    final unread = dmUnread + clubChatUnread;
     return TabShell(
       nav: PsGlassNav(
         leading: PsBrand(l10n.appTitle, accent: 'Spot'),

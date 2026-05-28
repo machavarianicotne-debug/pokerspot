@@ -1,14 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/announcements/presentation/club_chat_screen.dart';
+import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/ps_avatar.dart';
 import 'package:pokerspot/shared/widgets/ps_scaffold.dart';
 
 /// Full-screen pushed wrapper that hosts the read-only [ClubChatScreen] for a
 /// player — a header (back button + club avatar + name) over the broadcast
-/// feed. The list itself is owned by [ClubChatScreen]; this widget only
-/// supplies chrome (it does NOT mount a composer; players don't post).
-class ClubChatRouteScreen extends StatelessWidget {
+/// feed. Stamps `lastSeenClubChats[clubId] = now` on entry so the unread badge
+/// in the inbox clears for this club.
+class ClubChatRouteScreen extends ConsumerStatefulWidget {
   const ClubChatRouteScreen({
     super.key,
     required this.clubId,
@@ -17,6 +21,27 @@ class ClubChatRouteScreen extends StatelessWidget {
 
   final String clubId;
   final String clubName;
+
+  @override
+  ConsumerState<ClubChatRouteScreen> createState() => _ClubChatRouteScreenState();
+}
+
+class _ClubChatRouteScreenState extends ConsumerState<ClubChatRouteScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _markRead());
+  }
+
+  void _markRead() {
+    final uid = ref.read(authRepositoryProvider).currentUid;
+    if (uid == null) return;
+    unawaited(ref.read(usersRepositoryProvider).markClubChatRead(
+          uid: uid,
+          clubId: widget.clubId,
+          at: DateTime.now(),
+        ));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,10 +65,12 @@ class ClubChatRouteScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: PsSpacing.s2),
                   PsAvatar(
-                      initials: clubName.isEmpty ? '?' : clubName[0].toUpperCase()),
+                      initials: widget.clubName.isEmpty
+                          ? '?'
+                          : widget.clubName[0].toUpperCase()),
                   const SizedBox(width: PsSpacing.s3),
                   Expanded(
-                    child: Text(clubName,
+                    child: Text(widget.clubName,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -55,7 +82,7 @@ class ClubChatRouteScreen extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: ClubChatScreen(clubId: clubId, isStaff: false),
+              child: ClubChatScreen(clubId: widget.clubId, isStaff: false),
             ),
           ],
         ),

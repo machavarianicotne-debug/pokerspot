@@ -37,4 +37,12 @@ abstract interface class UsersRepository {
   /// Request permanent account deletion — writes deletion_requests/{uid}; a Cloud
   /// Function then cascades the user's data + Auth account. Sign out afterward.
   Future<void> requestAccountDeletion(String uid);
+
+  /// Stamp the moment [uid] last opened [clubId]'s broadcast feed. Drives the
+  /// Club Chat unread badge (any announcement newer than [at] is unread).
+  Future<void> markClubChatRead({
+    required String uid,
+    required String clubId,
+    required DateTime at,
+  });
 }

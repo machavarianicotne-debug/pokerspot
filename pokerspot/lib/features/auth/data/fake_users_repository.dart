@@ -104,4 +104,16 @@ class FakeUsersRepository implements UsersRepository {
   Future<void> requestAccountDeletion(String uid) async {
     deletionRequests.add(uid);
   }
+
+  @override
+  Future<void> markClubChatRead({
+    required String uid,
+    required String clubId,
+    required DateTime at,
+  }) async {
+    final u = _store[uid];
+    if (u == null) return;
+    final next = Map<String, DateTime>.from(u.lastSeenClubChats)..[clubId] = at;
+    _push(u.copyWith(lastSeenClubChats: next));
+  }
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/announcements/presentation/club_chat_route_screen.dart';
+import 'package:pokerspot/features/announcements/presentation/providers.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/chat/domain/message.dart';
 import 'package:pokerspot/features/chat/presentation/chat_thread_screen.dart';
@@ -136,21 +137,26 @@ class _ClubChatsList extends ConsumerWidget {
       padding: const EdgeInsets.fromLTRB(PsSpacing.s4, PsSpacing.s4, PsSpacing.s4, 96),
       children: [
         for (final c in clubs)
-          Padding(
-            padding: const EdgeInsets.only(bottom: PsSpacing.s3),
-            child: PsCard(
-              key: Key('clubChat_${c.id}'),
-              onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
-                builder: (_) => ClubChatRouteScreen(clubId: c.id, clubName: c.name),
-              )),
-              child: PsListTile(
-                leading: PsAvatar(
-                    initials: c.name.isEmpty ? '?' : c.name[0].toUpperCase()),
-                title: c.name,
-                subtitle: l10n.clubChatTitle,
+          () {
+            final unread = ref.watch(clubChatUnreadCountProvider(c.id));
+            return Padding(
+              padding: const EdgeInsets.only(bottom: PsSpacing.s3),
+              child: PsCard(
+                key: Key('clubChat_${c.id}'),
+                accentRail: unread > 0 ? PsColors.accentPrimary : null,
+                onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                  builder: (_) => ClubChatRouteScreen(clubId: c.id, clubName: c.name),
+                )),
+                child: PsListTile(
+                  leading: PsAvatar(
+                      initials: c.name.isEmpty ? '?' : c.name[0].toUpperCase()),
+                  title: c.name,
+                  subtitle: l10n.clubChatTitle,
+                  trailing: unread > 0 ? UnreadBadge(count: unread) : null,
+                ),
               ),
-            ),
-          ),
+            );
+          }(),
       ],
     );
   }

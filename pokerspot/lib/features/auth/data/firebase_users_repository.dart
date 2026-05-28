@@ -72,4 +72,15 @@ class FirebaseUsersRepository implements UsersRepository {
       .collection('deletion_requests')
       .doc(uid)
       .set({'requestedAt': FieldValue.serverTimestamp()});
+
+  @override
+  Future<void> markClubChatRead({
+    required String uid,
+    required String clubId,
+    required DateTime at,
+  }) =>
+      _doc(uid).set(
+        {'lastSeenClubChats': {clubId: at.millisecondsSinceEpoch}},
+        SetOptions(merge: true),
+      );
 }

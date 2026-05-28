@@ -5,6 +5,7 @@ import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/chat/domain/message.dart';
 import 'package:pokerspot/features/chat/presentation/chat_hub_screen.dart';
+import 'package:pokerspot/features/chat/presentation/inbox_screen.dart';
 import 'package:pokerspot/features/chat/presentation/providers.dart';
 import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
@@ -74,6 +75,9 @@ class PitBossHome extends ConsumerWidget {
         Consumer(builder: (context, ref, _) {
           final user = ref.watch(currentUserProvider).valueOrNull;
           final clubId = user?.clubId ?? '';
+          // No club assigned → fall back to the inbox's own "no club" message;
+          // the hub mounts ClubChatScreen which would otherwise hit Firebase.
+          if (clubId.isEmpty) return const InboxScreen();
           final club = ref.watch(clubProvider(clubId)).valueOrNull ??
               const Club(
                 id: '', name: '', city: '', address: '',

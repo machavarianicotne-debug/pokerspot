@@ -22,7 +22,7 @@ Widget _wrap(List<Override> overrides) => ProviderScope(
     );
 
 void main() {
-  testWidgets('player chat inbox lists a thread per club by club name', (tester) async {
+  testWidgets('inbox tab lists the player\'s 1-on-1 thread per club', (tester) async {
     final thread = ChatThread(
       clubId: 'vake', playerUid: 'me', playerName: 'Me',
       lastText: 'See you tonight', lastAt: DateTime(2026, 5, 25), unread: 0,
@@ -37,7 +37,7 @@ void main() {
     expect(find.text('See you tonight'), findsOneWidget); // last message
   });
 
-  testWidgets('player chat inbox shows an unread count badge', (tester) async {
+  testWidgets('inbox tab shows an unread count badge', (tester) async {
     final thread = ChatThread(
       clubId: 'vake', playerUid: 'me', playerName: 'Me',
       lastText: 'New offer', lastAt: DateTime(2026, 5, 25), unread: 3,
@@ -50,21 +50,26 @@ void main() {
     expect(find.text('3'), findsOneWidget); // unread badge
   });
 
-  testWidgets('player chat inbox shows the empty state with no threads or clubs', (tester) async {
+  testWidgets('inbox tab shows the empty state with no threads', (tester) async {
     await tester.pumpWidget(_wrap([
       myThreadsProvider.overrideWith((ref) => Stream.value(const <ChatThread>[])),
       clubsListProvider.overrideWith((ref) => Stream.value(const <Club>[])),
     ]));
     await tester.pumpAndSettle();
-    expect(find.text('No conversations yet'), findsOneWidget);
+    expect(find.text('No conversations yet'), findsWidgets);
   });
 
-  testWidgets('player chat inbox lists a Club Chat entry per club', (tester) async {
+  testWidgets('Club Chats tab lists one entry per club', (tester) async {
     await tester.pumpWidget(_wrap([
       myThreadsProvider.overrideWith((ref) => Stream.value(const <ChatThread>[])),
       clubsListProvider.overrideWith((ref) => Stream.value(const [_vake])),
     ]));
     await tester.pumpAndSettle();
+
+    // Switch to the Club Chats tab.
+    await tester.tap(find.byKey(const Key('chatHubTab_1')));
+    await tester.pumpAndSettle();
+
     expect(find.byKey(const Key('clubChat_vake')), findsOneWidget);
     expect(find.text('PokerSpot Vake'), findsOneWidget);
   });

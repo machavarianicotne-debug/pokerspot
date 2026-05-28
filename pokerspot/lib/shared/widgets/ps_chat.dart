@@ -85,6 +85,67 @@ class PsChatBubble extends StatelessWidget {
   }
 }
 
+/// Two-segment chat tab switcher used by both chat hubs (Pit Boss's
+/// Inbox/Club Chat and Player's Direct Messages/Club Chats).
+class PsChatHubTabs extends StatelessWidget {
+  const PsChatHubTabs({
+    super.key,
+    required this.labels,
+    required this.index,
+    required this.onTap,
+  });
+
+  final List<String> labels;
+  final int index;
+  final ValueChanged<int> onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+          PsSpacing.s4, PsSpacing.s3, PsSpacing.s4, PsSpacing.s2),
+      child: Row(
+        children: [
+          for (var i = 0; i < labels.length; i++)
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(
+                    right: i == labels.length - 1 ? 0 : PsSpacing.s2),
+                child: GestureDetector(
+                  key: Key('chatHubTab_$i'),
+                  behavior: HitTestBehavior.opaque,
+                  onTap: () => onTap(i),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: PsSpacing.s2),
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: i == index
+                          ? PsColors.accentPrimary
+                          : PsColors.glassRegular,
+                      borderRadius: BorderRadius.circular(PsRadii.full),
+                      border: Border.all(color: PsColors.glassBorder),
+                    ),
+                    child: Text(
+                      labels[i],
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                          fontSize: PsType.body,
+                          fontWeight: PsType.weightBlack,
+                          color: i == index
+                              ? PsColors.onAccent
+                              : PsColors.text),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
 /// WhatsApp-style day separator shown above the first bubble of each day in a
 /// chat feed. Renders the day as "Today" / "Yesterday" / "April 1" (current
 /// year) / "April 1, 2024" (older), localized via the current locale's month

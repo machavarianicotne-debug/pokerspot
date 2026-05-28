@@ -231,5 +231,10 @@
   "joinWaitlistBtn": "Join waitlist",
   "cancelRegistrationBtn": "Cancel registration",
   "leaveWaitlistBtn": "Leave waitlist",
-  "youAreRegisteredLabel": "You're registered"
+  "youAreRegisteredLabel": "You're registered",
+  "clubChatTitle": "Club Chat",
+  "clubChatEmpty": "No posts yet.",
+  "clubChatPostHint": "Post to your club…",
+  "editLabel": "Edit",
+  "deleteLabel": "Delete"
 }

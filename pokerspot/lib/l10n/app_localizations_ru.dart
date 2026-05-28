@@ -709,4 +709,19 @@ class AppL10nRu extends AppL10n {
 
   @override
   String get youAreRegisteredLabel => 'Вы зарегистрированы';
+
+  @override
+  String get clubChatTitle => 'Чат клуба';
+
+  @override
+  String get clubChatEmpty => 'Пока нет постов.';
+
+  @override
+  String get clubChatPostHint => 'Сообщение в чат клуба…';
+
+  @override
+  String get editLabel => 'Изменить';
+
+  @override
+  String get deleteLabel => 'Удалить';
 }

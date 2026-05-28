@@ -711,4 +711,19 @@ class AppL10nKa extends AppL10n {
 
   @override
   String get youAreRegisteredLabel => 'დარეგისტრირებული ხარ';
+
+  @override
+  String get clubChatTitle => 'კლუბის ჩატი';
+
+  @override
+  String get clubChatEmpty => 'ჯერ პოსტი არ არის.';
+
+  @override
+  String get clubChatPostHint => 'დაწერე კლუბის ჩატში…';
+
+  @override
+  String get editLabel => 'რედაქტირება';
+
+  @override
+  String get deleteLabel => 'წაშლა';
 }

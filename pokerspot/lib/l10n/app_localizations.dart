@@ -1484,6 +1484,36 @@ abstract class AppL10n {
   /// In en, this message translates to:
   /// **'You\'re registered'**
   String get youAreRegisteredLabel;
+
+  /// No description provided for @clubChatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Club Chat'**
+  String get clubChatTitle;
+
+  /// No description provided for @clubChatEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No posts yet.'**
+  String get clubChatEmpty;
+
+  /// No description provided for @clubChatPostHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Post to your club…'**
+  String get clubChatPostHint;
+
+  /// No description provided for @editLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get editLabel;
+
+  /// No description provided for @deleteLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get deleteLabel;
 }
 
 class _AppL10nDelegate extends LocalizationsDelegate<AppL10n> {

@@ -231,5 +231,10 @@
   "joinWaitlistBtn": "ვეით ლისტში ჩაწერა",
   "cancelRegistrationBtn": "რეგისტრაციის გაუქმება",
   "leaveWaitlistBtn": "ვეით ლისტიდან გასვლა",
-  "youAreRegisteredLabel": "დარეგისტრირებული ხარ"
+  "youAreRegisteredLabel": "დარეგისტრირებული ხარ",
+  "clubChatTitle": "კლუბის ჩატი",
+  "clubChatEmpty": "ჯერ პოსტი არ არის.",
+  "clubChatPostHint": "დაწერე კლუბის ჩატში…",
+  "editLabel": "რედაქტირება",
+  "deleteLabel": "წაშლა"
 }

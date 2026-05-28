@@ -709,4 +709,19 @@ class AppL10nEn extends AppL10n {
 
   @override
   String get youAreRegisteredLabel => 'You\'re registered';
+
+  @override
+  String get clubChatTitle => 'Club Chat';
+
+  @override
+  String get clubChatEmpty => 'No posts yet.';
+
+  @override
+  String get clubChatPostHint => 'Post to your club…';
+
+  @override
+  String get editLabel => 'Edit';
+
+  @override
+  String get deleteLabel => 'Delete';
 }

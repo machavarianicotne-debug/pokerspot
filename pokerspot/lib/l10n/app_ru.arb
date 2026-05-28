@@ -231,5 +231,10 @@
   "joinWaitlistBtn": "Встать в лист ожидания",
   "cancelRegistrationBtn": "Отменить регистрацию",
   "leaveWaitlistBtn": "Покинуть лист ожидания",
-  "youAreRegisteredLabel": "Вы зарегистрированы"
+  "youAreRegisteredLabel": "Вы зарегистрированы",
+  "clubChatTitle": "Чат клуба",
+  "clubChatEmpty": "Пока нет постов.",
+  "clubChatPostHint": "Сообщение в чат клуба…",
+  "editLabel": "Изменить",
+  "deleteLabel": "Удалить"
 }

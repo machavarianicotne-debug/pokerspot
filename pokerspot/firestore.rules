@@ -57,6 +57,14 @@ service cloud.firestore {
         allow read: if signedIn() && !isBlocked();
         allow write: if isAdmin() || (isPitboss() && myClub() == clubId);
       }
+
+      match /announcements/{id} {
+        // Any signed-in user may read a club's announcements (broadcast feed).
+        allow read: if signedIn() && !isBlocked();
+        // Only the club's Pit Boss (or Admin) may post / edit / delete.
+        allow create, update, delete: if isAdmin()
+          || (isPitboss() && myClub() == clubId);
+      }
     }
 
     // ---- Waitlist ----------------------------------------------------------

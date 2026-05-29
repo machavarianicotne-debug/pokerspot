@@ -23,7 +23,11 @@ environment:
   flutter: ">=3.44.0"
 
 dependencies:
-  cloud_firestore: ^6.4.1
+  # Pinned to 6.2.0 (last release WITHOUT Firestore Pipelines). 6.3.0+ ships
+  # FLTPipelineParser.m which references preview firebase-ios-sdk selectors not
+  # present in the SPM-resolved SDK, breaking the iOS archive. App doesn't use
+  # Pipelines, so this is safe. Revisit when a fixed cloud_firestore lands.
+  cloud_firestore: 6.2.0
   firebase_auth: ^6.5.1
   firebase_core: ^4.9.0
   firebase_messaging: ^16.2.2

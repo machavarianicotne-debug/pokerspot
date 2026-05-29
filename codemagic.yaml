@@ -1,0 +1,56 @@
+# Codemagic CI — builds the iOS app on a cloud Mac (no Mac needed) and ships it
+# to TestFlight. The Flutter app lives in the ./pokerspot subfolder, so every
+# script runs with working_directory: pokerspot.
+#
+# One-time setup in Codemagic (codemagic.io):
+#   1. Add application → connect github.com/machavarianicotne-debug/pokerspot.
+#   2. Team → Integrations → App Store Connect: add an App Store Connect API key
+#      (App Store Connect → Users and Access → Integrations → create key). Note
+#      the Key ID + Issuer ID, upload the .p8. Name the integration exactly
+#      APP_STORE_CONNECT_KEY (referenced below).
+#   3. Bundle id com.pokerspot.pokerspot is already registered in App Store
+#      Connect. Codemagic auto-manages signing certs/profiles from the key.
+#   4. Start build → workflow "ios-testflight" → pick branch master (or main).
+
+workflows:
+  ios-testflight:
+    name: iOS → TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: APP_STORE_CONNECT_KEY # ← the integration name you created
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.pokerspot.pokerspot
+      vars:
+        BUNDLE_ID: com.pokerspot.pokerspot
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Force CocoaPods (disable Swift Package Manager)
+        # Without this, Flutter may use SPM, which resolves a newer firebase-ios-sdk
+        # whose preview Firestore Pipeline selectors break cloud_firestore. CocoaPods
+        # + the Podfile pin firebase-ios-sdk to the exact tested 12.13.0.
+        script: flutter config --no-enable-swift-package-manager
+      - name: Flutter packages
+        working_directory: pokerspot
+        script: flutter pub get
+      - name: Install CocoaPods
+        working_directory: pokerspot/ios
+        script: pod install
+      - name: Set up signing
+        working_directory: pokerspot
+        script: xcode-project use-profiles
+      - name: Build IPA
+        working_directory: pokerspot
+        script: |
+          flutter build ipa --release \
+            --export-options-plist=/Users/builder/export_options.plist
+    artifacts:
+      - pokerspot/build/ios/ipa/*.ipa
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true

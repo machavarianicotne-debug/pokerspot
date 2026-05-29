@@ -32,6 +32,20 @@ class _PokerSpotAppState extends ConsumerState<PokerSpotApp> {
       final n = m.notification;
       if (n != null) _showInAppBanner(n.title ?? '', n.body ?? '');
     });
+    // Pre-register for APNs early (iOS) so Firebase phone-auth verification has a
+    // device token BEFORE the user taps "send code". Without an APNs token the
+    // SDK falls back to reCAPTCHA, which has no clientID here and hard-crashes
+    // (EXC_BREAKPOINT in PhoneAuthProvider.verifyPhoneNumber).
+    if (!kIsWeb) unawaited(_warmUpApns());
+  }
+
+  Future<void> _warmUpApns() async {
+    try {
+      await FirebaseMessaging.instance.requestPermission();
+      await FirebaseMessaging.instance.getAPNSToken();
+    } catch (_) {
+      // Best-effort: phone-auth still attempts its own APNs registration.
+    }
   }
 
   @override

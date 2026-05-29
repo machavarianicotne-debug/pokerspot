@@ -23,7 +23,11 @@ class FirebaseAuthRepository implements AuthRepository {
       final confirmation = await _auth.signInWithPhoneNumber(phone);
       return OtpSession(confirmation);
     } on FirebaseAuthException catch (e) {
-      throw AuthException(e.code);
+      throw AuthException('${e.code}: ${e.message ?? ''}');
+    } catch (e) {
+      // Surface non-FirebaseAuthException errors (e.g. iOS APNs/reCAPTCHA setup
+      // issues) instead of silently failing with no UI reaction.
+      throw AuthException(e.toString());
     }
   }
 
@@ -32,7 +36,9 @@ class FirebaseAuthRepository implements AuthRepository {
     try {
       await (session.handle as ConfirmationResult).confirm(smsCode);
     } on FirebaseAuthException catch (e) {
-      throw AuthException(e.code);
+      throw AuthException('${e.code}: ${e.message ?? ''}');
+    } catch (e) {
+      throw AuthException(e.toString());
     }
   }
 

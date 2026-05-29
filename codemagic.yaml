@@ -63,6 +63,7 @@ workflows:
         working_directory: pokerspot
         script: |
           flutter build ipa --release \
+            --build-number=$(date +%s) \
             --export-options-plist=/Users/builder/export_options.plist
     artifacts:
       - pokerspot/build/ios/ipa/*.ipa

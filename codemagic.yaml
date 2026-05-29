@@ -20,9 +20,6 @@ workflows:
     integrations:
       app_store_connect: APP_STORE_CONNECT_KEY # ← the integration name you created
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.pokerspot.pokerspot
       vars:
         BUNDLE_ID: com.pokerspot.pokerspot
       flutter: stable
@@ -40,9 +37,15 @@ workflows:
       - name: Install CocoaPods
         working_directory: pokerspot/ios
         script: pod install
-      - name: Set up signing
+      - name: Set up code signing (create profile + certificate if missing)
         working_directory: pokerspot
-        script: xcode-project use-profiles
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
+          xcode-project use-profiles
       - name: Build IPA
         working_directory: pokerspot
         script: |

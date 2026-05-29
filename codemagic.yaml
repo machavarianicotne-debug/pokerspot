@@ -39,10 +39,17 @@ workflows:
       - name: Install CocoaPods
         working_directory: pokerspot/ios
         script: pod install
-      - name: Set up code signing (create profile + certificate if missing)
+      - name: Set up code signing (create cert + profile)
         working_directory: pokerspot
         script: |
           keychain initialize
+          # Create a distribution certificate from our stable private key.
+          # fetch-signing-files only creates the PROFILE, not the certificate,
+          # and a profile can't exist without a cert -> create it first here.
+          app-store-connect create-certificate \
+            --type IOS_DISTRIBUTION \
+            --certificate-key @env:CERTIFICATE_PRIVATE_KEY \
+            --save || echo "Distribution certificate already exists, continuing"
           app-store-connect fetch-signing-files "$BUNDLE_ID" \
             --type IOS_APP_STORE \
             --certificate-key @env:CERTIFICATE_PRIVATE_KEY \

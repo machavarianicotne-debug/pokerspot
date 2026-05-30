@@ -65,8 +65,8 @@ class PitBossHome extends ConsumerWidget {
         ),
       ),
       items: [
-        PsTabItem(Icons.grid_view, l10n.tabFloor),
-        PsTabItem(Icons.chat_bubble_outline, l10n.tabInbox, badge: unread),
+        PsTabItem(Icons.dashboard, l10n.tabFloor),
+        PsTabItem(Icons.chat_bubble, l10n.tabInbox, badge: unread),
         PsTabItem(Icons.bar_chart, l10n.tabStats),
         PsTabItem(Icons.settings, l10n.tabSettings),
       ],

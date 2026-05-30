@@ -95,8 +95,8 @@ class PlayerHome extends ConsumerWidget {
       ),
       items: [
         PsTabItem(Icons.casino, l10n.tabClubs, glyph: '♠'),
-        PsTabItem(Icons.chat_bubble_outline, l10n.tabChat, badge: unread),
-        PsTabItem(Icons.show_chart, l10n.tabActivity),
+        PsTabItem(Icons.chat_bubble, l10n.tabChat, badge: unread),
+        PsTabItem(Icons.bar_chart, l10n.tabActivity),
         PsTabItem(Icons.person, l10n.tabProfile),
       ],
       tabs: const [ClubsListScreen(), PlayerChatInboxScreen(), ActivityScreen(), ProfileScreen()],

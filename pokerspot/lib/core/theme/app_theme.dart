@@ -8,6 +8,18 @@ abstract final class AppTheme {
     final base = ThemeData(brightness: Brightness.dark, useMaterial3: true);
     return base.copyWith(
       scaffoldBackgroundColor: PsColors.bg0,
+      // iOS-style horizontal slide on every platform: a pushed screen enters
+      // from the right, and on back the previous screen returns from the left.
+      // Without this, non-iOS (incl. web) uses the Material zoom/fade.
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.windows: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.linux: CupertinoPageTransitionsBuilder(),
+        },
+      ),
       colorScheme: ColorScheme.fromSeed(
         seedColor: PsColors.accentPrimary,
         brightness: Brightness.dark,

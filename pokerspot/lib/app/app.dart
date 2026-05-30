@@ -100,6 +100,10 @@ class _PokerSpotAppState extends ConsumerState<PokerSpotApp> {
       scaffoldMessengerKey: _messengerKey,
       onGenerateTitle: (context) => AppL10n.of(context).appTitle,
       debugShowCheckedModeBanner: false,
+      // The mockups (web) are the source of truth and use a fixed 1.0 text
+      // scale. iOS otherwise applies the device "Text Size" setting, blowing up
+      // fonts (and text-driven sizes like tab labels) past the design. Pin it.
+      builder: (context, child) => MediaQuery.withNoTextScaling(child: child!),
       theme: AppTheme.liquidSport(),
       routerConfig: ref.watch(routerProvider),
       // Drive the UI language from the signed-in user's saved `lang` (null falls

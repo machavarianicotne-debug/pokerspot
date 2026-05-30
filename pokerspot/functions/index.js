@@ -198,15 +198,28 @@ async function recomputeClub(clubId) {
 // ---- Push helpers + notifications -----------------------------------------
 async function sendToTokens(tokens, title, body, data) {
   const list = (Array.isArray(tokens) ? tokens : []).filter(Boolean);
-  if (list.length === 0) return;
-  await admin.messaging().sendEachForMulticast({
+  if (list.length === 0) {
+    console.log(`sendToTokens["${title}"]: NO TOKENS to send to`);
+    return;
+  }
+  const res = await admin.messaging().sendEachForMulticast({
     tokens: list,
     notification: { title, body },
     data: data || {},
     // Play the device's default notification sound on every platform.
     android: { notification: { sound: 'default' } },
     apns: { payload: { aps: { sound: 'default' } } },
+    webpush: { notification: { title, body } },
   });
+  // Log the outcome so delivery problems are visible (silent per-token failures
+  // otherwise look like "function ran fine but nothing arrived").
+  const errs = res.responses
+    .map((r, i) => (r.success ? null : `${list[i].slice(0, 12)}…=${r.error && r.error.code}`))
+    .filter(Boolean);
+  console.log(
+    `sendToTokens["${title}"]: ${res.successCount}/${list.length} delivered` +
+      (errs.length ? ` — failures: ${errs.join(', ')}` : ''),
+  );
 }
 
 async function pitBossTokens(clubId) {

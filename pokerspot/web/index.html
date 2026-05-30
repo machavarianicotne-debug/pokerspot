@@ -44,28 +44,12 @@
   <!--
     Plan 7: the service worker is ENABLED (offline caching + fast repeat loads).
     flutter_bootstrap.js registers flutter_service_worker.js. To avoid the
-    stale-build trap, we show an "update available" toast when a new worker has
-    installed, tell it to skipWaiting, and reload once it takes control.
-    (Hosting also serves entry files with Cache-Control: no-cache as a backstop.)
+    stale-build trap, a newly-installed worker is activated AUTOMATICALLY
+    (skipWaiting) and the page reloads once it takes control — so a plain
+    refresh always lands on the latest deploy, with no toast, no incognito and
+    no manual cache clearing. (Hosting also serves entry files with
+    Cache-Control: no-cache as a backstop.)
   -->
-  <style>
-    #ps-update-toast {
-      position: fixed; left: 16px; right: 16px; bottom: 16px; z-index: 99999;
-      max-width: 420px; margin: 0 auto; display: none; align-items: center; gap: 12px;
-      padding: 14px 16px; border-radius: 18px; font-family: -apple-system, "Inter", sans-serif;
-      color: #ECFBFF; background: rgba(8,30,32,0.92); border: 1px solid rgba(255,255,255,0.14);
-      box-shadow: 0 22px 40px -22px rgba(0,0,0,0.85);
-    }
-    #ps-update-toast span { flex: 1; font-size: 14px; font-weight: 600; }
-    #ps-update-toast button {
-      border: 0; cursor: pointer; padding: 9px 15px; border-radius: 999px;
-      font-weight: 800; font-size: 13px; color: #06241A; background: #C6FF3A;
-    }
-  </style>
-  <div id="ps-update-toast" role="alert">
-    <span>New version available</span>
-    <button id="ps-update-reload" type="button">Reload</button>
-  </div>
   <script>
     (function () {
       if (!('serviceWorker' in navigator)) return;
@@ -75,26 +59,20 @@
         reloading = true;
         window.location.reload();
       });
-      function showToast(waiting) {
-        var toast = document.getElementById('ps-update-toast');
-        var btn = document.getElementById('ps-update-reload');
-        if (!toast || !btn) return;
-        toast.style.display = 'flex';
-        btn.onclick = function () {
-          // Flutter's generated SW skips waiting on the literal 'skipWaiting' message.
-          if (waiting) waiting.postMessage('skipWaiting');
-          else window.location.reload();
-        };
+      // Flutter's generated SW skips waiting on the literal 'skipWaiting' message.
+      function activate(worker) {
+        if (worker) worker.postMessage('skipWaiting');
       }
-      // flutter_bootstrap.js registers the SW; hook the registration once active.
+      // flutter_bootstrap.js registers the SW; auto-activate any update so the
+      // controllerchange handler above reloads straight onto the new build.
       navigator.serviceWorker.ready.then(function (reg) {
-        if (reg.waiting && navigator.serviceWorker.controller) showToast(reg.waiting);
+        if (reg.waiting && navigator.serviceWorker.controller) activate(reg.waiting);
         reg.addEventListener('updatefound', function () {
           var nw = reg.installing;
           if (!nw) return;
           nw.addEventListener('statechange', function () {
             if (nw.state === 'installed' && navigator.serviceWorker.controller) {
-              showToast(reg.waiting || nw);
+              activate(reg.waiting || nw);
             }
           });
         });

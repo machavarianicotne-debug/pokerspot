@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
+import 'package:pokerspot/core/push/notifications_inbox.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
 import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
@@ -38,8 +39,17 @@ class ActivityScreen extends ConsumerWidget {
     final allSessions = ref.watch(myAllSessionsProvider).valueOrNull ?? const <Session>[];
     final clubs = ref.watch(clubsListProvider).valueOrNull ?? const <Club>[];
     final clubName = {for (final c in clubs) c.id: c.name};
+    // Unread in-app notifications (seat opened / reservation ending) — shown red
+    // at the top of Activity until the player taps them.
+    final notes = (ref.watch(myNotificationsProvider).valueOrNull ?? const <PsNotification>[])
+        .where((n) => !n.seen)
+        .toList();
 
-    if (entries.isEmpty && sessions.isEmpty && reservations.isEmpty && allSessions.isEmpty) {
+    if (notes.isEmpty &&
+        entries.isEmpty &&
+        sessions.isEmpty &&
+        reservations.isEmpty &&
+        allSessions.isEmpty) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(PsSpacing.s5),
@@ -55,6 +65,12 @@ class ActivityScreen extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(PsSpacing.s4, PsSpacing.s2, PsSpacing.s4, 96),
       children: [
+        // Unread notifications — red, newest first, tap to dismiss (mark seen).
+        for (final n in notes)
+          Padding(
+            padding: const EdgeInsets.only(bottom: PsSpacing.s3),
+            child: _NotificationCard(note: n),
+          ),
         // Held seats first (your seat is reserved/free — arrive before it expires).
         for (final s in sessions.where((s) => s.isHeld))
           Padding(
@@ -395,6 +411,57 @@ class _ReservationCard extends ConsumerWidget {
                     color: PsColors.statusLive),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// An unread in-app notification (seat opened / reservation ending): a red card
+/// naming the club it came from and the message. Tapping marks it seen, which
+/// removes it from the list — so it stays until the player actually sees it.
+class _NotificationCard extends ConsumerWidget {
+  const _NotificationCard({required this.note});
+  final PsNotification note;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return PsCard(
+      accentRail: PsColors.statusLive,
+      onTap: () => unawaited(ref.read(notificationsRepositoryProvider).markSeen(note.id)),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 2, right: PsSpacing.s3),
+            child: Icon(Icons.notifications_active, size: 18, color: PsColors.statusLive),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(note.title,
+                    style: const TextStyle(
+                        fontSize: PsType.body,
+                        fontWeight: PsType.weightBlack,
+                        color: PsColors.statusLive)),
+                if (note.clubName.isNotEmpty) ...[
+                  const SizedBox(height: 1),
+                  Text(note.clubName,
+                      style: TextStyle(
+                          fontSize: PsType.caption,
+                          fontWeight: PsType.weightBold,
+                          color: PsColors.textMuted)),
+                ],
+                const SizedBox(height: 4),
+                Text(note.body, style: const TextStyle(fontSize: PsType.subhead, color: PsColors.text)),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(left: PsSpacing.s2, top: 2),
+            child: Icon(Icons.close, size: 16, color: PsColors.textFaint),
           ),
         ],
       ),

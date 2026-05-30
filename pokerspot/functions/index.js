@@ -65,8 +65,10 @@ exports.expireReservations = functions.pubsub
     // "5 minutes left" push to the holder (once, flagged so it never repeats).
     for (const d of warn) {
       const r = d.data();
-      await sendToTokens(await playerTokens(r.playerUid), 'Reservation ending soon',
-        '5 minutes left on your reservation', { clubId: r.clubId || '', type: 'reservation' });
+      const clubName = await clubNameOf(r.clubId);
+      await notifyPlayer(r.playerUid, r.clubId, clubName, 'Reservation ending soon',
+        `5 minutes left before your ${clubName || 'club'} reservation is cancelled — hurry!`,
+        { clubId: r.clubId || '', type: 'reservation.warn' });
       await d.ref.update({ warned5: true });
     }
 
@@ -241,6 +243,31 @@ async function playerTokens(uid) {
   return s.exists && Array.isArray(s.data().fcmTokens) ? s.data().fcmTokens : [];
 }
 
+const tsMillis = (t) => (t && t.toMillis ? t.toMillis() : 0);
+
+async function clubNameOf(clubId) {
+  if (!clubId) return '';
+  const d = await db.collection('clubs').doc(clubId).get();
+  return d.exists ? d.data().name || '' : '';
+}
+
+// Notify ONE player: persist to their in-app inbox (the Activity tab shows it
+// red until seen, with the club name) AND push it (banner + sound + vibration).
+async function notifyPlayer(uid, clubId, clubName, title, body, data) {
+  if (!uid) return;
+  await db.collection('notifications').add({
+    uid,
+    clubId: clubId || '',
+    clubName: clubName || '',
+    title,
+    body,
+    type: (data && data.type) || '',
+    seen: false,
+    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+  });
+  await sendToTokens(await playerTokens(uid), title, body, data);
+}
+
 const stakeText = (x) => `${(x.variant || '').toString().toUpperCase()} ${x.smallBlind}/${x.bigBlind}`;
 
 // Pit Boss: a player joined the waitlist.
@@ -321,7 +348,9 @@ exports.notifyMessage = onDocumentCreated(
   },
 );
 
-// Players waiting for a stake: a seat opened when a session ended.
+// A seat just freed (a session ended). Notify the FRONT-most waiting player for
+// that table who hasn't been alerted yet — one alert per player. If two seats
+// free, this fires twice, so the 1st and 2nd in line each get told (and so on).
 exports.notifySeatOpen = onDocumentUpdated(
   { document: 'sessions/{id}', region: DB_REGION },
   async (event) => {
@@ -329,17 +358,22 @@ exports.notifySeatOpen = onDocumentUpdated(
     const after = event.data.after.data();
     if (before.status === 'ended' || after.status !== 'ended') return;
     const snap = await db.collection('waitlist').where('clubId', '==', after.clubId).get();
-    const tokens = [];
-    for (const d of snap.docs) {
-      const w = d.data();
-      // Notify players waiting for THIS table (legacy entries with no tableId
-      // fall back to a stake match so they still hear about an opening).
-      const sameTable = w.tableId != null ? w.tableId === after.tableId : stakeKey(w) === stakeKey(after);
-      if (w.status === 'waiting' && sameTable) {
-        tokens.push(...(await playerTokens(w.playerUid)));
-      }
-    }
-    await sendToTokens(tokens, 'A seat opened up', `${stakeText(after)} — head over`,
+    // Front-most still-waiting player for THIS table who hasn't been alerted yet.
+    // (legacy entries with no tableId fall back to a stake match.)
+    const next = snap.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .filter((w) => {
+        const sameTable =
+          w.tableId != null ? w.tableId === after.tableId : stakeKey(w) === stakeKey(after);
+        return w.status === 'waiting' && sameTable && w.seatOpenNotified !== true;
+      })
+      .sort((a, b) => tsMillis(a.createdAt) - tsMillis(b.createdAt))[0];
+    if (!next) return;
+    // Flag first so a retry / a second seat opening can't double-alert this one.
+    await db.collection('waitlist').doc(next.id).update({ seatOpenNotified: true });
+    const clubName = await clubNameOf(after.clubId);
+    await notifyPlayer(next.playerUid, after.clubId, clubName, 'Seat available',
+      `A seat opened at ${clubName || 'the club'} — ${stakeText(after)}. Head over!`,
       { clubId: after.clubId || '', type: 'seat.open' });
   },
 );

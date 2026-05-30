@@ -179,5 +179,15 @@ service cloud.firestore {
         || (isPitboss() && resource.data.clubId == myClub())
         || (signedIn() && resource.data.playerUid == request.auth.uid && !isBlocked());
     }
+
+    // ---- In-app notifications (player Activity-tab inbox) -------------------
+    // Written server-side only (the admin SDK bypasses rules). A player reads
+    // ONLY their own and may flip `seen` to mark-as-read — nothing else.
+    match /notifications/{id} {
+      allow read: if signedIn() && resource.data.uid == request.auth.uid;
+      allow update: if signedIn() && resource.data.uid == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['seen']);
+      allow create, delete: if false;
+    }
   }
 }

@@ -35,6 +35,13 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<!-- Firebase phone-auth reCAPTCHA callback. FlutterFire inits from
+				     firebase_options.dart (no iosClientId), so FirebaseAuth's
+				     options.clientID is nil and it computes the callback scheme from
+				     the googleAppID: app-<appID with ':' -> '-'>. That exact scheme
+				     MUST be registered or verifyPhoneNumber fatalErrors. The reversed
+				     client id below is kept for the case clientID is ever populated. -->
+				<string>app-1-398276701103-ios-ad8b6be26141e247d71d5a</string>
 				<string>com.googleusercontent.apps.398276701103-glgh6gk289vscoed55u77bc0m1h74lkq</string>
 			</array>
 		</dict>

@@ -290,7 +290,13 @@ class FirebaseReservationsRepository implements ReservationsRepository {
     return Reservation.fromMap(d.id, m);
   }
 
-  bool _held(Reservation r) => r.status == ReservationStatus.held;
+  // Active = still 'held' AND not past its hold deadline. Without the heldUntil
+  // check an expired reservation lingers in the Pit Boss list until the 5-min
+  // expireReservations function runs — long after expireHolds already freed the
+  // seat. Filtering on heldUntil drops it the moment it lapses, in sync.
+  bool _held(Reservation r) =>
+      r.status == ReservationStatus.held &&
+      (r.heldUntil == null || r.heldUntil!.isAfter(DateTime.now()));
 
   @override
   Stream<List<Reservation>> watchByPlayer(String playerUid) => _col

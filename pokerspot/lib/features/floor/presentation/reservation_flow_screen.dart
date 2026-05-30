@@ -8,6 +8,7 @@ import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/clubs/domain/club.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
 import 'package:pokerspot/features/floor/domain/poker_table.dart';
+import 'package:pokerspot/features/floor/domain/reservation.dart';
 import 'package:pokerspot/features/floor/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
 import 'package:pokerspot/shared/widgets/ps_countdown.dart';
@@ -53,6 +54,12 @@ class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
     if (mounted) setState(() => _held = true);
   }
 
+  Future<void> _cancel(String reservationId) async {
+    setState(() => _busy = true);
+    await ref.read(reservationsRepositoryProvider).cancel(reservationId);
+    if (mounted) setState(() => _busy = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppL10n.of(context);
@@ -67,8 +74,22 @@ class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
         if ((gamesByTableId[t.id]?.openSeats ?? 0) > 0 || (gamesByTableId[t.id]?.waiting ?? 0) == 0) t,
     ];
     final reservableIds = reservable.map((t) => t.id).toSet();
-    if (_selected != null && !reservableIds.contains(_selected!.id)) _selected = null;
-    _selected ??= reservable.isNotEmpty ? reservable.first : null;
+    // Tables the player has already reserved here — surfaced so they can CANCEL
+    // (not re-reserve) even when their own hold has made the table full.
+    final myResByTable = {
+      for (final r in (ref.watch(myReservationsProvider).valueOrNull ?? const <Reservation>[])
+          .where((r) => r.clubId == widget.clubId && r.tableId != null))
+        r.tableId!: r,
+    };
+    final displayTables = <PokerTable>[
+      ...reservable,
+      for (final t in tables)
+        if (myResByTable.containsKey(t.id) && !reservableIds.contains(t.id)) t,
+    ];
+    final selectableIds = displayTables.map((t) => t.id).toSet();
+    if (_selected != null && !selectableIds.contains(_selected!.id)) _selected = null;
+    _selected ??= displayTables.isNotEmpty ? displayTables.first : null;
+    final existingRes = _selected == null ? null : myResByTable[_selected!.id];
 
     if (_held) return _success(context, l10n);
 
@@ -104,7 +125,7 @@ class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
                   const SizedBox(height: PsSpacing.s5),
                   PsOverline(l10n.chooseStake),
                   const SizedBox(height: PsSpacing.s3),
-                  if (reservable.isEmpty)
+                  if (displayTables.isEmpty)
                     Text(l10n.noOpenSeats,
                         style: TextStyle(fontSize: PsType.subhead, height: 1.4, color: PsColors.textMuted))
                   else
@@ -112,11 +133,13 @@ class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
                       spacing: PsSpacing.s2,
                       runSpacing: PsSpacing.s2,
                       children: [
-                        for (final t in reservable)
+                        for (final t in displayTables)
                           PsFilterPill(
-                            label: (gamesByTableId[t.id]?.openSeats ?? 0) > 0
-                                ? '${l10n.tableLabel} ${t.number} · ${t.stakes.label} · ${gamesByTableId[t.id]!.openSeats} ${l10n.openShort}'
-                                : '${l10n.tableLabel} ${t.number} · ${t.stakes.label}',
+                            label: myResByTable.containsKey(t.id)
+                                ? '${l10n.tableLabel} ${t.number} · ${l10n.reservedBadge}'
+                                : (gamesByTableId[t.id]?.openSeats ?? 0) > 0
+                                    ? '${l10n.tableLabel} ${t.number} · ${t.stakes.label} · ${gamesByTableId[t.id]!.openSeats} ${l10n.openShort}'
+                                    : '${l10n.tableLabel} ${t.number} · ${t.stakes.label}',
                             active: _selected?.id == t.id,
                             onTap: () => setState(() => _selected = t),
                           ),
@@ -129,9 +152,16 @@ class _ReservationFlowScreenState extends ConsumerState<ReservationFlowScreen> {
                     width: double.infinity,
                     child: PsButton(
                       key: const Key('reserveNowBtn'),
-                      label: l10n.reserveNow,
-                      icon: Icons.event_available,
-                      onPressed: (_selected == null || _busy) ? null : () => unawaited(_reserve(_selected!)),
+                      // Already reserved this table → only let them cancel it,
+                      // never stack a second hold, until the current one lapses.
+                      label: existingRes != null ? l10n.cancelWaitlist : l10n.reserveNow,
+                      icon: existingRes != null ? Icons.event_busy : Icons.event_available,
+                      variant: existingRes != null ? PsButtonVariant.secondary : PsButtonVariant.primary,
+                      onPressed: (_selected == null || _busy)
+                          ? null
+                          : existingRes != null
+                              ? () => unawaited(_cancel(existingRes.id))
+                              : () => unawaited(_reserve(_selected!)),
                     ),
                   ),
                 ],

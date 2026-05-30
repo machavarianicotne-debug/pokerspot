@@ -20,6 +20,13 @@ import 'package:pokerspot/shared/widgets/ps_toggle.dart';
 /// waitlist) for running games, or an empty/closed line otherwise. The live
 /// numbers come from denormalized aggregates on the club doc (syncClubStats) —
 /// players can't read other clubs' sessions/waitlist directly.
+/// "BATUMI" -> "Batumi": city names render title-cased regardless of how they
+/// were stored, while the "All City" filter keeps its exact localized casing.
+String _titleCase(String s) => s
+    .split(' ')
+    .map((w) => w.isEmpty ? w : '${w[0].toUpperCase()}${w.substring(1).toLowerCase()}')
+    .join(' ');
+
 class ClubsListScreen extends ConsumerStatefulWidget {
   const ClubsListScreen({super.key});
 
@@ -85,7 +92,7 @@ class _ClubsListScreenState extends ConsumerState<ClubsListScreen> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: PsFilterPill(
-                label: (_city ?? l10n.allCitiesFilter).toUpperCase(),
+                label: _city == null ? l10n.allCitiesFilter : _titleCase(_city!),
                 active: true,
                 onTap: () => _pickCity(l10n, all),
               ),
@@ -116,7 +123,7 @@ class _ClubsListScreenState extends ConsumerState<ClubsListScreen> {
           PsSettingsGroup(children: [
             for (final entry in <(String?, String)>[(null, l10n.allCitiesFilter), for (final c in cities) (c, c)])
               PsSettingsRow(
-                label: entry.$2.toUpperCase(),
+                label: entry.$1 == null ? entry.$2 : _titleCase(entry.$2),
                 trailing: _city == entry.$1
                     ? const Icon(Icons.check, size: 18, color: PsColors.accentPrimary)
                     : null,

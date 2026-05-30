@@ -41,8 +41,11 @@ exports.expireWaitlist = functions.pubsub
   });
 
 // (a2) Scheduled cleanup — expire held reservations past their 30-min hold (1st-gen).
+// Runs every minute (in lockstep with expireHolds) so the reservation doc lapses
+// at the same time the held seat is freed — the player drops off the Pit Boss
+// reservations list and the table together, not up to 5 minutes apart.
 exports.expireReservations = functions.pubsub
-  .schedule('every 5 minutes')
+  .schedule('every 1 minutes')
   .onRun(async () => {
     const now = Date.now();
     const snap = await db.collection('reservations').where('status', '==', 'held').get();

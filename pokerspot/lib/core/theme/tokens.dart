@@ -74,8 +74,11 @@ abstract final class PsType {
   static const double display1 = 42, display2 = 30, title = 22, headline = 18,
       body = 15, subhead = 13, caption = 12, micro = 10;
 
-  static const FontWeight weightRegular = FontWeight.w400;
-  static const FontWeight weightMedium = FontWeight.w600;
+  // Letters nudged one step heavier across the board (per request: thicker, not
+  // larger). Regular/medium carry most body text so they gain the most weight;
+  // bold/black are already near the ceiling.
+  static const FontWeight weightRegular = FontWeight.w500;
+  static const FontWeight weightMedium = FontWeight.w700;
   static const FontWeight weightBold = FontWeight.w800;
   static const FontWeight weightBlack = FontWeight.w900;
 

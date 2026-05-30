@@ -425,17 +425,22 @@ class _GamesSection extends ConsumerWidget {
           padding: const EdgeInsets.only(left: 4, bottom: PsSpacing.s3),
           child: PsOverline('${l10n.liveGamesTitle} · ${openTables.length}'),
         ),
+        // The room banners render 10% smaller than the rest of the app (per
+        // request) via a local text scale — only here on the player's club view.
         for (final t in openTables)
-          _GameCard(
-            clubId: club.id,
-            tableId: t.id,
-            stakes: t.stakes,
-            game: gamesByTableId[t.id],
-            seatCount: t.seatCount,
-            tableMinBuyIn: t.minBuyIn,
-            tableAvgStack: t.avgStack,
-            myEntry: mine[t.id],
-            seated: mySeated.contains(t.id),
+          MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(0.9)),
+            child: _GameCard(
+              clubId: club.id,
+              tableId: t.id,
+              stakes: t.stakes,
+              game: gamesByTableId[t.id],
+              seatCount: t.seatCount,
+              tableMinBuyIn: t.minBuyIn,
+              tableAvgStack: t.avgStack,
+              myEntry: mine[t.id],
+              seated: mySeated.contains(t.id),
+            ),
           ),
       ],
     );

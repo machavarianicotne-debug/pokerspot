@@ -100,13 +100,10 @@ class _PokerSpotAppState extends ConsumerState<PokerSpotApp> {
       scaffoldMessengerKey: _messengerKey,
       onGenerateTitle: (context) => AppL10n.of(context).appTitle,
       debugShowCheckedModeBanner: false,
-      // Pin a FIXED text scale (ignore the iOS "Text Size" setting) so sizing is
-      // consistent everywhere. 1.1 = the design size nudged up 10% per request
-      // (was 1.0 / noScaling, which read a touch small on device).
-      builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(1.1)),
-        child: child!,
-      ),
+      // Pin the text SIZE to the design (ignore the iOS "Text Size" setting) so
+      // it matches web. Letters are made heavier via the font weights in
+      // tokens.dart instead of enlarging them.
+      builder: (context, child) => MediaQuery.withNoTextScaling(child: child!),
       theme: AppTheme.liquidSport(),
       routerConfig: ref.watch(routerProvider),
       // Drive the UI language from the signed-in user's saved `lang` (null falls

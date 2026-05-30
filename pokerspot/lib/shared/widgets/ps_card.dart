@@ -36,7 +36,7 @@ class _PsCardState extends State<PsCard> {
 
     final surface = ClipRRect(
       borderRadius: radius,
-      child: BackdropFilter(
+      child: BackdropFilter.grouped(
         filter: PsGlass.backdrop(PsGlass.blurRegular),
         child: DecoratedBox(
           decoration: BoxDecoration(

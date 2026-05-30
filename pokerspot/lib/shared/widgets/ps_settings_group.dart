@@ -33,7 +33,7 @@ class PsSettingsGroup extends StatelessWidget {
     }
     return ClipRRect(
       borderRadius: BorderRadius.circular(PsRadii.lg),
-      child: BackdropFilter(
+      child: BackdropFilter.grouped(
         filter: PsGlass.backdrop(PsGlass.blurRegular),
         child: DecoratedBox(
           decoration: BoxDecoration(

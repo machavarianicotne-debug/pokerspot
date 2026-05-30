@@ -53,7 +53,11 @@ class PsScaffold extends StatelessWidget {
                   ),
                 ),
               ),
-              body,
+              // Every grouped glass surface in the body (PsCard, PsSettingsGroup)
+              // shares ONE backdrop blur of this static background instead of each
+              // doing its own expensive backdrop readback per frame — smooth
+              // scrolling, visually identical to per-card blur.
+              BackdropGroup(child: body),
             ],
           ),
         ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -425,11 +426,12 @@ class _GamesSection extends ConsumerWidget {
           padding: const EdgeInsets.only(left: 4, bottom: PsSpacing.s3),
           child: PsOverline('${l10n.liveGamesTitle} · ${openTables.length}'),
         ),
-        // The room banners render 10% smaller than the rest of the app (per
-        // request) via a local text scale — only here on the player's club view.
+        // The room banners render 10% smaller than the rest, ON THE APP ONLY
+        // (per request) — web keeps full size. Scoped to the player's club view.
         for (final t in openTables)
           MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaler: const TextScaler.linear(0.9)),
+            data: MediaQuery.of(context)
+                .copyWith(textScaler: const TextScaler.linear(kIsWeb ? 1.0 : 0.9)),
             child: _GameCard(
               clubId: club.id,
               tableId: t.id,

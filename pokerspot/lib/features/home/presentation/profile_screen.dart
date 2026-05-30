@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
+import 'package:pokerspot/core/push/notifications_row.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/ps_avatar.dart';
 import 'package:pokerspot/shared/widgets/ps_button.dart';
@@ -120,6 +121,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         const SizedBox(height: PsSpacing.s5),
         PsSettingsGroup.header(l10n.notificationsHeader),
         PsSettingsGroup(children: [
+          PsNotificationsRow(uid: user.uid),
           PsSettingsRow(
             label: l10n.notifSeatCalled,
             trailing: PsToggle(value: _seatCalled, onChanged: (v) => setState(() => _seatCalled = v)),

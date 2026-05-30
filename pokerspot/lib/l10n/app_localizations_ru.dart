@@ -477,6 +477,9 @@ class AppL10nRu extends AppL10n {
   String get allCitiesFilter => 'Все города';
 
   @override
+  String get allowNotifications => 'Разрешить уведомления';
+
+  @override
   String get liveCountLabel => 'LIVE';
 
   @override

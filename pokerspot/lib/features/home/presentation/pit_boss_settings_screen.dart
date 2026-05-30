@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pokerspot/l10n/app_localizations.dart';
 import 'package:pokerspot/core/theme/tokens.dart';
+import 'package:pokerspot/core/push/notifications_row.dart';
 import 'package:pokerspot/features/auth/presentation/providers.dart';
 import 'package:pokerspot/features/clubs/presentation/providers.dart';
 import 'package:pokerspot/shared/widgets/ps_avatar.dart';
@@ -78,6 +79,7 @@ class _PitBossSettingsScreenState extends ConsumerState<PitBossSettingsScreen> {
         // ---- the five notification toggles -----------------------------------
         PsSettingsGroup.header(l10n.notificationsHeader),
         PsSettingsGroup(children: [
+          if (user != null) PsNotificationsRow(uid: user.uid),
           PsSettingsRow(
             label: l10n.notifNewWaitlist,
             trailing: PsToggle(value: _notifWaitlist, onChanged: (v) => setState(() => _notifWaitlist = v)),

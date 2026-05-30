@@ -474,7 +474,10 @@ class AppL10nEn extends AppL10n {
   String get floorOpenEmpty => 'Floor open — no games running yet tonight.';
 
   @override
-  String get allCitiesFilter => 'All Cities';
+  String get allCitiesFilter => 'All City';
+
+  @override
+  String get allowNotifications => 'Allow notifications';
 
   @override
   String get liveCountLabel => 'LIVE';

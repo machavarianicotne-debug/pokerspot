@@ -1023,6 +1023,12 @@ abstract class AppL10n {
   /// **'All Cities'**
   String get allCitiesFilter;
 
+  /// No description provided for @allowNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications'**
+  String get allowNotifications;
+
   /// No description provided for @liveCountLabel.
   ///
   /// In en, this message translates to:

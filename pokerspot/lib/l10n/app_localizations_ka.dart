@@ -477,6 +477,9 @@ class AppL10nKa extends AppL10n {
   String get allCitiesFilter => 'ყველა ქალაქი';
 
   @override
+  String get allowNotifications => 'შეტყობინებების ნებართვა';
+
+  @override
   String get liveCountLabel => 'ცოცხალი';
 
   @override

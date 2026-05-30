@@ -16,6 +16,18 @@ Future<void> registerPush(String uid, UsersRepository users) async {
     final messaging = FirebaseMessaging.instance;
     final settings = await messaging.requestPermission();
     if (settings.authorizationStatus == AuthorizationStatus.denied) return;
+    // iOS: getToken() throws "apns-token-not-set" if the APNs token hasn't
+    // arrived yet (it's delivered async after registerForRemoteNotifications).
+    // Without this wait the call throws, is swallowed below, and the device
+    // never registers — so no push ever lands. Poll up to ~10s for the token.
+    if (!kIsWeb) {
+      var apns = await messaging.getAPNSToken();
+      for (var i = 0; apns == null && i < 10; i++) {
+        await Future<void>.delayed(const Duration(seconds: 1));
+        apns = await messaging.getAPNSToken();
+      }
+      if (apns == null) return; // no APNs (e.g. simulator) — can't get a token
+    }
     final token =
         kIsWeb ? await messaging.getToken(vapidKey: _vapidKey) : await messaging.getToken();
     if (token == null || token.isEmpty) return;
